@@ -55,6 +55,7 @@ export const MainComponent = () => {
 
     // example
     console.log( 'isAppInited:' + appInited );
+    //
 
     //
 
