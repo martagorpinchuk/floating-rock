@@ -36,6 +36,22 @@ const Item = styled.div`
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 `;
 
+const ItemHeader = styled.div`
+    position: static;
+    text-align: center;
+    padding-bottom: 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    opacity: 0.89;
+    font-size: 27px;
+`;
+
+const ItemContent = styled.div`
+    position: static;
+    text-align: center;
+    opacity: 0.79;
+`;
+
 export const ItemsComponent = () => {
 
     return (
@@ -43,21 +59,40 @@ export const ItemsComponent = () => {
         <Items>
             <Item>
 
-                <header><h1>Combustion effect</h1></header>
-                <img src='../../../resources/img/3.png' className='img1' />
-                <p>Here is combustion effect made with shader</p>
-                <p>Made with perlin noise function</p>
+                <ItemHeader>Combustion effect</ItemHeader>
+                <img src='../../../resources/img/3.png' className='img' />
+                <ItemContent>Here is combustion effect made with shader.</ItemContent>
+                <ItemContent>Made with perlin noise function.</ItemContent>
 
             </Item>
 
             <Item>
 
-                <header><h1>Fog effect</h1></header>
-                <img src='../../../resources/img/2.png' className='img2' />
-                <p>Here you can look at fog effect made with shader</p>
-                <p>Made with sprites</p>
+                <ItemHeader>Fog effect</ItemHeader>
+                <img src='../../../resources/img/2.png' className='img' />
+                <ItemContent>Here you can look at fog effect made with shader.</ItemContent>
+                <ItemContent>Made with sprites.</ItemContent>
 
             </Item>
+
+            <Item>
+
+                <ItemHeader>Face effect</ItemHeader>
+                <img src='../../../resources/img/1.png' className='img' />
+                <ItemContent>Here is face model made with shader.</ItemContent>
+                <ItemContent>Made with depth from model face.</ItemContent>
+
+            </Item>
+
+            <Item>
+
+                <ItemHeader>Water effect</ItemHeader>
+                <img src='../../../resources/img/4.png' className='img' />
+                <ItemContent>Here you can look at Water effect made with shader.</ItemContent>
+                <ItemContent>Made with depth.</ItemContent>
+
+            </Item>
+
         </Items>
     );
 
