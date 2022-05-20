@@ -6,24 +6,19 @@ import styled from 'styled-components';
 //
 
 const Items = styled.div`
-    // position: absolute;
-    // bottom: 30%;
     padding-top: 80%;
-    // left: 45%;
-    // width: 100%;
-    // height: 310px;
     opacity: 0.85;
     z-index: 1000;
     color: white;
+    width: 100%;
     display: grid;
     justify-content: center;
     grid-template-columns: auto auto;
     grid-gap: 7%;
-    // justify-content: space-between;
 `;
 
 const Item = styled.div`
-    border-radius: 16px;
+    // border-radius: 16px;
     padding-top: 43px;
     padding-bottom: 40px;
     background-color: #000;
@@ -31,8 +26,6 @@ const Item = styled.div`
     width: 480px;
     display: grid;
     justify-content: center;
-    // grid-column: 100px 100px;
-    // align-content: space-around;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 `;
 

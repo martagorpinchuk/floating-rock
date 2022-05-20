@@ -48,7 +48,7 @@ class FloatingRock {
         this.camera.position.set(1, 2, 1);
         this.scene.add(this.camera);
         // Light
-        const light = new three_1.PointLight(0xffcff0, 1.6, 10);
+        const light = new three_1.PointLight(0xfcf4eb, 1.3, 10);
         light.position.set(0.2, 1.3, 1);
         this.scene.add(light);
         // Controls
@@ -62,6 +62,8 @@ class FloatingRock {
         // Resize
         window.addEventListener('resize', this.resize());
         this.clock = new three_1.Clock();
+        const axesHelper = new three_1.AxesHelper(5);
+        this.scene.add(axesHelper);
         // this.loadRock1();
         // this.loadRock2();
         // this.loadRock3();
@@ -107,7 +109,7 @@ class FloatingRock {
         () => {
             window.setTimeout(() => {
                 // gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
-                loadingBarElement.classList.add('ended');
+                // loadingBarElement.classList.add( 'ended' );
                 // loadingBarElement.style.transform = '';
             }, 500);
             window.setTimeout(() => {
@@ -134,8 +136,10 @@ class FloatingRock {
             this.rock2 = gltf.scene.children[0];
             this.rock2.scale.set(0.1, 0.1, 0.1);
             // this.rock2.rotation.z += Math.PI;
-            this.rock2.rotation.z += Math.PI / 1.2;
-            this.rock2.rotation.x -= Math.PI / 7;
+            // this.rock2.rotation.z += Math.PI / 1.2;
+            // this.rock2.rotation.x -= Math.PI / 7;
+            this.rock2.rotation.z -= Math.PI / 1.01;
+            this.rock2.rotation.x -= Math.PI / 9.5;
             this.rock2.position.set(-1.5, 0, 0);
             this.scene.add(this.rock2);
         });
@@ -177,6 +181,30 @@ class FloatingRock {
             this.cloud2.rotation.y = Math.PI / 2;
             this.cloud2.position.set(-1, -0.1, -0.3);
             this.scene.add(this.cloud2);
+        });
+        //
+        this.loader.load('resources/models/stoneOnTheGround.gltf', (gltf) => {
+            let stoneOnTheGround = gltf.scene.children[0];
+            stoneOnTheGround.scale.set(0.1, 0.1, 0.1);
+            // this.cloud1.rotation.z += Math.PI / 3;
+            // this.cloud1.rotation.x -= Math.PI / 2;
+            stoneOnTheGround.rotation.y = Math.PI / 3.3;
+            stoneOnTheGround.position.set(0.2, 0.01, -0.3);
+            this.scene.add(stoneOnTheGround);
+        });
+        //
+        let tree;
+        this.loader.load('resources/models/tree.gltf', (gltf) => {
+            tree = gltf.scene.children[0];
+            tree.scale.set(0.002, 0.007, 0.002);
+            // tree.rotation.z += Math.PI / 10;
+            // tree.rotation.x -= Math.PI / 5;
+            // tree.rotation.y = Math.PI / 7;
+            tree.rotation.z += Math.PI / 3;
+            tree.rotation.x -= Math.PI / 2;
+            tree.rotation.y = Math.PI / 3.3;
+            tree.position.set(0.2, 0.2, 0.2);
+            this.scene.add(tree);
         });
     }
     ;
@@ -329,8 +357,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CombustionComponent = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-const CombustionComponent = () => {
-    return (react_1.default.createElement("h1", null, "Combustion"));
+const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
+//
+const CombistionConteiner = styled_components_1.default.div `
+    color: black;
+
+    display: ${(props) => (props.visible ? 'block' : 'none')};
+`;
+const CombustionComponent = ({ visible }) => {
+    return (react_1.default.createElement(CombistionConteiner, { visible: visible }, "Combustion"));
 };
 exports.CombustionComponent = CombustionComponent;
 
@@ -350,8 +385,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FogComponent = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-const FogComponent = () => {
-    return (react_1.default.createElement("h1", null, "Fog"));
+const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
+//
+const FogConteiner = styled_components_1.default.div `
+    color: green;
+    position: static;
+    // text-align: center;
+    // margin-top: 20px;
+
+    display: ${(props) => (props.visible ? 'block' : 'none')};
+`;
+const FogComponent = ({ visible }) => {
+    return (react_1.default.createElement(FogConteiner, { visible: visible }, "Fog"));
 };
 exports.FogComponent = FogComponent;
 
@@ -373,62 +418,82 @@ exports.FooterComponent = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
 //
-const FooterConteiner = styled_components_1.default.div `
-    // display: grid;
-    // justify-content: center;
-    // grid-template-columns: auto auto auto;
-    padding-top: 13px;
-    height: 2%;
-    margin-top: 100px;
-    opacity: 0.4;
-    background-color: #111;
-    color: white;
-    // justify-content: center;
-`;
 const Logo = styled_components_1.default.a `
     line-height: 50px;
     height: 100%;
     padding-left: 30px;
-    padding-top: 2px;
-    font-size: 25px;
+    font-size: 22px;
     display: inline-block;
     position: relative;
     z-index: 1;
     text-decoration: none;
     text-transform: uppercase;
-    // text-align: left;
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
+`;
+const FooterBasic = styled_components_1.default.div `
+    padding: 20px 0;
+    margin-top: 15px;
+    background-color: #111;
+    color: #4b4c4d;
+    opacity: 0.8;
+`;
+const FooterItem = styled_components_1.default.li `
+    padding:0;
+    list-style:none;
+    text-align:center;
+    font-size:18px;
+    line-height:1.6;
+    margin-bottom:0;
+    text-decoration: none;
     color: white;
     cursor: pointer;
 `;
-const Contact = styled_components_1.default.div `
-    text-decoration: none;
-    text-transform: uppercase;
-    text-decoration: none;
-    display: grid;
-    justify-content: center;
-    // padding-top: 20px;
-    grid-gap: 7px;
-    background-color: #111;
-    opacity: 0.6;
-    height: 150px;
+const Copyright = styled_components_1.default.p `
+    margin-top: 15px;
+    text-align: center;
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 0;
 `;
-const Rights = styled_components_1.default.div `
-    padding-top: 15px;
-    padding-bottom: 15px;
-    // text-align: center;
+const FooterUL = styled_components_1.default.ul `
     display: grid;
     justify-content: center;
-    color: black;
+    align-content: center;
+    gap: 30px;
+    grid-auto-flow: column;
+    padding-top: 20px;
+`;
+const AFooter = styled_components_1.default.a `
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.6;
+    font-family: Menlo, monospace;
+`;
+const Contact = styled_components_1.default.div `
+    display: grid;
+    justify-content: center;
+    margin-top: 25px;
+    font-family: Menlo, monospace;
+    font-size: 20px;
+    opacity: 1;
+    color: #aaa;
 `;
 const FooterComponent = () => {
-    return (react_1.default.createElement(FooterConteiner, null,
+    return (react_1.default.createElement(FooterBasic, null,
         react_1.default.createElement(Logo, { href: '' }, "Flat earth"),
-        react_1.default.createElement(Contact, null,
-            react_1.default.createElement("h1", null, "Contact"),
-            react_1.default.createElement("a", { href: "" }, "Email"),
-            react_1.default.createElement("a", { href: "" }, "Facebook"),
-            react_1.default.createElement("a", { href: "" }, "Phone number")),
-        react_1.default.createElement(Rights, null, "\u00A9 2022. All rights reserved.")));
+        react_1.default.createElement(Contact, null, "Contacts:"),
+        react_1.default.createElement(FooterUL, null,
+            react_1.default.createElement(FooterItem, null,
+                react_1.default.createElement(AFooter, { href: "#" }, "Email")),
+            react_1.default.createElement(FooterItem, null,
+                react_1.default.createElement(AFooter, { href: "#" }, "Facebook")),
+            react_1.default.createElement(FooterItem, null,
+                react_1.default.createElement(AFooter, { href: "#" }, "Twitter")),
+            react_1.default.createElement(FooterItem, null,
+                react_1.default.createElement(AFooter, { href: "#" }, "Telegram"))),
+        react_1.default.createElement(Copyright, null, "\u00A9 2022. All rights reserved.")));
 };
 exports.FooterComponent = FooterComponent;
 
@@ -480,44 +545,52 @@ const Form = styled_components_1.default.div `
     padding-top: 60px;
     padding-bottom: 11px;
     margin-top: 20%;
-    // margin-bottom: 30px;
     width: 650px;
-    height: 450px;
+    height: 510px;
     opacity: 0.75;
     background-color: #000;
     z-index: 105;
-    border-radius: 16px;
-    // display: grid;
-    // justify-content: center;
     color: white;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    // box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
 `;
 const Label = styled_components_1.default.label `
-    width: 750px;
+    width: 650px;
     // padding-top: 20px;
     // padding-bottom: 20px;
 `;
 const Input = styled_components_1.default.input `
-    width: 350px;
-    height: 5px;
-    padding-top: 14px;
-    padding-bottom: 14px;
-    padding-left: 5px;
-    margin-top: 10px;
-    // margin-bottom: 10px;
-    border-radius: 5px;
+    // width: 250px;
+    // height: 5px;
+    // padding-top: 14px;
+    // padding-bottom: 14px;
+    // padding-left: 5px;
+    // margin-top: 10px;
+    // border-radius: 4px;
+    font-family: montserrat, arial, verdana;
+
+    padding: 15px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	margin-bottom: 5px;
+    margin-top: 5px;
+	width: 100%;
+	box-sizing: border-box;
+	// font-family: montserrat;
+	color: #2C3E50;
+	font-size: 15px;
+    box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
     `;
 const FormConteinerInner = styled_components_1.default.div `
     width: 360px;
     // height: 240px;
     background-color: #575755;
-    margin-top: 17px;
+    margin-top: 27px;
     margin-left: auto;
     margin-right: auto;
     // margin: auto;
     // box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
     padding: 30px;
-    border-radius: 16px;
 `;
 const Warning = styled_components_1.default.div `
     position: static;
@@ -526,20 +599,22 @@ const Warning = styled_components_1.default.div `
     margin-right: 10em;
     padding-left: 9px;
     font-size: 12px;
-    padding-top: 2px;
+    padding-top: 0px;
     color: red;
+
+    visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
 `;
 const Button = styled_components_1.default.button.attrs({
     type: 'submit',
     value: 'Submit'
 }) `
     background-color: #fff3d1;
-    border-radius: 8px;
+    border-radius: 3px;
     border-width: 0;
     color: #333333;
     cursor: pointer;
     display: inline-block;
-    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    // font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
@@ -555,17 +630,31 @@ const Button = styled_components_1.default.button.attrs({
     touch-action: manipulation;
     margin-top: 5%;
     opacity: 0.8;
+    font-family: montserrat, arial, verdana;
 
     &:hover {
         opacity: 0.67;
     }
 `;
+let visible = false;
+const SuccesfulSub = styled_components_1.default.div `
+    // opacity: visible ? 0 : 0.25;
+    margin-bottom: 10px;
+
+    visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+`;
+const HFooter = styled_components_1.default.p `
+    font-family: Menlo, monospace;
+    font-size: 22px;
+`;
 //
+// const [ visible, setVisible ] = useState('hidden');
 const FormComponent = () => {
     const [submited, setSubmitting] = (0, react_1.useState)(false);
     const handleSubmit = (event) => {
         event.preventDefault();
-        // if ( name || lastName || email || question ) setSubmitting( true );
+        if (name && lastName && email && question)
+            visible = true;
         setSubmitting(true);
     };
     const [name, setName] = (0, react_1.useState)('');
@@ -592,22 +681,23 @@ const FormComponent = () => {
         setQuestion(event.target.value);
         setSubmitting(false);
     };
+    // const [ visible, setVisible ] = useState(false);
     return (react_1.default.createElement(FormConteiner, null,
         react_1.default.createElement(Form, null,
-            react_1.default.createElement("h1", null, "Leave you question here:"),
+            react_1.default.createElement(HFooter, null, "Leave you question here:"),
             react_1.default.createElement(FormConteinerInner, null,
                 react_1.default.createElement("form", { onSubmit: handleSubmit },
                     react_1.default.createElement(Label, null,
-                        submited && name && lastName && email && question ?
-                            react_1.default.createElement("div", null, "Form submitted") : null,
+                        visible ?
+                            react_1.default.createElement(SuccesfulSub, { visible: visible }, "Form submitted.") : react_1.default.createElement(SuccesfulSub, { visible: visible }, "Form submitted"),
                         react_1.default.createElement(Input, { name: "name", placeholder: 'Name', value: name, onChange: changeName, type: 'text' }),
-                        !name && submited ? react_1.default.createElement(Warning, null, "Please enter your name") : null,
+                        !name && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your name") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
                         react_1.default.createElement(Input, { name: "lastName", placeholder: 'Last name', value: lastName, onChange: changeLastName, type: 'text' }),
-                        !lastName && submited ? react_1.default.createElement(Warning, null, "Please enter your last name") : null,
+                        !lastName && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your last name") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
                         react_1.default.createElement(Input, { name: "email", placeholder: 'Email', value: email, onChange: changeEmail, type: 'text' }),
-                        !email && submited ? react_1.default.createElement(Warning, null, "Please enter your email") : null,
+                        !email && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your email") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
                         react_1.default.createElement(Input, { name: "question", placeholder: 'Question', value: question, onChange: changeQuestion, type: 'text' }),
-                        !question && submited ? react_1.default.createElement(Warning, null, "Please enter your question") : null),
+                        !question && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your question") : react_1.default.createElement(Warning, { visible: false }, "Please enter your question")),
                     react_1.default.createElement(Button, null, "Submit"))))));
 };
 exports.FormComponent = FormComponent;
@@ -647,23 +737,18 @@ const styled_components_1 = __importDefault(__webpack_require__(/*! styled-compo
 // import img2 from '../../../resources/img/1.png';
 //
 const Items = styled_components_1.default.div `
-    // position: absolute;
-    // bottom: 30%;
     padding-top: 80%;
-    // left: 45%;
-    // width: 100%;
-    // height: 310px;
     opacity: 0.85;
     z-index: 1000;
     color: white;
+    width: 100%;
     display: grid;
     justify-content: center;
     grid-template-columns: auto auto;
     grid-gap: 7%;
-    // justify-content: space-between;
 `;
 const Item = styled_components_1.default.div `
-    border-radius: 16px;
+    // border-radius: 16px;
     padding-top: 43px;
     padding-bottom: 40px;
     background-color: #000;
@@ -671,8 +756,6 @@ const Item = styled_components_1.default.div `
     width: 480px;
     display: grid;
     justify-content: center;
-    // grid-column: 100px 100px;
-    // align-content: space-around;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 `;
 const ItemHeader = styled_components_1.default.div `
@@ -738,13 +821,31 @@ exports["default"] = Items_Component_1.ItemsComponent;
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MainComponent = void 0;
-const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-const react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/index.js");
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const react_redux_1 = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
 const TopMenu_Component_1 = __webpack_require__(/*! ../top-menu/TopMenu.Component */ "./src/scripts/components/top-menu/TopMenu.Component.tsx");
@@ -772,10 +873,22 @@ const Div = styled_components_1.default.div `
     // display: grid;
     // justify-content: center;
 `;
-const Menu = styled_components_1.default.button `
-    display: grid;
-    justify-content: center;
-    z-index: 4000;
+const TopPanelLeft = styled_components_1.default.div `
+    line-height: 50px;
+    height: 2.1%;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 9px;
+    font-size: 1.2em;
+    position: relative;
+    z-index: 100;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-align: left;
+    color: white;
+    cursor: pointer;
+    float: right;
+    opacity: 0.8;
 `;
 const MainComponent = () => {
     const dispatch = (0, react_redux_1.useDispatch)();
@@ -784,26 +897,25 @@ const MainComponent = () => {
     // example
     console.log('isAppInited:' + appInited);
     //
-    return (react_1.default.createElement(react_router_dom_1.BrowserRouter, null,
-        react_1.default.createElement(Div, null,
-            react_1.default.createElement(Menu, null,
-                react_1.default.createElement("button", null,
-                    react_1.default.createElement(react_router_dom_1.Link, { to: '/' }, "Home")),
-                react_1.default.createElement("button", null,
-                    react_1.default.createElement(react_router_dom_1.Link, { to: '/water' }, "Water")),
-                react_1.default.createElement("button", null,
-                    react_1.default.createElement(react_router_dom_1.Link, { to: '/fog' }, "Fog")),
-                react_1.default.createElement("button", null,
-                    react_1.default.createElement(react_router_dom_1.Link, { to: '/combustion' }, "Combustion"))),
-            react_1.default.createElement(react_router_dom_1.Routes, null,
-                react_1.default.createElement(react_router_dom_1.Route, { path: '/', element: react_1.default.createElement(view_1.default, null) }),
-                react_1.default.createElement(react_router_dom_1.Route, { path: '/water', element: react_1.default.createElement(Water_Component_1.WaterComponent, null) }),
-                react_1.default.createElement(react_router_dom_1.Route, { path: '/fog', element: react_1.default.createElement(Fog_Component_1.FogComponent, null) }),
-                react_1.default.createElement(react_router_dom_1.Route, { path: '/combustion', element: react_1.default.createElement(Combustion_Component_1.CombustionComponent, null) })),
-            react_1.default.createElement(TopMenu_Component_1.TopMenuComponent, null),
-            react_1.default.createElement(items_1.default, null),
-            react_1.default.createElement(form_1.default, null),
-            react_1.default.createElement(Footer_Component_1.FooterComponent, null))));
+    const [path, setPath] = (0, react_1.useState)('/');
+    //
+    const HomeClick = () => { setPath('/'); };
+    const WaterClick = () => { setPath('/water'); };
+    const FogClick = () => { setPath('/fog'); };
+    const CombustionClick = () => { setPath('/combustion'); };
+    return (react_1.default.createElement(Div, null,
+        react_1.default.createElement(TopMenu_Component_1.TopMenuComponent, null),
+        react_1.default.createElement(view_1.default, { visible: path === '/' }),
+        react_1.default.createElement(Water_Component_1.WaterComponent, { visible: path === '/water' }),
+        react_1.default.createElement(Fog_Component_1.FogComponent, { visible: path === '/fog' }),
+        react_1.default.createElement(Combustion_Component_1.CombustionComponent, { visible: path === '/combustion' }),
+        react_1.default.createElement(TopPanelLeft, { onClick: HomeClick }, "Home"),
+        react_1.default.createElement(TopPanelLeft, { onClick: WaterClick }, "Water"),
+        react_1.default.createElement(TopPanelLeft, { onClick: FogClick }, "Fog"),
+        react_1.default.createElement(TopPanelLeft, { onClick: CombustionClick }, "Combustion"),
+        react_1.default.createElement(items_1.default, null),
+        react_1.default.createElement(form_1.default, null),
+        react_1.default.createElement(Footer_Component_1.FooterComponent, null)));
 };
 exports.MainComponent = MainComponent;
 
@@ -847,28 +959,28 @@ const TopMenu = styled_components_1.default.div `
     width: 100%;
     height: 60px;
     background-color: #100;
-    opacity: 0.4;
-    z-index: 106;
+    opacity: 0.7;
+    z-index: 16;
     color: white;
+    padding-top: 7px;
 `;
-const Logo = styled_components_1.default.a `
+const TopPanel = styled_components_1.default.a `
 	line-height: 50px;
 	height: 100%;
     padding-left: 20px;
     padding-top: 6px;
-	font-size: 25px;
-	display: inline-block;
+	font-size: 1.24em;
 	position: relative;
-	z-index: 1;
+	z-index: 17;
 	text-decoration: none;
 	text-transform: uppercase;
-	text-align: center;
+	text-align: left;
 	color: white;
 	cursor: pointer;
 `;
 const TopMenuComponent = () => {
     return (react_1.default.createElement(TopMenu, null,
-        react_1.default.createElement(Logo, { href: '' }, "Flat earth")));
+        react_1.default.createElement(TopPanel, { href: '' }, "Flat earth")));
 };
 exports.TopMenuComponent = TopMenuComponent;
 
@@ -895,12 +1007,14 @@ const ViewCanvas = styled_components_1.default.canvas `
     top: 0px;
     left: 0px;
     width: 100%;
-    height:70000%;
+    height: 10000%;
     bottom: 10px;
+
+    display: ${(props) => (props.visible ? 'block' : 'none')};
 `;
 const handleOnWheel = () => { console.log('worked'); };
-const ViewComponent = () => {
-    return (react_1.default.createElement(ViewCanvas, { className: "webglView", onWheel: handleOnWheel }));
+const ViewComponent = ({ visible }) => {
+    return (react_1.default.createElement(ViewCanvas, { visible: visible, className: "webglView", onWheel: handleOnWheel }));
 };
 exports.ViewComponent = ViewComponent;
 
@@ -934,9 +1048,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WaterComponent = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
 //
-const WaterComponent = () => {
-    return (react_1.default.createElement("h1", null, "Water"));
+const WaterConteiner = styled_components_1.default.div `
+    color: red;
+
+    display: ${(props) => (props.visible ? 'block' : 'none')};
+`;
+const WaterComponent = ({ visible }) => {
+    return (react_1.default.createElement(WaterConteiner, { visible: visible }, "Water"));
 };
 exports.WaterComponent = WaterComponent;
 

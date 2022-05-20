@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
     BrowserRouter as Router,
     // Switch,
@@ -10,6 +10,8 @@ import {
 import Switch from "react-switch";
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { BrowserRouter } from 'react-router-dom';
+import { createBrowserHistory } from "history";
 
 import BottomMenuComponent from '../bottom-menu';
 import { TopMenuComponent } from '../top-menu/TopMenu.Component';
@@ -40,10 +42,22 @@ const Div = styled.div`
     // justify-content: center;
 `;
 
-const Menu = styled.button`
-    display: grid;
-    justify-content: center;
-    z-index: 4000;
+const TopPanelLeft = styled.div`
+    line-height: 50px;
+    height: 2.1%;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 9px;
+    font-size: 1.2em;
+    position: relative;
+    z-index: 100;
+    text-decoration: none;
+    text-transform: uppercase;
+    text-align: left;
+    color: white;
+    cursor: pointer;
+    float: right;
+    opacity: 0.8;
 `;
 
 export const MainComponent = () => {
@@ -55,35 +69,41 @@ export const MainComponent = () => {
 
     // example
     console.log( 'isAppInited:' + appInited );
-    //
 
     //
+    const [ path, setPath ] = useState('/');
+    //
+
+    const HomeClick = () => { setPath('/') };
+    const WaterClick = () => { setPath('/water') };
+    const FogClick = () => { setPath('/fog') };
+    const CombustionClick = () => { setPath('/combustion') };
 
     return (
-        <Router>
-            <Div>
-                <Menu>
-                    <button><Link to='/'>Home</Link></button>
-                    <button><Link to='/water'>Water</Link></button>
-                    <button><Link to='/fog'>Fog</Link></button>
-                    <button><Link to='/combustion'>Combustion</Link></button>
-                </Menu>
-                <Routes>
-                    <Route path='/' element={ <ViewComponent/> }/>
-                    <Route path='/water' element={ <WaterComponent/> }/>
-                    <Route path='/fog' element={ <FogComponent/> }/>
-                    <Route path='/combustion' element={ <CombustionComponent/> }/>
-                    {/* <Route path='/face' element={ <FaceComponent/> }/> */}
-                </Routes>
+        <Div>
+            {/* <Router> */}
                 <TopMenuComponent />
+                <ViewComponent visible={ path === '/' } />
+                <WaterComponent visible={ path === '/water' }/>
+                <FogComponent visible={ path === '/fog' }/>
+                <CombustionComponent visible={ path === '/combustion' }/>
 
-                {/* <ViewComponent /> */}
-                {/* <BottomMenuComponent /> */}
-                <ItemComponent />
-                <FormComponent />
-                <FooterComponent />
-            </Div>
-        </Router>
+                <TopPanelLeft onClick={HomeClick}>Home</TopPanelLeft>
+                <TopPanelLeft onClick={WaterClick}>Water</TopPanelLeft>
+                <TopPanelLeft onClick={FogClick}>Fog</TopPanelLeft>
+                <TopPanelLeft onClick={CombustionClick}>Combustion</TopPanelLeft>
+
+                {/* <Routes>
+                    <Route  path="/" element={ <ViewComponent/> } />
+                    <Route path="/water" element={ <WaterComponent/> } />
+                    <Route path="/fog" element={ <FogComponent/> } />
+                    <Route path="/combustion" element={ <CombustionComponent/> } />
+                </Routes> */}
+            {/* </Router> */}
+            <ItemComponent />
+            <FormComponent />
+            <FooterComponent />
+        </Div>
     );
 
 };

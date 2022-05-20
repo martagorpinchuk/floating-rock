@@ -3,10 +3,16 @@ import styled from 'styled-components';
 
 //
 
-export const WaterComponent = () => {
+const WaterConteiner = styled.div<{visible: boolean}>`
+    color: red;
+
+    display: ${( props ) => ( props.visible ? 'block' : 'none' ) };
+`;
+
+export const WaterComponent = ({ visible }) => {
 
     return(
-        <h1>Water</h1>
+        <WaterConteiner visible={visible}>Water</WaterConteiner>
     );
 
 };

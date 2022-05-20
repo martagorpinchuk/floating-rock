@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-export const CombustionComponent = () => {
+//
+
+const CombistionConteiner = styled.div<{visible: boolean}>`
+    color: black;
+
+    display: ${( props ) => ( props.visible ? 'block' : 'none' ) };
+`;
+
+export const CombustionComponent = ({ visible }) => {
 
     return(
-        <h1>Combustion</h1>
+        <CombistionConteiner visible={visible}>Combustion</CombistionConteiner>
     );
 
 };

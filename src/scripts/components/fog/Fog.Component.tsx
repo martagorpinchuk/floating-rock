@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-export const FogComponent = () => {
+//
+
+const FogConteiner = styled.div<{visible: boolean}>`
+    color: green;
+    position: static;
+    // text-align: center;
+    // margin-top: 20px;
+
+    display: ${( props ) => ( props.visible ? 'block' : 'none' ) };
+`;
+
+export const FogComponent = ({ visible }) => {
 
     return(
-        <h1>Fog</h1>
+        <FogConteiner visible={visible}>Fog</FogConteiner>
     );
 
 };

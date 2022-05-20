@@ -1,4 +1,4 @@
-import { Clock, Color, LoadingManager, Mesh, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from "three";
+import { AxesHelper, Clock, Color, LoadingManager, Mesh, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
@@ -51,7 +51,7 @@ export default class FloatingRock {
         this.scene.add( this.camera );
 
         // Light
-        const light = new PointLight( 0xffcff0, 1.6, 10 );
+        const light = new PointLight( 0xfcf4eb, 1.3, 10 );
         light.position.set( 0.2, 1.3, 1 );
         this.scene.add( light );
 
@@ -69,6 +69,9 @@ export default class FloatingRock {
         window.addEventListener( 'resize', this.resize() );
 
         this.clock = new Clock();
+
+        const axesHelper = new AxesHelper( 5 );
+        this.scene.add( axesHelper );
 
         // this.loadRock1();
         // this.loadRock2();
@@ -142,7 +145,7 @@ export default class FloatingRock {
 
                     // gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
 
-                    loadingBarElement.classList.add( 'ended' );
+                    // loadingBarElement.classList.add( 'ended' );
                     // loadingBarElement.style.transform = '';
 
                 }, 500 );
@@ -161,7 +164,7 @@ export default class FloatingRock {
                 const progressRatio = itemsLoaded / itemsTotal;
                 // loadingBarElement.style.transform = `scaleX(${progressRatio})`;
             }
-        )
+        );
 
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
@@ -178,7 +181,7 @@ export default class FloatingRock {
 
             }
 
-        )
+        );
 
         //
 
@@ -190,14 +193,17 @@ export default class FloatingRock {
                 this.rock2 = gltf.scene.children[0] as Mesh;
                 this.rock2.scale.set( 0.1, 0.1, 0.1 );
                 // this.rock2.rotation.z += Math.PI;
-                this.rock2.rotation.z += Math.PI / 1.2;
-                this.rock2.rotation.x -= Math.PI / 7;
+                // this.rock2.rotation.z += Math.PI / 1.2;
+                // this.rock2.rotation.x -= Math.PI / 7;
+
+                this.rock2.rotation.z -= Math.PI / 1.01;
+                this.rock2.rotation.x -= Math.PI / 9.5;
                 this.rock2.position.set( - 1.5, 0, 0 );
                 this.scene.add( this.rock2 );
 
             }
 
-        )
+        );
 
         //
 
@@ -215,7 +221,7 @@ export default class FloatingRock {
 
             }
 
-        )
+        );
 
         //
 
@@ -234,7 +240,7 @@ export default class FloatingRock {
 
             }
 
-        )
+        );
 
         //
 
@@ -253,7 +259,7 @@ export default class FloatingRock {
 
             }
 
-        )
+        );
 
         //
 
@@ -272,7 +278,50 @@ export default class FloatingRock {
 
             }
 
-        )
+        );
+
+        //
+
+        this.loader.load(
+
+            'resources/models/stoneOnTheGround.gltf',
+            ( gltf ) => {
+
+                let stoneOnTheGround = gltf.scene.children[0] as Mesh;
+                stoneOnTheGround.scale.set( 0.1, 0.1, 0.1 );
+                // this.cloud1.rotation.z += Math.PI / 3;
+                // this.cloud1.rotation.x -= Math.PI / 2;
+                stoneOnTheGround.rotation.y = Math.PI / 3.3;
+                stoneOnTheGround.position.set( 0.2, 0.01, -0.3 );
+                this.scene.add( stoneOnTheGround );
+
+            }
+
+        );
+
+        //
+        let tree;
+
+        this.loader.load(
+
+            'resources/models/tree.gltf',
+            ( gltf ) => {
+
+                tree = gltf.scene.children[0] as Mesh;
+                tree.scale.set( 0.002, 0.007, 0.002 );
+                // tree.rotation.z += Math.PI / 10;
+                // tree.rotation.x -= Math.PI / 5;
+                // tree.rotation.y = Math.PI / 7;
+
+                tree.rotation.z += Math.PI / 3;
+                tree.rotation.x -= Math.PI / 2;
+                tree.rotation.y = Math.PI / 3.3;
+                tree.position.set( 0.2, 0.2, 0.2 );
+                this.scene.add( tree );
+
+            }
+
+        );
 
     };
 
