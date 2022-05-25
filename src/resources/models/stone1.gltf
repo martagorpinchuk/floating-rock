@@ -40,9 +40,9 @@
             "name" : "Material",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.5432537198066711,
-                    0.8000000715255737,
-                    0.5040456056594849,
+                    1,
+                    0.9822506904602051,
+                    0.21586059033870697,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -54,9 +54,9 @@
             "name" : "planeColor",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.9258332252502441,
-                    0.8335219025611877,
-                    0.5332532525062561,
+                    1,
+                    0.603827178478241,
+                    0.26225075125694275,
                     1
                 ],
                 "metallicFactor" : 0,

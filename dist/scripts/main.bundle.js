@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const three_1 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 const OrbitControls_js_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
-// import '../css/style.css';
+const gsap_1 = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
 //
 class FloatingRock {
     constructor() {
@@ -39,7 +39,7 @@ class FloatingRock {
         this.canvas = document.querySelector('canvas.webglView');
         // Scene
         this.scene = new three_1.Scene();
-        this.scene.background = new three_1.Color('#edb27b'); //  ebbf96
+        this.scene.background = new three_1.Color('#b2eef5'); //324345 - at night
         // Sizes
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
@@ -48,9 +48,11 @@ class FloatingRock {
         this.camera.position.set(1, 2, 1);
         this.scene.add(this.camera);
         // Light
-        const light = new three_1.PointLight(0xfcf4eb, 1.3, 10);
-        light.position.set(0.2, 1.3, 1);
+        const light = new three_1.PointLight(0xffffff, 3, 10);
+        light.position.set(3, 7, 3);
         this.scene.add(light);
+        const ambientLight = new three_1.AmbientLight(0xffffff, 0.4);
+        this.scene.add(ambientLight);
         // Controls
         this.mapControls = new OrbitControls_js_1.OrbitControls(this.camera, this.canvas);
         // this.mapControls.enableDamping = true;
@@ -64,64 +66,13 @@ class FloatingRock {
         this.clock = new three_1.Clock();
         const axesHelper = new three_1.AxesHelper(5);
         this.scene.add(axesHelper);
-        // this.loadRock1();
-        // this.loadRock2();
-        // this.loadRock3();
-        // this.loadHouse();
-        // this.loadCloud1();
-        // this.loadCloud2();
-        this.loadModels();
         //
         // this.loadingBar();
-        //
-        if (this.rock1 && this.rock2 && this.rock3 && this.cloud1 && this.cloud2 && this.house)
-            this.sceneReady = true;
-        if (this.sceneReady)
-            console.log('screen is ready');
+        this.loadModels();
         this.tick();
     }
     ;
-    loadingBar() {
-        const loadingBarElement = document.querySelector('.loading-bar');
-        this.loadingManager = new three_1.LoadingManager(
-        // Loaded
-        () => {
-            window.setTimeout(() => {
-                // gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
-                loadingBarElement.classList.add('ended');
-                // loadingBarElement.style.transform = '';
-            }, 500);
-            window.setTimeout(() => {
-                this.sceneReady = true;
-            }, 100);
-        }, 
-        // Progress
-        (itemUrl, itemsLoaded, itemsTotal) => {
-            // Calculate the progress and update the loadingBarElement
-            const progressRatio = itemsLoaded / itemsTotal;
-            // loadingBarElement.style.transform = `scaleX(${progressRatio})`;
-        });
-    }
     loadModels() {
-        const loadingBarElement = document.querySelector('.loading-bar');
-        this.loadingManager = new three_1.LoadingManager(
-        // Loaded
-        () => {
-            window.setTimeout(() => {
-                // gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
-                // loadingBarElement.classList.add( 'ended' );
-                // loadingBarElement.style.transform = '';
-            }, 500);
-            window.setTimeout(() => {
-                this.sceneReady = true;
-            }, 100);
-        }, 
-        // Progress
-        (itemUrl, itemsLoaded, itemsTotal) => {
-            // Calculate the progress and update the loadingBarElement
-            const progressRatio = itemsLoaded / itemsTotal;
-            // loadingBarElement.style.transform = `scaleX(${progressRatio})`;
-        });
         this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/stone1.gltf', (gltf) => {
             this.rock1 = gltf.scene.children[0];
@@ -138,9 +89,10 @@ class FloatingRock {
             // this.rock2.rotation.z += Math.PI;
             // this.rock2.rotation.z += Math.PI / 1.2;
             // this.rock2.rotation.x -= Math.PI / 7;
+            this.rock2.rotation.y -= Math.PI / 3;
             this.rock2.rotation.z -= Math.PI / 1.01;
             this.rock2.rotation.x -= Math.PI / 9.5;
-            this.rock2.position.set(-1.5, 0, 0);
+            this.rock2.position.set(-0.8, 0.3, 0.5);
             this.scene.add(this.rock2);
         });
         //
@@ -155,11 +107,11 @@ class FloatingRock {
         //
         this.loader.load('resources/models/house.gltf', (gltf) => {
             this.house = gltf.scene.children[0];
-            this.house.scale.set(0.1, 0.1, 0.0002);
+            this.house.scale.set(0.1, 0.07, 0.0002);
             this.house.rotation.z += Math.PI / 3;
             this.house.rotation.x -= Math.PI / 2;
             this.house.rotation.y = Math.PI / 3.3;
-            this.house.position.set(-0.08, 0.3, 0.1);
+            this.house.position.set(-0.18, 0.2, 0.18);
             this.scene.add(this.house);
         });
         //
@@ -169,43 +121,120 @@ class FloatingRock {
             // this.cloud1.rotation.z += Math.PI / 3;
             // this.cloud1.rotation.x -= Math.PI / 2;
             this.cloud1.rotation.y = Math.PI / 3.3;
-            this.cloud1.position.set(0.8, 0.7, 0.1);
+            this.cloud1.position.set(0.6, 1, -0.2);
             this.scene.add(this.cloud1);
         });
         //
         this.loader.load('resources/models/cloud2.gltf', (gltf) => {
             this.cloud2 = gltf.scene.children[0];
-            this.cloud2.scale.set(0.02, 0.02, 0.02);
+            this.cloud2.scale.set(0.03, 0.03, 0.03);
             // this.cloud2.rotation.z += Math.PI / 5;
             // this.cloud2.rotation.x -= Math.PI / 2;
-            this.cloud2.rotation.y = Math.PI / 2;
-            this.cloud2.position.set(-1, -0.1, -0.3);
+            this.cloud2.rotation.y = Math.PI / 4;
+            this.cloud2.position.set(-0.2, 0.5, -0.2);
             this.scene.add(this.cloud2);
         });
         //
-        this.loader.load('resources/models/stoneOnTheGround.gltf', (gltf) => {
+        this.loader.load('resources/models/mount.gltf', (gltf) => {
             let stoneOnTheGround = gltf.scene.children[0];
-            stoneOnTheGround.scale.set(0.1, 0.1, 0.1);
-            // this.cloud1.rotation.z += Math.PI / 3;
-            // this.cloud1.rotation.x -= Math.PI / 2;
-            stoneOnTheGround.rotation.y = Math.PI / 3.3;
-            stoneOnTheGround.position.set(0.2, 0.01, -0.3);
+            stoneOnTheGround.scale.set(0.07, 0.07, 0.07);
+            stoneOnTheGround.rotation.z = Math.PI / 4.9;
+            stoneOnTheGround.rotation.x -= Math.PI / 3.0;
+            stoneOnTheGround.rotation.y = Math.PI / 3.5;
+            stoneOnTheGround.position.set(0.3, 0.06, -0.28);
             this.scene.add(stoneOnTheGround);
         });
         //
-        let tree;
-        this.loader.load('resources/models/tree.gltf', (gltf) => {
-            tree = gltf.scene.children[0];
-            tree.scale.set(0.002, 0.007, 0.002);
-            // tree.rotation.z += Math.PI / 10;
-            // tree.rotation.x -= Math.PI / 5;
-            // tree.rotation.y = Math.PI / 7;
-            tree.rotation.z += Math.PI / 3;
-            tree.rotation.x -= Math.PI / 2;
-            tree.rotation.y = Math.PI / 3.3;
-            tree.position.set(0.2, 0.2, 0.2);
+        this.loader.load('resources/models/treeNew.gltf', (gltf) => {
+            let tree = gltf.scene.children[0];
+            tree.scale.set(0.023, 0.023, 0.023);
+            tree.rotation.z += Math.PI / 4.5;
+            tree.rotation.x -= Math.PI / 13;
+            tree.rotation.y -= Math.PI / 6;
+            // tree.rotation.z += Math.PI / 8.3; // 3
+            // tree.rotation.x -= Math.PI / 7; // 2
+            // tree.rotation.y = Math.PI / 7; // 3.3
+            tree.position.set(0, 0.1, -0.05);
             this.scene.add(tree);
         });
+        //
+        this.loader.load('resources/models/fence.gltf', (gltf) => {
+            let fence = gltf.scene.children[0];
+            fence.scale.set(0.04, 0.04, 0.04);
+            fence.rotation.z += Math.PI / 3;
+            fence.rotation.x -= Math.PI / 2.1;
+            fence.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+            fence.position.set(0.39, 0.5, 0.19);
+            this.scene.add(fence);
+        });
+        //
+        this.loader.load('resources/models/fireplace.gltf', (gltf) => {
+            let fireplace = gltf.scene.children[0];
+            fireplace.scale.set(0.05, 0.05, 0.05);
+            fireplace.rotation.z += Math.PI / 3;
+            fireplace.rotation.x -= Math.PI / 2.1;
+            fireplace.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+            fireplace.position.set(0.15, 0.15, 0.0);
+            this.scene.add(fireplace);
+        });
+        //
+        this.loader.load('resources/models/flames.gltf', (gltf) => {
+            let flames = gltf.scene.children[0];
+            flames.scale.set(0.05, 0.05, 0.05);
+            flames.rotation.z += Math.PI / 3;
+            flames.rotation.x -= Math.PI / 2.1;
+            flames.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+            flames.position.set(0.22, 0.48, 0.18);
+            this.scene.add(flames);
+        });
+    }
+    ;
+    loadingBar() {
+        const loadingBarElement = document.querySelector('.loading-bar');
+        this.loadingManager = new three_1.LoadingManager(() => {
+            window.setTimeout(() => {
+                gsap_1.gsap.to(overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 });
+                loadingBarElement.classList.add('ended');
+                // @ts-ignore
+                loadingBarElement.style.transform = '';
+            }, 500);
+            window.setTimeout(() => {
+                this.sceneReady = true;
+            }, 2000);
+        }, (itemUrl, itemsLoaded, itemsTotal) => {
+            const progressRatio = itemsLoaded / itemsTotal;
+            // @ts-ignore
+            loadingBarElement.style.transform = `scaleX(${progressRatio})`;
+        });
+        /**
+         * Overlay
+         */
+        const overlayGeometry = new three_1.PlaneGeometry(2, 2, 1, 1);
+        const overlayMaterial = new three_1.ShaderMaterial({
+            // wireframe: true,
+            transparent: true,
+            uniforms: {
+                uAlpha: { value: 1 }
+            },
+            vertexShader: `
+                void main() {
+
+                    gl_Position = vec4(position, 1.0);
+
+                }
+            `,
+            fragmentShader: `
+                uniform float uAlpha;
+
+                void main() {
+
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, uAlpha);
+
+                }
+            `
+        });
+        const overlay = new three_1.Mesh(overlayGeometry, overlayMaterial);
+        this.scene.add(overlay);
     }
     ;
     loadRock1() {
@@ -434,7 +463,7 @@ const Logo = styled_components_1.default.a `
 `;
 const FooterBasic = styled_components_1.default.div `
     padding: 20px 0;
-    margin-top: 15px;
+    margin-top: 8.35%;
     background-color: #111;
     color: #4b4c4d;
     opacity: 0.8;
@@ -542,62 +571,43 @@ const FormConteiner = styled_components_1.default.div `
 const Form = styled_components_1.default.div `
     position: static;
     text-align: center;
-    padding-top: 60px;
+    padding-top: 40px;
     padding-bottom: 11px;
     margin-top: 20%;
-    width: 650px;
-    height: 510px;
+    width: 510px;
+    height: 480px;
     opacity: 0.75;
     background-color: #000;
     z-index: 105;
     color: white;
-    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-    // box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+    // box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 `;
 const Label = styled_components_1.default.label `
     width: 650px;
-    // padding-top: 20px;
-    // padding-bottom: 20px;
 `;
 const Input = styled_components_1.default.input `
-    // width: 250px;
-    // height: 5px;
-    // padding-top: 14px;
-    // padding-bottom: 14px;
-    // padding-left: 5px;
-    // margin-top: 10px;
-    // border-radius: 4px;
     font-family: montserrat, arial, verdana;
-
     padding: 15px;
 	border: 1px solid #ccc;
-	border-radius: 3px;
+	border-radius: 2px;
 	margin-bottom: 5px;
     margin-top: 5px;
-	width: 100%;
+	width: 71%;
 	box-sizing: border-box;
-	// font-family: montserrat;
-	color: #2C3E50;
+	color: white;
 	font-size: 15px;
+    background-color: #111;
     box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
-    `;
-const FormConteinerInner = styled_components_1.default.div `
-    width: 360px;
-    // height: 240px;
-    background-color: #575755;
-    margin-top: 27px;
-    margin-left: auto;
-    margin-right: auto;
-    // margin: auto;
-    // box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-    padding: 30px;
+
+    &:focus {
+        background-color: #111;
+    }
 `;
 const Warning = styled_components_1.default.div `
     position: static;
-    // width: 20px;
     text-align: left;
     margin-right: 10em;
-    padding-left: 9px;
+    padding-left: 18%;
     font-size: 12px;
     padding-top: 0px;
     color: red;
@@ -608,26 +618,26 @@ const Button = styled_components_1.default.button.attrs({
     type: 'submit',
     value: 'Submit'
 }) `
-    background-color: #fff3d1;
-    border-radius: 3px;
-    border-width: 0;
-    color: #333333;
+    background-color: #111;
+    border-radius: 2px;
+    border-width: 1;
+    color: white;
     cursor: pointer;
     display: inline-block;
     // font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
+    // font-weight: 500;
+    // line-height: 20px;
     list-style: none;
     margin: 0;
     padding: 10px 34px;
     text-align: center;
-    transition: all 200ms;
-    vertical-align: baseline;
-    white-space: nowrap;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
+    // transition: all 200ms;
+    // vertical-align: baseline;
+    // white-space: nowrap;
+    // user-select: none;
+    // -webkit-user-select: none;
+    // touch-action: manipulation;
     margin-top: 5%;
     opacity: 0.8;
     font-family: montserrat, arial, verdana;
@@ -640,12 +650,17 @@ let visible = false;
 const SuccesfulSub = styled_components_1.default.div `
     // opacity: visible ? 0 : 0.25;
     margin-bottom: 10px;
+    margin-top: 20px;
+    opacity: 0.8;
 
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
 `;
-const HFooter = styled_components_1.default.p `
-    font-family: Menlo, monospace;
+const HForm = styled_components_1.default.p `
+    // font-family: Menlo, monospace;
     font-size: 22px;
+    // float: left;
+    // padding-left: 19%;
+    text-transform: uppercase;
 `;
 //
 // const [ visible, setVisible ] = useState('hidden');
@@ -681,24 +696,22 @@ const FormComponent = () => {
         setQuestion(event.target.value);
         setSubmitting(false);
     };
-    // const [ visible, setVisible ] = useState(false);
     return (react_1.default.createElement(FormConteiner, null,
         react_1.default.createElement(Form, null,
-            react_1.default.createElement(HFooter, null, "Leave you question here:"),
-            react_1.default.createElement(FormConteinerInner, null,
-                react_1.default.createElement("form", { onSubmit: handleSubmit },
-                    react_1.default.createElement(Label, null,
-                        visible ?
-                            react_1.default.createElement(SuccesfulSub, { visible: visible }, "Form submitted.") : react_1.default.createElement(SuccesfulSub, { visible: visible }, "Form submitted"),
-                        react_1.default.createElement(Input, { name: "name", placeholder: 'Name', value: name, onChange: changeName, type: 'text' }),
-                        !name && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your name") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
-                        react_1.default.createElement(Input, { name: "lastName", placeholder: 'Last name', value: lastName, onChange: changeLastName, type: 'text' }),
-                        !lastName && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your last name") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
-                        react_1.default.createElement(Input, { name: "email", placeholder: 'Email', value: email, onChange: changeEmail, type: 'text' }),
-                        !email && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your email") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
-                        react_1.default.createElement(Input, { name: "question", placeholder: 'Question', value: question, onChange: changeQuestion, type: 'text' }),
-                        !question && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your question") : react_1.default.createElement(Warning, { visible: false }, "Please enter your question")),
-                    react_1.default.createElement(Button, null, "Submit"))))));
+            react_1.default.createElement(HForm, null, "Leave you question here:"),
+            react_1.default.createElement("form", { onSubmit: handleSubmit },
+                react_1.default.createElement(Label, null,
+                    visible ?
+                        react_1.default.createElement(SuccesfulSub, { visible: visible }, "Form submitted.") : react_1.default.createElement(SuccesfulSub, { visible: visible }, "Form submitted"),
+                    react_1.default.createElement(Input, { name: "name", placeholder: 'Name', value: name, onChange: changeName, type: 'text' }),
+                    !name && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your name") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
+                    react_1.default.createElement(Input, { name: "lastName", placeholder: 'Last name', value: lastName, onChange: changeLastName, type: 'text' }),
+                    !lastName && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your last name") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
+                    react_1.default.createElement(Input, { name: "email", placeholder: 'Email', value: email, onChange: changeEmail, type: 'text' }),
+                    !email && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your email") : react_1.default.createElement(Warning, { visible: false }, "Please enter your email"),
+                    react_1.default.createElement(Input, { name: "question", placeholder: 'Question', value: question, onChange: changeQuestion, type: 'text' }),
+                    !question && submited ? react_1.default.createElement(Warning, { visible: true }, "Please enter your question") : react_1.default.createElement(Warning, { visible: false }, "Please enter your question")),
+                react_1.default.createElement(Button, null, "Submit")))));
 };
 exports.FormComponent = FormComponent;
 
@@ -733,11 +746,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ItemsComponent = void 0;
 const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
-// import img1 from '../../../resources/img/1.png';
-// import img2 from '../../../resources/img/1.png';
 //
 const Items = styled_components_1.default.div `
-    padding-top: 80%;
+    padding-top: 100vh;
     opacity: 0.85;
     z-index: 1000;
     color: white;
@@ -748,7 +759,6 @@ const Items = styled_components_1.default.div `
     grid-gap: 7%;
 `;
 const Item = styled_components_1.default.div `
-    // border-radius: 16px;
     padding-top: 43px;
     padding-bottom: 40px;
     background-color: #000;
@@ -859,19 +869,9 @@ const Combustion_Component_1 = __webpack_require__(/*! ../combustion/Combustion.
 //
 const Div = styled_components_1.default.div `
     position: absolute;
-    // bottom: -40px;
-    // left: 45%;
     width: 100%;
-    height: 3092px;
-    background-color: #edb27b;
-    // opacity: 0.5;
-    // z-index: 1000;
-    // border-radius: 10px;
-    // color: red;
-    // height: 70000%,
-    // overflow: scroll
-    // display: grid;
-    // justify-content: center;
+    height: 349ivh;
+    background-color: #b2eef5;
 `;
 const TopPanelLeft = styled_components_1.default.div `
     line-height: 50px;

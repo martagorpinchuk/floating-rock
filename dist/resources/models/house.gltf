@@ -17,9 +17,14 @@
             "mesh" : 0,
             "name" : "Cone",
             "scale" : [
-                0.9122060537338257,
-                0.679177463054657,
+                0.9122059941291809,
+                0.4039475917816162,
                 0.001887794234789908
+            ],
+            "translation" : [
+                0.0002956782700493932,
+                -0.004418244585394859,
+                0.0009656068868935108
             ]
         }
     ],
@@ -29,9 +34,9 @@
             "name" : "triangleFront",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    1,
-                    0.9386857748031616,
-                    0.7083760499954224,
+                    0.8879233002662659,
+                    0.5394796133041382,
+                    0.3185468912124634,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -43,9 +48,9 @@
             "name" : "walls",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    1,
-                    0.9061872363090515,
-                    0.6564545035362244,
+                    0.8879233002662659,
+                    0.5394796133041382,
+                    0.3185468912124634,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -57,9 +62,9 @@
             "name" : "rightRouf",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    1,
-                    0.7991030812263489,
-                    0.6724433898925781,
+                    0.8631576299667358,
+                    0.39157238602638245,
+                    0.21223080158233643,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -71,9 +76,9 @@
             "name" : "leftRouf",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    1,
-                    0.7991030812263489,
-                    0.6724433898925781,
+                    0.8631576299667358,
+                    0.39157238602638245,
+                    0.21223080158233643,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -85,9 +90,9 @@
             "name" : "rouf",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.7874050140380859,
-                    0.671953558921814,
-                    0.5280191898345947,
+                    0.8631576299667358,
+                    0.39157238602638245,
+                    0.21223080158233643,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -99,9 +104,23 @@
             "name" : "triangle.002",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
+                    0.8879233002662659,
+                    0.5394796133041382,
+                    0.3185468912124634,
+                    1
+                ],
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "windowInTriangle",
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.723055362701416,
+                    0.9130989909172058,
                     1,
-                    0.9386857748031616,
-                    0.7083760499954224,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -110,12 +129,12 @@
         },
         {
             "doubleSided" : true,
-            "name" : "Material.006",
+            "name" : "dour",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.9215817451477051,
-                    0.8549929261207581,
-                    0.6724433898925781,
+                    0.723055362701416,
+                    0.9130989909172058,
+                    1,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -124,12 +143,12 @@
         },
         {
             "doubleSided" : true,
-            "name" : "house.001",
+            "name" : "inWindow",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.7874050140380859,
-                    0.6871121525764465,
-                    0.47937294840812683,
+                    0.5650230050086975,
+                    0.4946979880332947,
+                    0.3467532992362976,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -138,26 +157,12 @@
         },
         {
             "doubleSided" : true,
-            "name" : "Material.007",
+            "name" : "windowInWall",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.9215817451477051,
-                    0.8549929261207581,
-                    0.6724433898925781,
-                    1
-                ],
-                "metallicFactor" : 0,
-                "roughnessFactor" : 0.5
-            }
-        },
-        {
-            "doubleSided" : true,
-            "name" : "Material.005",
-            "pbrMetallicRoughness" : {
-                "baseColorFactor" : [
-                    0.9215817451477051,
-                    0.8549929261207581,
-                    0.6724433898925781,
+                    0.723055362701416,
+                    0.9130989909172058,
+                    1,
                     1
                 ],
                 "metallicFactor" : 0,

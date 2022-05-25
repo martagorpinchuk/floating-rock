@@ -20,7 +20,7 @@ const Logo = styled.a`
 
 const FooterBasic = styled.div`
     padding: 20px 0;
-    margin-top: 15px;
+    margin-top: 8.35%;
     background-color: #111;
     color: #4b4c4d;
     opacity: 0.8;

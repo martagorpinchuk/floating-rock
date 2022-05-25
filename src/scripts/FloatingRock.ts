@@ -1,9 +1,9 @@
-import { AxesHelper, Clock, Color, LoadingManager, Mesh, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, Clock, Color, LoadingManager, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Scene, ShaderMaterial, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
-// import '../css/style.css';
-
+// @ts-ignore
+import * as css from '../css/style.css';
 
 //
 
@@ -39,7 +39,7 @@ export default class FloatingRock {
 
         // Scene
         this.scene = new Scene();
-        this.scene.background = new Color( '#edb27b' ); //  ebbf96
+        this.scene.background = new Color( '#b2eef5' ); //324345 - at night
 
         // Sizes
         this.sizes.width = window.innerWidth,
@@ -51,9 +51,12 @@ export default class FloatingRock {
         this.scene.add( this.camera );
 
         // Light
-        const light = new PointLight( 0xfcf4eb, 1.3, 10 );
-        light.position.set( 0.2, 1.3, 1 );
+        const light = new PointLight( 0xffffff, 3, 10 );
+        light.position.set( 3, 7, 3 );
         this.scene.add( light );
+
+        const ambientLight = new AmbientLight( 0xffffff, 0.4 );
+        this.scene.add( ambientLight );
 
         // Controls
         this.mapControls = new OrbitControls( this.camera, this.canvas );
@@ -73,98 +76,16 @@ export default class FloatingRock {
         const axesHelper = new AxesHelper( 5 );
         this.scene.add( axesHelper );
 
-        // this.loadRock1();
-        // this.loadRock2();
-        // this.loadRock3();
-
-        // this.loadHouse();
-
-        // this.loadCloud1();
-        // this.loadCloud2();
-
-        this.loadModels();
-
         //
 
         // this.loadingBar();
-
-        //
-
-        if ( this.rock1 && this.rock2 && this.rock3 && this.cloud1 && this.cloud2 && this.house ) this.sceneReady = true;
-
-        if( this.sceneReady ) console.log('screen is ready');
+        this.loadModels();
 
         this.tick();
 
     };
 
-    public loadingBar () : void {
-
-        const loadingBarElement = document.querySelector( '.loading-bar' );
-
-        this.loadingManager = new LoadingManager(
-            // Loaded
-            () => {
-
-                window.setTimeout( () => {
-
-                    // gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
-
-                    loadingBarElement.classList.add( 'ended' );
-                    // loadingBarElement.style.transform = '';
-
-                }, 500 );
-
-                window.setTimeout( () => {
-
-                    this.sceneReady = true;
-
-                }, 100 );
-            },
-
-            // Progress
-            ( itemUrl, itemsLoaded, itemsTotal ) => {
-
-                // Calculate the progress and update the loadingBarElement
-                const progressRatio = itemsLoaded / itemsTotal;
-                // loadingBarElement.style.transform = `scaleX(${progressRatio})`;
-            }
-        )
-
-    }
-
     public loadModels () : void {
-
-        const loadingBarElement = document.querySelector( '.loading-bar' );
-
-        this.loadingManager = new LoadingManager(
-            // Loaded
-            () => {
-
-                window.setTimeout( () => {
-
-                    // gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
-
-                    // loadingBarElement.classList.add( 'ended' );
-                    // loadingBarElement.style.transform = '';
-
-                }, 500 );
-
-                window.setTimeout( () => {
-
-                    this.sceneReady = true;
-
-                }, 100 );
-            },
-
-            // Progress
-            ( itemUrl, itemsLoaded, itemsTotal ) => {
-
-                // Calculate the progress and update the loadingBarElement
-                const progressRatio = itemsLoaded / itemsTotal;
-                // loadingBarElement.style.transform = `scaleX(${progressRatio})`;
-            }
-        );
 
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
@@ -196,9 +117,10 @@ export default class FloatingRock {
                 // this.rock2.rotation.z += Math.PI / 1.2;
                 // this.rock2.rotation.x -= Math.PI / 7;
 
+                this.rock2.rotation.y -= Math.PI / 3;
                 this.rock2.rotation.z -= Math.PI / 1.01;
                 this.rock2.rotation.x -= Math.PI / 9.5;
-                this.rock2.position.set( - 1.5, 0, 0 );
+                this.rock2.position.set( - 0.8, 0.3, 0.5 );
                 this.scene.add( this.rock2 );
 
             }
@@ -231,11 +153,11 @@ export default class FloatingRock {
             ( gltf ) => {
 
                 this.house = gltf.scene.children[0] as Mesh;
-                this.house.scale.set( 0.1, 0.1, 0.0002 );
+                this.house.scale.set( 0.1, 0.07, 0.0002 );
                 this.house.rotation.z += Math.PI / 3;
                 this.house.rotation.x -= Math.PI / 2;
                 this.house.rotation.y = Math.PI / 3.3;
-                this.house.position.set( -0.08, 0.3, 0.1 );
+                this.house.position.set( -0.18, 0.2, 0.18 );
                 this.scene.add( this.house );
 
             }
@@ -254,7 +176,7 @@ export default class FloatingRock {
                 // this.cloud1.rotation.z += Math.PI / 3;
                 // this.cloud1.rotation.x -= Math.PI / 2;
                 this.cloud1.rotation.y = Math.PI / 3.3;
-                this.cloud1.position.set( 0.8, 0.7, 0.1 );
+                this.cloud1.position.set( 0.6, 1, -0.2 );
                 this.scene.add( this.cloud1 );
 
             }
@@ -269,11 +191,11 @@ export default class FloatingRock {
             ( gltf ) => {
 
                 this.cloud2 = gltf.scene.children[0] as Mesh;
-                this.cloud2.scale.set( 0.02, 0.02, 0.02 );
+                this.cloud2.scale.set( 0.03, 0.03, 0.03 );
                 // this.cloud2.rotation.z += Math.PI / 5;
                 // this.cloud2.rotation.x -= Math.PI / 2;
-                this.cloud2.rotation.y = Math.PI / 2;
-                this.cloud2.position.set( -1, -0.1, -0.3 );
+                this.cloud2.rotation.y = Math.PI / 4;
+                this.cloud2.position.set( -0.2, 0.5, -0.2 );
                 this.scene.add( this.cloud2 );
 
             }
@@ -284,15 +206,15 @@ export default class FloatingRock {
 
         this.loader.load(
 
-            'resources/models/stoneOnTheGround.gltf',
+            'resources/models/mount.gltf',
             ( gltf ) => {
 
                 let stoneOnTheGround = gltf.scene.children[0] as Mesh;
-                stoneOnTheGround.scale.set( 0.1, 0.1, 0.1 );
-                // this.cloud1.rotation.z += Math.PI / 3;
-                // this.cloud1.rotation.x -= Math.PI / 2;
-                stoneOnTheGround.rotation.y = Math.PI / 3.3;
-                stoneOnTheGround.position.set( 0.2, 0.01, -0.3 );
+                stoneOnTheGround.scale.set( 0.07, 0.07, 0.07 );
+                stoneOnTheGround.rotation.z = Math.PI / 4.9;
+                stoneOnTheGround.rotation.x -= Math.PI / 3.0;
+                stoneOnTheGround.rotation.y = Math.PI / 3.5;
+                stoneOnTheGround.position.set( 0.3, 0.06, -0.28 );
                 this.scene.add( stoneOnTheGround );
 
             }
@@ -300,28 +222,156 @@ export default class FloatingRock {
         );
 
         //
-        let tree;
 
         this.loader.load(
 
-            'resources/models/tree.gltf',
+            'resources/models/treeNew.gltf',
             ( gltf ) => {
 
-                tree = gltf.scene.children[0] as Mesh;
-                tree.scale.set( 0.002, 0.007, 0.002 );
-                // tree.rotation.z += Math.PI / 10;
-                // tree.rotation.x -= Math.PI / 5;
-                // tree.rotation.y = Math.PI / 7;
+                let tree = gltf.scene.children[0] as Mesh;
+                tree.scale.set( 0.023, 0.023, 0.023 );
+                tree.rotation.z += Math.PI / 4.5;
+                tree.rotation.x -= Math.PI / 13;
+                tree.rotation.y -= Math.PI / 6;
 
-                tree.rotation.z += Math.PI / 3;
-                tree.rotation.x -= Math.PI / 2;
-                tree.rotation.y = Math.PI / 3.3;
-                tree.position.set( 0.2, 0.2, 0.2 );
+                // tree.rotation.z += Math.PI / 8.3; // 3
+                // tree.rotation.x -= Math.PI / 7; // 2
+                // tree.rotation.y = Math.PI / 7; // 3.3
+                tree.position.set( 0, 0.1, -0.05 );
                 this.scene.add( tree );
 
             }
 
         );
+
+        //
+
+        this.loader.load(
+
+            'resources/models/fence.gltf',
+            ( gltf ) => {
+
+                let fence = gltf.scene.children[0] as Mesh;
+                fence.scale.set( 0.04, 0.04, 0.04 );
+                fence.rotation.z += Math.PI / 3;
+                fence.rotation.x -= Math.PI / 2.1;
+                fence.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+
+                fence.position.set( 0.39, 0.5, 0.19 );
+                this.scene.add( fence );
+
+            }
+
+        );
+
+        //
+
+        this.loader.load(
+
+            'resources/models/fireplace.gltf',
+            ( gltf ) => {
+
+                let fireplace = gltf.scene.children[0] as Mesh;
+                fireplace.scale.set( 0.05, 0.05, 0.05 );
+                fireplace.rotation.z += Math.PI / 3;
+                fireplace.rotation.x -= Math.PI / 2.1;
+                fireplace.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+
+                fireplace.position.set( 0.15, 0.15, 0.0 );
+                this.scene.add( fireplace );
+
+            }
+
+        );
+
+        //
+
+        this.loader.load(
+
+            'resources/models/flames.gltf',
+            ( gltf ) => {
+
+                let flames = gltf.scene.children[0] as Mesh;
+                flames.scale.set( 0.05, 0.05, 0.05 );
+                flames.rotation.z += Math.PI / 3;
+                flames.rotation.x -= Math.PI / 2.1;
+                flames.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+
+                flames.position.set( 0.22, 0.48, 0.18 );
+                this.scene.add( flames );
+
+            }
+
+        );
+
+    };
+
+    public loadingBar () : void {
+
+        const loadingBarElement = document.querySelector('.loading-bar');
+
+        this.loadingManager = new LoadingManager(
+            () => {
+
+                window.setTimeout( () => {
+
+                    gsap.to( overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 } );
+
+                    loadingBarElement.classList.add('ended');
+                    // @ts-ignore
+                    loadingBarElement.style.transform = '';
+
+                }, 500 )
+
+                window.setTimeout( () => {
+
+                    this.sceneReady = true;
+
+                }, 2000 )
+
+            },
+
+            ( itemUrl, itemsLoaded, itemsTotal ) => {
+
+                const progressRatio = itemsLoaded / itemsTotal;
+                // @ts-ignore
+                loadingBarElement.style.transform = `scaleX(${progressRatio})`;
+
+            }
+
+        );
+
+        /**
+         * Overlay
+         */
+        const overlayGeometry = new PlaneGeometry( 2, 2, 1, 1 );
+        const overlayMaterial = new ShaderMaterial( {
+            // wireframe: true,
+            transparent: true,
+            uniforms: {
+
+                uAlpha: { value: 1 }
+
+            },
+            vertexShader: `
+                void main() {
+
+                    gl_Position = vec4(position, 1.0);
+
+                }
+            `,
+            fragmentShader: `
+                uniform float uAlpha;
+
+                void main() {
+
+                    gl_FragColor = vec4(0.0, 0.0, 0.0, uAlpha);
+
+                }
+            `
+        } );
+        const overlay = new Mesh( overlayGeometry, overlayMaterial );
+        this.scene.add( overlay );
 
     };
 

@@ -1,17 +1,7 @@
 
 import React, { useState } from 'react';
-import {
-    BrowserRouter as Router,
-    // Switch,
-    Route,
-    Routes,
-    Link,
-} from 'react-router-dom';
-import Switch from "react-switch";
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { BrowserRouter } from 'react-router-dom';
-import { createBrowserHistory } from "history";
 
 import BottomMenuComponent from '../bottom-menu';
 import { TopMenuComponent } from '../top-menu/TopMenu.Component';
@@ -27,19 +17,9 @@ import { CombustionComponent } from '../combustion/Combustion.Component';
 
 const Div = styled.div`
     position: absolute;
-    // bottom: -40px;
-    // left: 45%;
     width: 100%;
-    height: 3092px;
-    background-color: #edb27b;
-    // opacity: 0.5;
-    // z-index: 1000;
-    // border-radius: 10px;
-    // color: red;
-    // height: 70000%,
-    // overflow: scroll
-    // display: grid;
-    // justify-content: center;
+    height: 349ivh;
+    background-color: #b2eef5;
 `;
 
 const TopPanelLeft = styled.div`

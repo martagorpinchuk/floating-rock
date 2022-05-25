@@ -1,12 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-// import img1 from '../../../resources/img/1.png';
-// import img2 from '../../../resources/img/1.png';
 
 //
 
 const Items = styled.div`
-    padding-top: 80%;
+    padding-top: 100vh;
     opacity: 0.85;
     z-index: 1000;
     color: white;
@@ -18,7 +16,6 @@ const Items = styled.div`
 `;
 
 const Item = styled.div`
-    // border-radius: 16px;
     padding-top: 43px;
     padding-bottom: 40px;
     background-color: #000;
