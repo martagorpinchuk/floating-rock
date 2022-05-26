@@ -14,6 +14,8 @@ const three_1 = __webpack_require__(/*! three */ "./node_modules/three/build/thr
 const OrbitControls_js_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const gsap_1 = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
+const Fire_Shader_1 = __webpack_require__(/*! ./shaders/Fire.Shader */ "./src/scripts/shaders/Fire.Shader.ts");
+const tweakpane_1 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 //
 class FloatingRock {
     constructor() {
@@ -29,6 +31,9 @@ class FloatingRock {
             this.elapsedTime += this.delta;
             if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
                 this.resize();
+            }
+            if (this.flameMaterial) {
+                this.flameMaterial.uniforms.uTime.value = this.elapsedTime / 3000;
             }
             this.mapControls.update();
             this.renderer.render(this.scene, this.camera);
@@ -67,9 +72,24 @@ class FloatingRock {
         const axesHelper = new three_1.AxesHelper(5);
         this.scene.add(axesHelper);
         //
+        this.debug();
         // this.loadingBar();
         this.loadModels();
+        this.fireFlame();
         this.tick();
+    }
+    ;
+    debug() {
+        let props = { color: '#fff30f' };
+        let pane = new tweakpane_1.Pane({ title: "Tweakpane" });
+        pane.element.parentElement.style['z-index'] = '10';
+        pane.element.parentElement.style['padding-top'] = '60px';
+        pane.addInput(props, 'color', { label: 'inner color' }).on('change', () => {
+            this.flameMaterial.uniforms.uInnerColor.value.setHex(parseInt(props.color.replace('#', '0x')));
+        });
+        pane.addInput(props, 'color', { label: 'outer color' }).on('change', () => {
+            this.flameMaterial.uniforms.uOuterColor.value.setHex(parseInt(props.color.replace('#', '0x')));
+        });
     }
     ;
     loadModels() {
@@ -170,23 +190,23 @@ class FloatingRock {
         //
         this.loader.load('resources/models/fireplace.gltf', (gltf) => {
             let fireplace = gltf.scene.children[0];
-            fireplace.scale.set(0.05, 0.05, 0.05);
+            fireplace.scale.set(0.03, 0.03, 0.03);
             fireplace.rotation.z += Math.PI / 3;
             fireplace.rotation.x -= Math.PI / 2.1;
             fireplace.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
-            fireplace.position.set(0.15, 0.15, 0.0);
+            fireplace.position.set(0.1, 0.15, 0.1);
             this.scene.add(fireplace);
         });
         //
-        this.loader.load('resources/models/flames.gltf', (gltf) => {
-            let flames = gltf.scene.children[0];
-            flames.scale.set(0.05, 0.05, 0.05);
-            flames.rotation.z += Math.PI / 3;
-            flames.rotation.x -= Math.PI / 2.1;
-            flames.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
-            flames.position.set(0.22, 0.48, 0.18);
-            this.scene.add(flames);
-        });
+    }
+    ;
+    fireFlame() {
+        this.flameMaterial = new Fire_Shader_1.FlameMaterial();
+        let flameGeometry = new three_1.PlaneGeometry(0.18, 0.23);
+        let flame = new three_1.Mesh(flameGeometry, this.flameMaterial);
+        // flame.position.set( -0.03, 0.0, 0.02 ); 0.1, 0.15, 0.1
+        flame.position.set(-0.49, -0.8, -0.4);
+        this.scene.add(flame);
     }
     ;
     loadingBar() {
@@ -237,82 +257,6 @@ class FloatingRock {
         this.scene.add(overlay);
     }
     ;
-    loadRock1() {
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
-        this.loader.load('resources/models/stone1.gltf', (gltf) => {
-            this.rock1 = gltf.scene.children[0];
-            this.rock1.scale.set(0.4, 0.4, 0.4);
-            this.rock1.rotation.z += Math.PI / 1.2;
-            this.rock1.rotation.x -= Math.PI / 7;
-            this.rock1.position.set(0, 0, 0);
-            this.scene.add(this.rock1);
-        });
-    }
-    ;
-    loadRock2() {
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
-        this.loader.load('resources/models/stone2.gltf', (gltf) => {
-            this.rock2 = gltf.scene.children[0];
-            this.rock2.scale.set(0.1, 0.1, 0.1);
-            // this.rock2.rotation.z += Math.PI;
-            this.rock2.rotation.z += Math.PI / 1.2;
-            this.rock2.rotation.x -= Math.PI / 7;
-            this.rock2.position.set(-1.5, 0, 0);
-            this.scene.add(this.rock2);
-        });
-    }
-    ;
-    loadRock3() {
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
-        this.loader.load('resources/models/stone3.gltf', (gltf) => {
-            this.rock3 = gltf.scene.children[0];
-            this.rock3.scale.set(0.03, 0.03, 0.03);
-            this.rock3.rotation.z += Math.PI;
-            // this.rock3.rotation.y += Math.PI / 3;
-            this.rock3.position.set(1, 0.5, 0.25);
-            this.scene.add(this.rock3);
-        });
-    }
-    ;
-    loadHouse() {
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
-        this.loader.load('resources/models/house.gltf', (gltf) => {
-            this.house = gltf.scene.children[0];
-            this.house.scale.set(0.1, 0.1, 0.0002);
-            this.house.rotation.z += Math.PI / 3;
-            this.house.rotation.x -= Math.PI / 2;
-            this.house.rotation.y = Math.PI / 3.3;
-            this.house.position.set(-0.08, 0.3, 0.1);
-            this.scene.add(this.house);
-        });
-    }
-    ;
-    loadCloud1() {
-        this.loader = new GLTFLoader_1.GLTFLoader();
-        this.loader.load('resources/models/cloud.gltf', (gltf) => {
-            this.cloud1 = gltf.scene.children[0];
-            this.cloud1.scale.set(0.03, 0.03, 0.03);
-            // this.cloud1.rotation.z += Math.PI / 3;
-            // this.cloud1.rotation.x -= Math.PI / 2;
-            this.cloud1.rotation.y = Math.PI / 3.3;
-            this.cloud1.position.set(0.8, 0.7, 0.1);
-            this.scene.add(this.cloud1);
-        });
-    }
-    ;
-    loadCloud2() {
-        this.loader = new GLTFLoader_1.GLTFLoader();
-        this.loader.load('resources/models/cloud2.gltf', (gltf) => {
-            this.cloud2 = gltf.scene.children[0];
-            this.cloud2.scale.set(0.02, 0.02, 0.02);
-            // this.cloud2.rotation.z += Math.PI / 5;
-            // this.cloud2.rotation.x -= Math.PI / 2;
-            this.cloud2.rotation.y = Math.PI / 2;
-            this.cloud2.position.set(-1, -0.1, -0.3);
-            this.scene.add(this.cloud2);
-        });
-    }
-    ;
     resize() {
         this.sizes.width = window.innerWidth;
         this.sizes.height = window.innerHeight;
@@ -324,6 +268,117 @@ class FloatingRock {
     ;
 }
 exports["default"] = FloatingRock;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Fire.Shader.ts":
+/*!********************************************!*\
+  !*** ./src/scripts/shaders/Fire.Shader.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FlameMaterial = exports.noise = void 0;
+const three_2 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+exports.noise = new three_2.TextureLoader().load('resources/textures/noise.png');
+class FlameMaterial extends three_2.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+        varying vec2 vUv;
+
+        void main() {
+
+            // gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+            gl_Position = projectionMatrix * ( modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position, 1.0 ) );
+
+            vUv = uv;
+
+        }
+        `,
+            this.fragmentShader = `
+
+        uniform sampler2D uNoise;
+        uniform float uTime;
+        uniform vec3 uInnerColor;
+        uniform vec3 uOuterColor;
+
+        varying vec2 vUv;
+
+        vec2 hash( in vec2 x )  // replace this by something better
+        {
+            const vec2 k = vec2( 0.3183099, 0.3678794 );
+            x = x*k + k.yx;
+            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
+        }
+
+
+        // return gradient noise (in x) and its derivatives (in yz)
+        vec3 noised( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+
+        #if 1
+            // quintic interpolation
+            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
+        #else
+            // cubic interpolation
+            vec2 u = f*f*(3.0-2.0*f);
+            vec2 du = 6.0*f*(1.0-f);
+        #endif
+
+            vec2 ga = hash( i + vec2(0.0,0.0) );
+            vec2 gb = hash( i + vec2(1.0,0.0) );
+            vec2 gc = hash( i + vec2(0.0,1.0) );
+            vec2 gd = hash( i + vec2(1.0,1.0) );
+
+            float va = dot( ga, f - vec2(0.0,0.0) );
+            float vb = dot( gb, f - vec2(1.0,0.0) );
+            float vc = dot( gc, f - vec2(0.0,1.0) );
+            float vd = dot( gd, f - vec2(1.0,1.0) );
+
+            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
+                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
+                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
+        }
+
+        void main() {
+
+            float yGradient = clamp( 0.9 - vUv.y, 0.0, 1.0 ) * 1.2;
+
+            vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
+
+            vec3 col = 0.6 + 0.99 * vec3( noise.x, noise.x, noise.x );
+
+            vec2 centeredUv = vec2( vUv.x - 0.3, vUv.y + 0.1 );
+            float distanceToCenter = length( centeredUv );
+            float strength = step( distance( vec2( vUv.x, vUv.y + 0.1 ), vec2(2.5) ), 0.4 );
+
+            if ( 8.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.24 ) > 0.5 + ( noise.x / 1.5 + noise.y / 4.0 ) ) { discard; }
+            // if ( 10.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.1 ) > 0.3 + noise.x / 2.0 ) { discard; }
+
+            gl_FragColor = vec4( vec3(yGradient) + col + uInnerColor, 1.0 );
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uOuterColor, 0.7 );
+
+            // gl_FragColor = vec4( yGradient );
+
+        }
+        `,
+            this.uniforms = {
+                uTime: { value: 0 },
+                uNoise: { value: exports.noise },
+                uInnerColor: { value: new three_2.Color(0xfff30f) },
+                uOuterColor: { value: new three_2.Color(0xfc4e03) }
+            };
+    }
+}
+exports.FlameMaterial = FlameMaterial;
 ;
 
 

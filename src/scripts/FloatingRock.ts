@@ -1,9 +1,11 @@
-import { AmbientLight, AxesHelper, Clock, Color, LoadingManager, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Scene, ShaderMaterial, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, Clock, Color, LoadingManager, Material, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Scene, ShaderMaterial, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
 // @ts-ignore
 import * as css from '../css/style.css';
+import { FlameMaterial } from "./shaders/Fire.Shader";
+import { Pane } from "tweakpane";
 
 //
 
@@ -26,6 +28,8 @@ export default class FloatingRock {
     public cloud1: Mesh;
     public cloud2: Mesh;
     public loadingManager: LoadingManager;
+    public flames: ShaderMaterial;
+    public flameMaterial: FlameMaterial;
 
     private sizes = {
         width: 0,
@@ -78,10 +82,34 @@ export default class FloatingRock {
 
         //
 
+        this.debug();
+
         // this.loadingBar();
         this.loadModels();
+        this.fireFlame();
 
         this.tick();
+
+    };
+
+    public debug () : void {
+
+        let props = { color: '#fff30f' };
+
+        let pane = new Pane( { title: "Tweakpane" } );
+        pane.element.parentElement.style['z-index'] = '10';
+        pane.element.parentElement.style['padding-top'] = '60px';
+
+        pane.addInput( props, 'color', { label: 'inner color' } ).on('change', () => {
+
+            this.flameMaterial.uniforms.uInnerColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
+
+        } );
+        pane.addInput( props, 'color', { label: 'outer color' } ).on('change', () => {
+
+            this.flameMaterial.uniforms.uOuterColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
+
+        } );
 
     };
 
@@ -272,12 +300,12 @@ export default class FloatingRock {
             ( gltf ) => {
 
                 let fireplace = gltf.scene.children[0] as Mesh;
-                fireplace.scale.set( 0.05, 0.05, 0.05 );
+                fireplace.scale.set( 0.03, 0.03, 0.03 );
                 fireplace.rotation.z += Math.PI / 3;
                 fireplace.rotation.x -= Math.PI / 2.1;
                 fireplace.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
 
-                fireplace.position.set( 0.15, 0.15, 0.0 );
+                fireplace.position.set( 0.1, 0.15, 0.1 );
                 this.scene.add( fireplace );
 
             }
@@ -286,23 +314,18 @@ export default class FloatingRock {
 
         //
 
-        this.loader.load(
+    };
 
-            'resources/models/flames.gltf',
-            ( gltf ) => {
+    public fireFlame () : void {
 
-                let flames = gltf.scene.children[0] as Mesh;
-                flames.scale.set( 0.05, 0.05, 0.05 );
-                flames.rotation.z += Math.PI / 3;
-                flames.rotation.x -= Math.PI / 2.1;
-                flames.rotation.y = Math.PI / 3.1; //-= Math.PI / 4;
+        this.flameMaterial = new FlameMaterial();
+        let flameGeometry = new PlaneGeometry( 0.18, 0.23 );
+        let flame = new Mesh( flameGeometry, this.flameMaterial );
 
-                flames.position.set( 0.22, 0.48, 0.18 );
-                this.scene.add( flames );
+        // flame.position.set( -0.03, 0.0, 0.02 ); 0.1, 0.15, 0.1
+        flame.position.set( -0.49, -0.8, -0.4 );
 
-            }
-
-        );
+        this.scene.add( flame );
 
     };
 
@@ -375,136 +398,6 @@ export default class FloatingRock {
 
     };
 
-    public loadRock1 () : void {
-
-        this.loader = new GLTFLoader( this.loadingManager );
-        this.loader.load(
-
-            'resources/models/stone1.gltf',
-            ( gltf ) => {
-
-                this.rock1 = gltf.scene.children[0] as Mesh;
-                this.rock1.scale.set( 0.4, 0.4, 0.4 );
-                this.rock1.rotation.z += Math.PI / 1.2;
-                this.rock1.rotation.x -= Math.PI / 7;
-                this.rock1.position.set( 0, 0, 0 );
-                this.scene.add( this.rock1 );
-
-            }
-
-        )
-
-    };
-
-    public loadRock2 () : void {
-
-        this.loader = new GLTFLoader( this.loadingManager );
-        this.loader.load(
-
-            'resources/models/stone2.gltf',
-            ( gltf ) => {
-
-                this.rock2 = gltf.scene.children[0] as Mesh;
-                this.rock2.scale.set( 0.1, 0.1, 0.1 );
-                // this.rock2.rotation.z += Math.PI;
-                this.rock2.rotation.z += Math.PI / 1.2;
-                this.rock2.rotation.x -= Math.PI / 7;
-                this.rock2.position.set( - 1.5, 0, 0 );
-                this.scene.add( this.rock2 );
-
-            }
-
-        )
-
-    };
-
-    public loadRock3 () : void {
-
-        this.loader = new GLTFLoader( this.loadingManager );
-        this.loader.load(
-
-            'resources/models/stone3.gltf',
-            ( gltf ) => {
-
-                this.rock3 = gltf.scene.children[0] as Mesh;
-                this.rock3.scale.set( 0.03, 0.03, 0.03 );
-                this.rock3.rotation.z += Math.PI;
-                // this.rock3.rotation.y += Math.PI / 3;
-                this.rock3.position.set( 1, 0.5, 0.25 );
-                this.scene.add( this.rock3 );
-
-            }
-
-        )
-
-    };
-
-    public loadHouse () : void {
-
-        this.loader = new GLTFLoader( this.loadingManager );
-        this.loader.load(
-
-            'resources/models/house.gltf',
-            ( gltf ) => {
-
-                this.house = gltf.scene.children[0] as Mesh;
-                this.house.scale.set( 0.1, 0.1, 0.0002 );
-                this.house.rotation.z += Math.PI / 3;
-                this.house.rotation.x -= Math.PI / 2;
-                this.house.rotation.y = Math.PI / 3.3;
-                this.house.position.set( -0.08, 0.3, 0.1 );
-                this.scene.add( this.house );
-
-            }
-
-        )
-
-    };
-
-    public loadCloud1 () : void {
-
-        this.loader = new GLTFLoader();
-        this.loader.load(
-
-            'resources/models/cloud.gltf',
-            ( gltf ) => {
-
-                this.cloud1 = gltf.scene.children[0] as Mesh;
-                this.cloud1.scale.set( 0.03, 0.03, 0.03 );
-                // this.cloud1.rotation.z += Math.PI / 3;
-                // this.cloud1.rotation.x -= Math.PI / 2;
-                this.cloud1.rotation.y = Math.PI / 3.3;
-                this.cloud1.position.set( 0.8, 0.7, 0.1 );
-                this.scene.add( this.cloud1 );
-
-            }
-
-        )
-
-    };
-
-    public loadCloud2 () : void {
-
-        this.loader = new GLTFLoader();
-        this.loader.load(
-
-            'resources/models/cloud2.gltf',
-            ( gltf ) => {
-
-                this.cloud2 = gltf.scene.children[0] as Mesh;
-                this.cloud2.scale.set( 0.02, 0.02, 0.02 );
-                // this.cloud2.rotation.z += Math.PI / 5;
-                // this.cloud2.rotation.x -= Math.PI / 2;
-                this.cloud2.rotation.y = Math.PI / 2;
-                this.cloud2.position.set( -1, -0.1, -0.3 );
-                this.scene.add( this.cloud2 );
-
-            }
-
-        )
-
-    };
-
     private resize () : any {
 
         this.sizes.width = window.innerWidth;
@@ -528,6 +421,12 @@ export default class FloatingRock {
         if ( this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight ) {
 
             this.resize();
+
+        }
+
+        if( this.flameMaterial ) {
+
+            this.flameMaterial.uniforms.uTime.value = this.elapsedTime / 3000;
 
         }
 
