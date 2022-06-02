@@ -19,7 +19,7 @@ const Div = styled.div`
     position: absolute;
     width: 100%;
     height: 349ivh;
-    background-color: #b2eef5;
+    background-color: #b2eeff;
 `;
 
 const TopPanelLeft = styled.div`

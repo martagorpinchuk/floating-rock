@@ -2,6 +2,205 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/scripts/FireFog.ts":
+/*!********************************!*\
+  !*** ./src/scripts/FireFog.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FogGfx = void 0;
+const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const Fog_Shader_1 = __webpack_require__(/*! ./shaders/Fog.Shader */ "./src/scripts/shaders/Fog.Shader.ts");
+//
+class FogGfx {
+    //
+    constructor(color, numberOfSprites, height, width, depth) {
+        this.numberOfSprites = 10;
+        this.height = 1;
+        this.width = 1;
+        this.depth = 1;
+        this.density = 105;
+        this.velocity = [];
+        this.positions = [];
+        this.randomPos = (Math.random() - 0.5) * 2;
+        this.speedSizeChange = 0.137;
+        this.coordEpearingParticle = 0;
+        this.opacityCoef = 0.999;
+        this.wrapper = new three_3.Object3D();
+        this.newPosition = new three_3.Vector3(-0.946, -0.37, -0.946); // --
+        this.soursePosition = new three_3.Vector3(0, 0.5, 0);
+        this.cubeVisibility = true;
+        this.sizeCoef = 0.1;
+        this.externalForce = new three_3.Vector3(0, 0, 0);
+        this._frameDuration = 300;
+        this.height = height;
+        this.width = width;
+        this.depth = depth;
+        this.numberOfSprites = numberOfSprites;
+        // create fog
+        this.material = new Fog_Shader_1.FogMaterial();
+        this.material.side = three_3.DoubleSide;
+        this.material.uniforms.uColor.value.setHex(color);
+        this.material.uniforms.uFrameDuration.value = this._frameDuration;
+        this.generate(this.density, this.height, this.width, this.depth, this.newPosition);
+    }
+    ;
+    generate(density, height, width, depth, newPosition) {
+        const boxGeometry = new three_3.BoxGeometry(0.3, 0.3, 0.3);
+        const boxMaterial = new three_3.MeshBasicMaterial({ color: 0x000000 });
+        boxMaterial.wireframe = true;
+        if (!this.cube) {
+            this.cube = new three_3.Mesh(boxGeometry, boxMaterial);
+            // this.wrapper.add( this.cube );
+        }
+        if (this.mesh) {
+            this.geometry.dispose();
+            boxGeometry.dispose();
+            this.wrapper.remove(this.mesh);
+        }
+        this.newPosition.x = newPosition.x;
+        this.newPosition.y = newPosition.y;
+        this.newPosition.z = newPosition.z;
+        this.height = height;
+        this.width = width;
+        this.depth = depth;
+        let fogPointPosition = new three_3.Vector3(0, 0, 0);
+        this.numberOfSprites = density * height * width * depth;
+        let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [], color = [];
+        const transformRow1 = [];
+        const transformRow2 = [];
+        const transformRow3 = [];
+        const transformRow4 = [];
+        for (let i = 0; i < this.numberOfSprites; i++) {
+            let scaleX = 1;
+            let scaleY = 1;
+            let scaleZ = 1;
+            const rotationX = 0;
+            const rotationY = 0;
+            const rotationZ = 0;
+            let transformMatrix = new three_3.Matrix4().compose(new three_3.Vector3(-0.946, -0.3, -0.946), new three_3.Quaternion().setFromEuler(new three_3.Euler(rotationX, rotationY, rotationZ)), new three_3.Vector3(scaleX, scaleY, scaleZ)).toArray();
+            transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
+            transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
+            transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
+            transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
+            size.push(0.3);
+            sizeIncrease.push(Math.random() * 0.02);
+            opacityDecrease.push(0.9);
+            this.velocity.push((Math.random() - 0.5) * 2 / 100, (Math.random() - 0.5) * 2 / 100, (Math.random() - 0.5) * 2 / 100);
+            offsetFrame.push(Math.floor(Math.random() * 50 * 16));
+        }
+        this.positions = [
+            -1.0, -1.0, 0.0,
+            1.0, -1.0, 0.0,
+            1.0, 1.0, 0.0,
+            1.0, 1.0, 0.0,
+            -1.0, 1.0, 0.0,
+            -1.0, -1.0, 0.0
+        ];
+        uv = [
+            0, 0,
+            1, 0,
+            1, 1,
+            1, 1,
+            0, 1,
+            0, 0
+        ];
+        this.geometry = new three_3.InstancedBufferGeometry();
+        this.geometry.setAttribute('position', new three_3.Float32BufferAttribute(this.positions, 3));
+        this.geometry.setAttribute('uv', new three_3.Float32BufferAttribute(uv, 2));
+        this.geometry.setAttribute('transformRow1', new three_3.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
+        this.geometry.setAttribute('transformRow2', new three_3.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
+        this.geometry.setAttribute('transformRow3', new three_3.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
+        this.geometry.setAttribute('transformRow4', new three_3.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
+        this.geometry.setAttribute('offsetFrame', new three_3.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
+        this.geometry.setAttribute('velocity', new three_3.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
+        this.geometry.setAttribute('opacityDecrease', new three_3.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
+        this.geometry.setAttribute('size', new three_3.InstancedBufferAttribute(new Float32Array(size), 1));
+        this.mesh = new three_3.Mesh(this.geometry, this.material);
+        this.wrapper.add(this.mesh);
+    }
+    ;
+    update(delta, intersects, externalForce) {
+        for (let i = 0; i < this.numberOfSprites; i++) {
+            const newSize = this.geometry.attributes.size.getX(i) + this.speedSizeChange * this.sizeCoef;
+            this.geometry.attributes.size.setX(i, newSize);
+            let velosityX = this.geometry.attributes.velocity.getX(i);
+            let velosityY = this.geometry.attributes.velocity.getY(i);
+            let velosityZ = this.geometry.attributes.velocity.getZ(i);
+            let newPosX = this.geometry.attributes.transformRow4.getX(i);
+            let newPosY = this.geometry.attributes.transformRow4.getY(i);
+            let newPosZ = this.geometry.attributes.transformRow4.getZ(i);
+            let velosityAccelerationX = (intersects.x - newPosX + externalForce.x) / 200;
+            let velosityAccelerationY = (intersects.y - newPosY + externalForce.y) / 200;
+            ;
+            let velosityAccelerationZ = (intersects.z - newPosZ + externalForce.z) / 200;
+            const newOpacity = this.geometry.attributes.opacityDecrease.getX(i) - this.opacityCoef;
+            this.geometry.attributes.opacityDecrease.setX(i, newOpacity);
+            newPosX += ((velosityX + velosityAccelerationX * newOpacity) * delta) / 16;
+            newPosY += ((velosityY + velosityAccelerationY * newOpacity) * delta) / 16;
+            newPosZ += ((velosityZ + velosityAccelerationZ * newOpacity) * delta) / 16;
+            if (newOpacity <= 0.001) {
+                newPosX = (Math.random() - 0.5) * this.coordEpearingParticle + this.soursePosition.x;
+                newPosY = (Math.random() - 0.5) * this.coordEpearingParticle + this.soursePosition.y;
+                newPosZ = (Math.random() - 0.5) * this.coordEpearingParticle + this.soursePosition.z;
+                this.geometry.attributes.size.setX(i, 0);
+                this.geometry.attributes.opacityDecrease.setX(i, 1);
+            }
+            this.geometry.attributes.transformRow4.setX(i, newPosX);
+            this.geometry.attributes.transformRow4.setY(i, newPosY);
+            this.geometry.attributes.transformRow4.setZ(i, newPosZ);
+        }
+        this.geometry.attributes.opacityDecrease.needsUpdate = true;
+        this.geometry.attributes.size.needsUpdate = true;
+        this.geometry.attributes.transformRow4.needsUpdate = true;
+    }
+    ;
+    //
+    get frameDuration() {
+        return this._frameDuration;
+    }
+    ;
+    set frameDuration(frameDuration) {
+        this.material.uniforms.uFrameDuration.value = frameDuration;
+        this._frameDuration = this.material.uniforms.uFrameDuration.value;
+    }
+    ;
+    get outerColor() {
+        return this._outerColor;
+    }
+    ;
+    set outerColor(color) {
+        this._outerColor = color;
+        if (typeof color === 'string') {
+            this.material.uniforms.uColor.value.setHex(parseInt(color.replace('#', '0x')));
+        }
+        else {
+            this.material.uniforms.uColor.value.setHex(color);
+        }
+    }
+    ;
+    get innerColor() {
+        return this._innerColor;
+    }
+    ;
+    set innerColor(color) {
+        this._innerColor = color;
+        if (typeof color === 'string') {
+            this.material.uniforms.uInnerColor.value.setHex(parseInt(color.replace('#', '0x')));
+        }
+        else {
+            this.material.uniforms.uInnerColor.value.setHex(color);
+        }
+    }
+    ;
+}
+exports.FogGfx = FogGfx;
+
+
+/***/ }),
+
 /***/ "./src/scripts/FloatingRock.ts":
 /*!*************************************!*\
   !*** ./src/scripts/FloatingRock.ts ***!
@@ -16,6 +215,7 @@ const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoad
 const gsap_1 = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
 const Fire_Shader_1 = __webpack_require__(/*! ./shaders/Fire.Shader */ "./src/scripts/shaders/Fire.Shader.ts");
 const tweakpane_1 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const FireFog_1 = __webpack_require__(/*! ./FireFog */ "./src/scripts/FireFog.ts");
 //
 class FloatingRock {
     constructor() {
@@ -35,6 +235,12 @@ class FloatingRock {
             if (this.flameMaterial) {
                 this.flameMaterial.uniforms.uTime.value = this.elapsedTime / 3000;
             }
+            if (this.rock2)
+                this.rock2.position.y -= Math.sin(this.elapsedTime / 700) / 3500 + Math.cos(this.elapsedTime / 700) / 3500;
+            if (this.rock3)
+                this.rock3.position.y -= Math.sin(this.elapsedTime / 780) / 4500 + Math.cos(this.elapsedTime / 780) / 4500;
+            if (this.fog)
+                this.fog.material.uniforms.uTime.value = this.elapsedTime;
             this.mapControls.update();
             this.renderer.render(this.scene, this.camera);
         };
@@ -44,13 +250,13 @@ class FloatingRock {
         this.canvas = document.querySelector('canvas.webglView');
         // Scene
         this.scene = new three_1.Scene();
-        this.scene.background = new three_1.Color('#b2eef5'); //324345 - at night
+        this.scene.background = new three_1.Color('#69deeb'); //324345 - at night  // b2eef5
         // Sizes
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
         // Camera
         this.camera = new three_1.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
-        this.camera.position.set(1, 2, 1);
+        this.camera.position.set(1, 0.4, 1);
         this.scene.add(this.camera);
         // Light
         const light = new three_1.PointLight(0xffffff, 3, 10);
@@ -72,16 +278,40 @@ class FloatingRock {
         const axesHelper = new three_1.AxesHelper(5);
         this.scene.add(axesHelper);
         //
-        this.debug();
+        this.addFog();
+        this.backgroundGradient();
         // this.loadingBar();
-        this.loadModels();
+        // this.loadModels();
+        this.loadModel();
         this.fireFlame();
+        this.debug();
         this.tick();
     }
     ;
+    addFog() {
+        // Fog
+        let props = {
+            numberOfSprites: 106,
+            height: 0.001,
+            width: 0.001,
+            depth: 0.001,
+            outerColor: '#ff0000',
+            innerColor: '#FFCE00',
+            newPosition: new three_1.Vector3(-0.946, 1.37, -0.946) // -0.49, -0.8, -0.4 --
+        };
+        this.fog = new FireFog_1.FogGfx(new three_1.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
+        this.animation = new Animation();
+        this.scene.add(this.fog.wrapper);
+        props.newPosition = this.fog.newPosition;
+    }
+    ;
     debug() {
-        let props = { color: '#fff30f' };
-        let pane = new tweakpane_1.Pane({ title: "Tweakpane" });
+        let props = {
+            color: '#fff30f',
+            outerColor: '#ff0000',
+            innerColor: '#FFCE00',
+        };
+        let pane = new tweakpane_1.Pane({ title: "Tweakpane", expanded: false });
         pane.element.parentElement.style['z-index'] = '10';
         pane.element.parentElement.style['padding-top'] = '60px';
         pane.addInput(props, 'color', { label: 'inner color' }).on('change', () => {
@@ -90,9 +320,16 @@ class FloatingRock {
         pane.addInput(props, 'color', { label: 'outer color' }).on('change', () => {
             this.flameMaterial.uniforms.uOuterColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
+        pane.addInput(props, 'outerColor', { view: 'color', alpha: true, label: 'outer fog color' }).on('change', (ev) => {
+            this.fog.outerColor = ev.value;
+        });
+        pane.addInput(props, 'innerColor', { view: 'color', alpha: true, label: 'inner fog color' }).on('change', (ev) => {
+            this.fog.innerColor = ev.value;
+        });
     }
     ;
     loadModels() {
+        //  middle rock
         this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/stone1.gltf', (gltf) => {
             this.rock1 = gltf.scene.children[0];
@@ -103,12 +340,10 @@ class FloatingRock {
             this.scene.add(this.rock1);
         });
         //
+        //  left rock
         this.loader.load('resources/models/stone2.gltf', (gltf) => {
             this.rock2 = gltf.scene.children[0];
             this.rock2.scale.set(0.1, 0.1, 0.1);
-            // this.rock2.rotation.z += Math.PI;
-            // this.rock2.rotation.z += Math.PI / 1.2;
-            // this.rock2.rotation.x -= Math.PI / 7;
             this.rock2.rotation.y -= Math.PI / 3;
             this.rock2.rotation.z -= Math.PI / 1.01;
             this.rock2.rotation.x -= Math.PI / 9.5;
@@ -116,6 +351,7 @@ class FloatingRock {
             this.scene.add(this.rock2);
         });
         //
+        // right rock
         this.loader.load('resources/models/stone3.gltf', (gltf) => {
             this.rock3 = gltf.scene.children[0];
             this.rock3.scale.set(0.03, 0.03, 0.03);
@@ -200,12 +436,129 @@ class FloatingRock {
         //
     }
     ;
+    //
+    loadModel() {
+        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
+        this.loader.load('resources/models/scene.gltf', (gltf) => {
+            gltf.scene.children.forEach(element => {
+                // gltf.scene.children[0] as Mesh;
+                this.scene.add(element);
+            });
+        });
+        //  middle rock
+        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
+        this.loader.load('resources/models/stone1.gltf', (gltf) => {
+            this.rock1 = gltf.scene.children[0];
+            this.rock1.scale.set(0.3, 0.3, 0.3);
+            this.rock1.rotation.z += Math.PI / 1;
+            this.rock1.position.set(0, -0.056, 0);
+            this.scene.add(this.rock1);
+        });
+        //  right rock
+        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
+        this.loader.load('resources/models/stone3.gltf', (gltf) => {
+            let rock = gltf.scene.children[0];
+            rock.scale.set(0.03, 0.03, 0.03);
+            rock.rotation.z += Math.PI / 1;
+            rock.rotation.x += Math.PI / 7;
+            rock.rotation.y += Math.PI / 7;
+            rock.position.set(0.5, -0.200, -0.120);
+            this.scene.add(rock);
+        });
+        //
+        this.loader.load('resources/models/house.gltf', (gltf) => {
+            this.house = gltf.scene.children[0];
+            this.house.scale.set(0.1, 0.07, 0.0002);
+            // this.house.rotation.z += Math.PI / 3;
+            // this.house.rotation.x -= Math.PI / 2;
+            this.house.rotation.y = Math.PI / 2.3;
+            this.house.position.set(-0.09, 0.1, 0.06);
+            this.scene.add(this.house);
+        });
+        //
+        this.loader.load('resources/models/treeNew.gltf', (gltf) => {
+            let tree = gltf.scene.children[0];
+            tree.scale.set(0.014, 0.014, 0.014);
+            tree.position.set(0.17, 0.04, -0.02);
+            this.scene.add(tree);
+        });
+        this.loader.load('resources/models/cloud.gltf', (gltf) => {
+            this.cloud1 = gltf.scene.children[0];
+            this.cloud1.scale.set(0.03, 0.03, 0.03);
+            this.cloud1.rotation.y = Math.PI / 3.3;
+            this.cloud1.position.set(0.2, 0.3, -0.2);
+            this.scene.add(this.cloud1);
+        });
+        //
+        this.loader.load('resources/models/cloud2.gltf', (gltf) => {
+            this.cloud2 = gltf.scene.children[0];
+            this.cloud2.scale.set(0.03, 0.03, 0.03);
+            this.cloud2.rotation.y = Math.PI / 4;
+            this.cloud2.position.set(-0.1, 0.35, 0.2);
+            this.scene.add(this.cloud2);
+        });
+        // rocksOnMiddleRock.gltf
+        this.loader.load('resources/models/rocksOnMiddleRock.gltf', (gltf) => {
+            let rocksOnMiddleRock = gltf.scene.children[0];
+            rocksOnMiddleRock.scale.set(0.65, 0.65, 0.65);
+            rocksOnMiddleRock.rotation.y = Math.PI / 4;
+            rocksOnMiddleRock.position.set(0.34, 0.0, 0.13);
+            this.scene.add(rocksOnMiddleRock);
+        });
+    }
+    ;
+    backgroundGradient() {
+        let planeGeometry = new three_1.PlaneGeometry(2, 2);
+        let planeMaterial = new three_1.ShaderMaterial({
+            depthWrite: false,
+            vertexShader: `
+                varying vec2 vUv;
+
+                void main() {
+
+                    gl_Position = vec4( position, 1.0 );
+
+                    vUv = uv;
+
+                }
+            `,
+            fragmentShader: `
+                varying vec2 vUv;
+
+                uniform vec3 uInnerColor;
+                uniform vec3 uOuterColor;
+
+                void main() {
+
+                    vec2 centeredUv = vec2( vUv.x - 0.5, vUv.y - 0.35 );
+                    float distance = length( centeredUv ) * 7.0;
+
+                    vec3 color = mix( uInnerColor, uOuterColor, distance );
+
+                    float yGradient = clamp( 0.5 - vUv.y, 0.0, 1.0 ) * 1.986;
+
+                    color = mix( color, uOuterColor, yGradient );
+
+                    gl_FragColor = vec4( color, 1.0 );
+
+                }
+            `,
+            uniforms: {
+                uInnerColor: { value: new three_1.Color(0xedf6f7) },
+                uOuterColor: { value: new three_1.Color(0xb3eeff) }
+            }
+        });
+        let backgroundPlane = new three_1.Mesh(planeGeometry, planeMaterial);
+        // backgroundPlane.position.set( -2, -2, -2 );
+        this.scene.add(backgroundPlane);
+    }
+    ;
     fireFlame() {
         this.flameMaterial = new Fire_Shader_1.FlameMaterial();
         let flameGeometry = new three_1.PlaneGeometry(0.18, 0.23);
         let flame = new three_1.Mesh(flameGeometry, this.flameMaterial);
-        // flame.position.set( -0.03, 0.0, 0.02 ); 0.1, 0.15, 0.1
-        flame.position.set(-0.49, -0.8, -0.4);
+        flame.scale.set(0.66, 0.66, 0.66);
+        flame.position.set(-0.946, -0.37, -0.946);
         this.scene.add(flame);
     }
     ;
@@ -264,6 +617,9 @@ class FloatingRock {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+    ;
+    waterfall() {
     }
     ;
 }
@@ -353,15 +709,16 @@ class FlameMaterial extends three_2.ShaderMaterial {
             float yGradient = clamp( 0.9 - vUv.y, 0.0, 1.0 ) * 1.2;
 
             vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
+            // vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
 
-            vec3 col = 0.6 + 0.99 * vec3( noise.x, noise.x, noise.x );
+            vec3 col = 0.55 + 0.99 * vec3( noise.x, noise.x, noise.x );
 
             vec2 centeredUv = vec2( vUv.x - 0.3, vUv.y + 0.1 );
             float distanceToCenter = length( centeredUv );
             float strength = step( distance( vec2( vUv.x, vUv.y + 0.1 ), vec2(2.5) ), 0.4 );
 
             if ( 8.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.24 ) > 0.5 + ( noise.x / 1.5 + noise.y / 4.0 ) ) { discard; }
-            // if ( 10.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.1 ) > 0.3 + noise.x / 2.0 ) { discard; }
+            // if ( distanceToCenter > 0.3 + noise.x / 1.0 ) { discard; }
 
             gl_FragColor = vec4( vec3(yGradient) + col + uInnerColor, 1.0 );
             gl_FragColor.rgb = mix( gl_FragColor.rgb, uOuterColor, 0.7 );
@@ -380,6 +737,156 @@ class FlameMaterial extends three_2.ShaderMaterial {
 }
 exports.FlameMaterial = FlameMaterial;
 ;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Fog.Shader.ts":
+/*!*******************************************!*\
+  !*** ./src/scripts/shaders/Fog.Shader.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FogMaterial = void 0;
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+// import FogScene from '../index';
+let randomnum = Math.random();
+const textureLoader = new three_4.TextureLoader();
+const fogTexture = textureLoader.load('resources/textures/fog1.png');
+const noise = textureLoader.load('resources/textures/noise.png');
+class FogMaterial extends three_4.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+            attribute vec4 transformRow1;
+            attribute vec4 transformRow2;
+            attribute vec4 transformRow3;
+            attribute vec4 transformRow4;
+            attribute float offsetFrame;
+            attribute float size;
+            attribute vec3 velocity;
+            attribute float opacityDecrease;
+
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform float uRandomNum;
+            uniform sampler2D uNoise;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform float uOpacity;
+
+            void main() {
+
+                float numOfFrames = 16.0;
+
+                float currentFrameId = mod( floor( mod( uTime + offsetFrame, numOfFrames * uFrameDuration ) / uFrameDuration ), numOfFrames );
+
+                float nextFrameId;
+                if ( currentFrameId == numOfFrames - 1.0 ) {
+
+                    nextFrameId = 0.0;
+
+                } else {
+
+                    nextFrameId = currentFrameId + 1.0;
+
+                }
+
+                mat4 transforms = mat4(
+                    transformRow1,
+                    transformRow2,
+                    transformRow3,
+                    transformRow4
+                );
+
+                gl_Position = projectionMatrix * ( modelViewMatrix * transforms * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position * size, 1.0 ) );
+
+                vUv = uv;
+                vOffsetFrame = offsetFrame;
+                vNextFrameId = nextFrameId;
+                vCurrentFrameId  = currentFrameId;
+                vOpacityDecrease = opacityDecrease;
+                vOpacity = uOpacity;
+                vPosition = transformRow4.xyz;
+
+            }
+        `;
+        this.depthWrite = false;
+        this.transparent = true;
+        this.blending = three_4.AdditiveBlending;
+        // this.wireframe = true;
+        this.fragmentShader = `
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform sampler2D uPointTexture;
+            uniform float alphaTest;
+            uniform vec3 uColor;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform vec3 uInnerColor;
+
+            void main() {
+
+                gl_FragColor = vec4( uColor, 0.04 );
+
+                //
+
+                vec4 offsets;
+
+                offsets.y = floor( vCurrentFrameId / 4.0 ) * 0.25;
+                offsets.x = mod( vCurrentFrameId, 4.0 ) * 0.25;
+
+                offsets.w = floor( vNextFrameId / 4.0 ) * 0.25;
+                offsets.z = mod( vNextFrameId, 4.0 ) * 0.25;
+
+                //
+
+                vec4 texture1 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.x, vUv.y * 0.25 + offsets.y ) );
+                vec4 texture2 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.z, vUv.y * 0.25 + offsets.w ) );
+
+                float fragmentTime = mod( uTime + vOffsetFrame, uFrameDuration ) / uFrameDuration;
+
+                gl_FragColor = mix( texture1, texture2, fragmentTime );
+                vec3 finalColor = uColor;
+
+                finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
+
+                gl_FragColor *= vec4( finalColor, vOpacityDecrease );
+
+                if ( gl_FragColor.a < alphaTest ) discard;
+
+            }
+        `;
+        this.uniforms = {
+            uRandomNum: { value: randomnum },
+            uPointTexture: { value: fogTexture },
+            uNoise: { value: noise },
+            alphaTest: { value: 0.0001 },
+            uColor: { value: new three_4.Color(0x1A75FF) },
+            uTime: { value: 0.0 },
+            uTimeX: { value: 0.0 },
+            uTimeY: { value: 0.0 },
+            uFrameDuration: { value: 16.0 },
+            uOpacity: { value: 0.9 },
+            uInnerColor: { value: new three_4.Color(0x716222) }
+        };
+    }
+}
+exports.FogMaterial = FogMaterial;
 
 
 /***/ }),
@@ -926,7 +1433,7 @@ const Div = styled_components_1.default.div `
     position: absolute;
     width: 100%;
     height: 349ivh;
-    background-color: #b2eef5;
+    background-color: #b2eeff;
 `;
 const TopPanelLeft = styled_components_1.default.div `
     line-height: 50px;
