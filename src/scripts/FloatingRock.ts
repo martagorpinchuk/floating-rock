@@ -1,10 +1,11 @@
-import { AmbientLight, AxesHelper, Clock, Color, LoadingManager, Material, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferAttribute, Clock, Color, Float32BufferAttribute, LoadingManager, Material, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
 // @ts-ignore
 import * as css from '../css/style.css';
 import { FlameMaterial } from "./shaders/Fire.Shader";
+import { WaterfallMaterial } from "./shaders/Warerfall.Shader";
 import { Pane } from "tweakpane";
 import { FogGfx } from "./FireFog";
 
@@ -32,6 +33,7 @@ export default class FloatingRock {
     public flames: ShaderMaterial;
     public flameMaterial: FlameMaterial;
     public animation: Animation;
+    public waterfallMaterial: WaterfallMaterial;
 
     public fog: FogGfx;
 
@@ -89,6 +91,7 @@ export default class FloatingRock {
         this.backgroundGradient();
         // this.loadingBar();
         // this.loadModels();
+        this.addWaterfall();
         this.loadModel();
         this.fireFlame();
 
@@ -653,9 +656,22 @@ export default class FloatingRock {
 
     };
 
-    public waterfall () : void {
+    public addWaterfall () : void {
 
-        
+        this.waterfallMaterial = new WaterfallMaterial();
+        let waterfallGeometry = new PlaneGeometry( 0.5, 1 );
+
+        let waterfall = new Mesh( waterfallGeometry,this.waterfallMaterial );
+
+        let brightness = [];
+        for ( let i = 0; i < 50; i ++ ) {
+
+            brightness.push( ( Math.random() - 0.5 ) * 2 );
+
+        }
+        waterfallGeometry.setAttribute( 'brightness', new Float32BufferAttribute( brightness, 1 ) );
+
+        this.scene.add( waterfall );
 
     };
 
@@ -677,6 +693,8 @@ export default class FloatingRock {
             this.flameMaterial.uniforms.uTime.value = this.elapsedTime / 3000;
 
         }
+
+        this.waterfallMaterial.uniforms.uTime.value = this.elapsedTime / 1500;
 
         if ( this.rock2 ) this.rock2.position.y -= Math.sin( this.elapsedTime / 700 ) / 3500 + Math.cos( this.elapsedTime / 700 ) / 3500;
         if ( this.rock3 ) this.rock3.position.y -= Math.sin( this.elapsedTime / 780 ) / 4500 + Math.cos( this.elapsedTime / 780 ) / 4500;

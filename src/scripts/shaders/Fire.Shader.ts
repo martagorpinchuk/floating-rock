@@ -23,7 +23,6 @@ export class FlameMaterial extends ShaderMaterial{
         `,
 
         this.fragmentShader = `
-
         uniform sampler2D uNoise;
         uniform float uTime;
         uniform vec3 uInnerColor;
