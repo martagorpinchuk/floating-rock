@@ -32,6 +32,7 @@ export class WaterfallMaterial extends ShaderMaterial {
         uniform vec3 uLightColor;
         uniform vec3 uDarkColor;
         uniform vec3 uWhiteColor;
+        uniform vec3 uFoamColor;
 
         vec2 hash( in vec2 x )  // replace this by something better
         {
@@ -82,13 +83,24 @@ export class WaterfallMaterial extends ShaderMaterial {
             vec2 centeredUvWhite = vec2( ( vUv.x - 0.5 ) * 10.0, ( vUv.y - 0.8 ) * 2.0 );
             float distanceToCenterWhite = length( centeredUvWhite );
 
+            vec2 centeredUvFoam = vec2( ( vUv.x - 0.5 ), ( vUv.y - 1.0 ) );
+            float distanceToCenterFoam = length( centeredUvFoam );
+
             vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
             col = step( 0.1, 0.2 + col );
-            float mix1 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterWhite - 0.1 ) * noise.y * 0.09 );
+            float mix1 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterWhite - 0.5 ) * noise.y * 0.09 );
             vec3 whiteCol = mix( col, uWhiteColor, mix1 );
+
+            //
+
+            vec3 foamCol = vec3( noise.x, noise.x, noise.x );
+            foamCol = step( 0.1, foamCol );
+            float mix2 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterFoam - 0.1 ) * 0.05 );
+            foamCol = mix( col, uFoamColor, mix2 );
+
             gl_FragColor = vec4( col, 1.0 );
 
-            if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; }
+            if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; };
 
             gl_FragColor.rgb = mix( gl_FragColor.rgb, uLightColor + abs( sin( uTime * 10.0 ) ) * vUv.y * vBrightness,  0.4 );
             gl_FragColor.rgb = mix( gl_FragColor.rgb, uDarkColor, 0.75 );
@@ -103,6 +115,7 @@ export class WaterfallMaterial extends ShaderMaterial {
             uLightColor: { value: new Color( 0xc0fafa ) },
             uDarkColor: { value: new Color( 0x3250a8 ) },
             uWhiteColor: { value: new Color( 0xffffff ) },
+            uFoamColor: { value: new Color( 0xf5f6ff ) },
             uRandom: { value: Math.random() }
         }
 
