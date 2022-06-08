@@ -215,6 +215,7 @@ const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoad
 const gsap_1 = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
 const Fire_Shader_1 = __webpack_require__(/*! ./shaders/Fire.Shader */ "./src/scripts/shaders/Fire.Shader.ts");
 const Warerfall_Shader_1 = __webpack_require__(/*! ./shaders/Warerfall.Shader */ "./src/scripts/shaders/Warerfall.Shader.ts");
+const WaterFoam_Shader_1 = __webpack_require__(/*! ./shaders/WaterFoam.Shader */ "./src/scripts/shaders/WaterFoam.Shader.ts");
 const tweakpane_1 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 const FireFog_1 = __webpack_require__(/*! ./FireFog */ "./src/scripts/FireFog.ts");
 //
@@ -285,6 +286,7 @@ class FloatingRock {
         // this.loadingBar();
         // this.loadModels();
         this.addWaterfall();
+        this.addWaterFoam();
         this.loadModel();
         this.fireFlame();
         this.debug();
@@ -632,6 +634,13 @@ class FloatingRock {
         }
         waterfallGeometry.setAttribute('brightness', new three_1.Float32BufferAttribute(brightness, 1));
         this.scene.add(waterfall);
+    }
+    ;
+    addWaterFoam() {
+        this.waterFoamMaterial = new WaterFoam_Shader_1.WaterFoamMaterial();
+        let waterFoamGeometry = new three_1.PlaneGeometry(0.7, 0.34);
+        let waterFoam = new three_1.Mesh(waterFoamGeometry, this.waterFoamMaterial);
+        this.scene.add(waterFoam);
     }
     ;
 }
@@ -1000,11 +1009,6 @@ class WaterfallMaterial extends three_5.ShaderMaterial {
 
             //
 
-            vec3 foamCol = vec3( noise.x, noise.x, noise.x );
-            foamCol = step( 0.1, foamCol );
-            float mix2 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterFoam - 0.1 ) * 0.05 );
-            foamCol = mix( col, uFoamColor, mix2 );
-
             gl_FragColor = vec4( col, 1.0 );
 
             if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; };
@@ -1027,6 +1031,63 @@ class WaterfallMaterial extends three_5.ShaderMaterial {
 }
 exports.WaterfallMaterial = WaterfallMaterial;
 ;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/WaterFoam.Shader.ts":
+/*!*************************************************!*\
+  !*** ./src/scripts/shaders/WaterFoam.Shader.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WaterFoamMaterial = exports.noise = void 0;
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+exports.noise = new three_6.TextureLoader().load('resources/textures/noise.png');
+class WaterFoamMaterial extends three_6.ShaderMaterial {
+    constructor() {
+        super(),
+            this.vertexShader = `
+        varying vec2 vUv;
+
+        void main () {
+
+            gl_Position = vec4( vec3( position.x, position.y - 0.4, position.z ), 1.0 );
+
+            vUv = uv;
+
+        }
+        `,
+            this.fragmentShader = `
+        uniform sampler2D uNoise;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+
+        varying vec2 vUv;
+
+        void main () {
+
+            float noise = texture2D( uNoise, vUv ).r;
+            float mix = step( -1.0, noise );
+            vec3 color = vec3(mix( vec3( 0.2 ), vec3( 0.7 ), noise ));
+
+            // vec3 color = mix( uColor1, uColor2, mix );
+
+            gl_FragColor = vec4( vec3( mix ), 1.0 );
+
+        }
+        `,
+            this.uniforms = {
+                uNoise: { value: exports.noise },
+                uColor1: { value: new three_6.Color(0xf5f6ff) },
+                uColor2: { value: new three_6.Color(0xffffff) }
+            };
+    }
+}
+exports.WaterFoamMaterial = WaterFoamMaterial;
 
 
 /***/ }),

@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import * as css from '../css/style.css';
 import { FlameMaterial } from "./shaders/Fire.Shader";
 import { WaterfallMaterial } from "./shaders/Warerfall.Shader";
+import { WaterFoamMaterial } from "./shaders/WaterFoam.Shader";
 import { Pane } from "tweakpane";
 import { FogGfx } from "./FireFog";
 
@@ -34,6 +35,7 @@ export default class FloatingRock {
     public flameMaterial: FlameMaterial;
     public animation: Animation;
     public waterfallMaterial: WaterfallMaterial;
+    public waterFoamMaterial: WaterFoamMaterial;
 
     public fog: FogGfx;
 
@@ -92,6 +94,7 @@ export default class FloatingRock {
         // this.loadingBar();
         // this.loadModels();
         this.addWaterfall();
+        this.addWaterFoam();
         this.loadModel();
         this.fireFlame();
 
@@ -660,7 +663,6 @@ export default class FloatingRock {
 
         this.waterfallMaterial = new WaterfallMaterial();
         let waterfallGeometry = new PlaneGeometry( 0.5, 1 );
-
         let waterfall = new Mesh( waterfallGeometry,this.waterfallMaterial );
 
         let brightness = [];
@@ -672,6 +674,16 @@ export default class FloatingRock {
         waterfallGeometry.setAttribute( 'brightness', new Float32BufferAttribute( brightness, 1 ) );
 
         this.scene.add( waterfall );
+
+    };
+
+    public addWaterFoam () : void {
+
+        this.waterFoamMaterial = new WaterFoamMaterial();
+        let waterFoamGeometry = new PlaneGeometry( 0.7, 0.34 );
+        let waterFoam = new Mesh( waterFoamGeometry, this.waterFoamMaterial );
+
+        this.scene.add( waterFoam );
 
     };
 

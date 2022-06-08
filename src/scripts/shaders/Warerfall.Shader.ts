@@ -93,11 +93,6 @@ export class WaterfallMaterial extends ShaderMaterial {
 
             //
 
-            vec3 foamCol = vec3( noise.x, noise.x, noise.x );
-            foamCol = step( 0.1, foamCol );
-            float mix2 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterFoam - 0.1 ) * 0.05 );
-            foamCol = mix( col, uFoamColor, mix2 );
-
             gl_FragColor = vec4( col, 1.0 );
 
             if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; };
