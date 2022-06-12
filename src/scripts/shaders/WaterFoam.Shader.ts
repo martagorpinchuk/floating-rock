@@ -16,7 +16,7 @@ export class WaterFoamMaterial extends ShaderMaterial {
 
         void main () {
 
-            gl_Position = vec4( vec3( position.x, position.y - 0.45, position.z - 0.7 ), 1.0 );
+            gl_Position = vec4( vec3( position.x, position.y - 0.87, position.z - 0.7 ), 1.0 );
 
             vUv = uv;
 
@@ -92,7 +92,7 @@ export class WaterFoamMaterial extends ShaderMaterial {
 
             uNoise: { value: noise },
             uColor1: { value: new Color( 0x09a0e0 ) },  // dark
-            uColor2: { value: new Color( 0xf5f6ff ) },   // light
+            uColor2: { value: new Color( 0xd7e8fa ) },   // light
             uWhiteColor: { value: new Color( 0xffffff ) },  // white
             uTime: { value: 0 }
 

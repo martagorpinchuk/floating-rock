@@ -16,7 +16,7 @@ export class WaterfallMaterial extends ShaderMaterial {
 
         void main () {
 
-            gl_Position = vec4( position, 1.0 );
+            gl_Position = vec4( vec3( position.x, position.y - 0.67, position.z + 0.50 ), 1.0 );
 
             vUv = uv;
             vBrightness = brightness;;

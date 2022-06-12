@@ -667,7 +667,7 @@ export default class FloatingRock {
     public addWaterfall () : void {
 
         this.waterfallMaterial = new WaterfallMaterial();
-        let waterfallGeometry = new PlaneGeometry( 0.5, 1 );
+        let waterfallGeometry = new PlaneGeometry( 0.2, 0.42 );
         let waterfall = new Mesh( waterfallGeometry,this.waterfallMaterial );
 
         let brightness = [];
@@ -686,7 +686,7 @@ export default class FloatingRock {
 
         this.waterFoamMaterial = new WaterFoamMaterial();
         // let waterFoamGeometry = new SphereBufferGeometry( 0.2 );
-        let waterFoamGeometry = new PlaneGeometry( 0.3, 0.4 );
+        let waterFoamGeometry = new PlaneGeometry( 0.16, 0.2 );
         let waterFoam = new Mesh( waterFoamGeometry, this.waterFoamMaterial );
 
         let foamFade = [];
@@ -711,14 +711,13 @@ export default class FloatingRock {
 
         for ( let i = 0; i < this.foamPointCount; i++ ) {
 
-            this.foamPointPositions[ i * 3 ] = ( Math.random() - 0.5 ) * 0.015;
-            this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.015;
-            this.foamPointPositions[ i * 3 + 2 ] = ( Math.random() - 0.5 ) * 0.015;
+            this.foamPointPositions[ i * 3 ] = ( Math.random() - 0.5 ) * 0.01;
+            this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.01;
+            this.foamPointPositions[ i * 3 + 2 ] = ( Math.random() - 0.5 ) * 0.01;
 
             if ( Math.abs( this.foamPointPositions[ i * 3 + 1 ] ) > Math.random() * 0.005 ) {
 
                 this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.001;
-                console.log('worked!');
 
             }
 

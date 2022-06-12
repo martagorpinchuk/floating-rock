@@ -19,9 +19,9 @@ export class FoamParticle extends ShaderMaterial {
 
         void main () {
 
-            vec4 mvPosition = modelViewMatrix * vec4( position + uTime / 20.0 + uTime / 20.0, 1.0 );
+            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x + uTime / 10.0, position.y - 0.026 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
 
-            gl_PointSize = foamSize * 0.005  * ( 300.0 / -mvPosition.z );
+            gl_PointSize = foamSize * 0.006  * ( 300.0 / -mvPosition.z );
 
             gl_Position = projectionMatrix * mvPosition;
 
@@ -41,7 +41,7 @@ export class FoamParticle extends ShaderMaterial {
         this.uniforms = {
 
             uPointTexture: { value: particleTexture },
-            uColor: { value: new Color( 0xc0fafa ) },
+            uColor: { value: new Color( 0xc5e0fc ) },
             uTime: { value: 0 }
 
         }

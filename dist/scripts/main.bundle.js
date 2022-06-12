@@ -630,7 +630,7 @@ class FloatingRock {
     ;
     addWaterfall() {
         this.waterfallMaterial = new Warerfall_Shader_1.WaterfallMaterial();
-        let waterfallGeometry = new three_1.PlaneGeometry(0.5, 1);
+        let waterfallGeometry = new three_1.PlaneGeometry(0.2, 0.42);
         let waterfall = new three_1.Mesh(waterfallGeometry, this.waterfallMaterial);
         let brightness = [];
         for (let i = 0; i < 50; i++) {
@@ -643,7 +643,7 @@ class FloatingRock {
     addWaterFoam() {
         this.waterFoamMaterial = new WaterFoam_Shader_1.WaterFoamMaterial();
         // let waterFoamGeometry = new SphereBufferGeometry( 0.2 );
-        let waterFoamGeometry = new three_1.PlaneGeometry(0.3, 0.4);
+        let waterFoamGeometry = new three_1.PlaneGeometry(0.16, 0.2);
         let waterFoam = new three_1.Mesh(waterFoamGeometry, this.waterFoamMaterial);
         let foamFade = [];
         for (let i = 0; i < 50; i++) {
@@ -657,12 +657,11 @@ class FloatingRock {
         this.foamPointPositions = new Float32Array(this.foamPointCount * 3);
         let foamSize = [];
         for (let i = 0; i < this.foamPointCount; i++) {
-            this.foamPointPositions[i * 3] = (Math.random() - 0.5) * 0.015;
-            this.foamPointPositions[i * 3 + 1] = (Math.random() - 0.5) * 0.015;
-            this.foamPointPositions[i * 3 + 2] = (Math.random() - 0.5) * 0.015;
+            this.foamPointPositions[i * 3] = (Math.random() - 0.5) * 0.01;
+            this.foamPointPositions[i * 3 + 1] = (Math.random() - 0.5) * 0.01;
+            this.foamPointPositions[i * 3 + 2] = (Math.random() - 0.5) * 0.01;
             if (Math.abs(this.foamPointPositions[i * 3 + 1]) > Math.random() * 0.005) {
                 this.foamPointPositions[i * 3 + 1] = (Math.random() - 0.5) * 0.001;
-                console.log('worked!');
             }
             foamSize.push(Math.random());
         }
@@ -817,9 +816,9 @@ class FoamParticle extends three_4.ShaderMaterial {
 
         void main () {
 
-            vec4 mvPosition = modelViewMatrix * vec4( position + uTime / 20.0 + uTime / 20.0, 1.0 );
+            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x + uTime / 10.0, position.y - 0.026 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
 
-            gl_PointSize = foamSize * 0.005  * ( 300.0 / -mvPosition.z );
+            gl_PointSize = foamSize * 0.006  * ( 300.0 / -mvPosition.z );
 
             gl_Position = projectionMatrix * mvPosition;
 
@@ -836,7 +835,7 @@ class FoamParticle extends three_4.ShaderMaterial {
         }`,
             this.uniforms = {
                 uPointTexture: { value: particleTexture },
-                uColor: { value: new three_4.Color(0xc0fafa) },
+                uColor: { value: new three_4.Color(0xc5e0fc) },
                 uTime: { value: 0 }
             };
     }
@@ -1019,7 +1018,7 @@ class WaterfallMaterial extends three_3.ShaderMaterial {
 
         void main () {
 
-            gl_Position = vec4( position, 1.0 );
+            gl_Position = vec4( vec3( position.x, position.y - 0.67, position.z + 0.50 ), 1.0 );
 
             vUv = uv;
             vBrightness = brightness;;
@@ -1140,7 +1139,7 @@ class WaterFoamMaterial extends three_2.ShaderMaterial {
 
         void main () {
 
-            gl_Position = vec4( vec3( position.x, position.y - 0.45, position.z - 0.7 ), 1.0 );
+            gl_Position = vec4( vec3( position.x, position.y - 0.87, position.z - 0.7 ), 1.0 );
 
             vUv = uv;
 
@@ -1213,7 +1212,7 @@ class WaterFoamMaterial extends three_2.ShaderMaterial {
             this.uniforms = {
                 uNoise: { value: exports.noise },
                 uColor1: { value: new three_2.Color(0x09a0e0) },
-                uColor2: { value: new three_2.Color(0xf5f6ff) },
+                uColor2: { value: new three_2.Color(0xd7e8fa) },
                 uWhiteColor: { value: new three_2.Color(0xffffff) },
                 uTime: { value: 0 }
             };
