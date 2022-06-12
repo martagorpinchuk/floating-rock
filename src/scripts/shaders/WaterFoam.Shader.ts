@@ -11,42 +11,90 @@ export class WaterFoamMaterial extends ShaderMaterial {
         super(),
 
         this.vertexShader = `
+
         varying vec2 vUv;
 
         void main () {
 
-            gl_Position = vec4( vec3( position.x, position.y - 0.4, position.z ), 1.0 );
+            gl_Position = vec4( vec3( position.x, position.y - 0.45, position.z - 0.7 ), 1.0 );
 
             vUv = uv;
 
-        }
-        `,
+        }`,
 
         this.fragmentShader = `
         uniform sampler2D uNoise;
         uniform vec3 uColor1;
         uniform vec3 uColor2;
+        uniform vec3 uWhiteColor;
+        uniform float uTime;
 
         varying vec2 vUv;
 
+        vec2 hash( in vec2 x )  // replace this by something better
+        {
+            const vec2 k = vec2( 0.3183099, 0.3678794 );
+            x = x*k + k.yx;
+            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
+        }
+
+
+        // return gradient noise (in x) and its derivatives (in yz)
+        vec3 noised( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+
+        #if 1
+            // quintic interpolation
+            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
+        #else
+            // cubic interpolation
+            vec2 u = f*f*(3.0-2.0*f);
+            vec2 du = 6.0*f*(1.0-f);
+        #endif
+
+            vec2 ga = hash( i + vec2(0.0,0.0) );
+            vec2 gb = hash( i + vec2(1.0,0.0) );
+            vec2 gc = hash( i + vec2(0.0,1.0) );
+            vec2 gd = hash( i + vec2(1.0,1.0) );
+
+            float va = dot( ga, f - vec2(0.0,0.0) );
+            float vb = dot( gb, f - vec2(1.0,0.0) );
+            float vc = dot( gc, f - vec2(0.0,1.0) );
+            float vd = dot( gd, f - vec2(1.0,1.0) );
+
+            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
+                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
+                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
+        }
+
         void main () {
 
-            float noise = texture2D( uNoise, vUv ).r;
-            float mix = step( -1.0, noise );
-            vec3 color = vec3(mix( vec3( 0.2 ), vec3( 0.7 ), noise ));
+            vec2 centeredUv = ( vUv - 0.5 ) * 2.0;
+            float distanceToCenter = length( centeredUv );
 
-            // vec3 color = mix( uColor1, uColor2, mix );
+            vec3 noise = noised( vec2( vUv.x * 10.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 - uTime * 5.0 ) );
+            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
+            col = mix( uColor2, uColor1, noise.x );
 
-            gl_FragColor = vec4( vec3( mix ), 1.0 );
+            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.15;
 
-        }
-        `,
+            if ( 3.4 * distanceToCenter * abs( centeredUv.y * 1.45 + 0.2 ) > 0.7 + noise.x ) { discard; };
+
+            gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
+            gl_FragColor.a = 1.0;
+
+        }`,
 
         this.uniforms = {
 
             uNoise: { value: noise },
-            uColor1: { value: new Color( 0xf5f6ff ) },
-            uColor2: { value: new Color( 0xffffff ) }
+            uColor1: { value: new Color( 0x09a0e0 ) },  // dark
+            uColor2: { value: new Color( 0xf5f6ff ) },   // light
+            uWhiteColor: { value: new Color( 0xffffff ) },  // white
+            uTime: { value: 0 }
 
         }
 

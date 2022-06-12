@@ -1,10 +1,11 @@
-import { AmbientLight, AxesHelper, BufferAttribute, Clock, Color, Float32BufferAttribute, LoadingManager, Material, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Clock, Color, DynamicDrawUsage, Float32BufferAttribute, LoadingManager, Material, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, PointsMaterial, Scene, ShaderMaterial, SphereBufferGeometry, TextureLoader, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
 // @ts-ignore
 import * as css from '../css/style.css';
 import { FlameMaterial } from "./shaders/Fire.Shader";
+import { FoamParticle } from "./shaders/FoamParticles.Shader";
 import { WaterfallMaterial } from "./shaders/Warerfall.Shader";
 import { WaterFoamMaterial } from "./shaders/WaterFoam.Shader";
 import { Pane } from "tweakpane";
@@ -23,8 +24,8 @@ export default class FloatingRock {
     public delta: number;
     public clock: Clock;
     public loader: GLTFLoader;
-    public rock1: Mesh;
-    public rock2: Mesh;
+    public middleRock: Mesh;
+    public rightRock: Mesh;
     public rock3: Mesh;
     public house: Mesh;
     public sceneReady: Boolean = false;
@@ -36,6 +37,10 @@ export default class FloatingRock {
     public animation: Animation;
     public waterfallMaterial: WaterfallMaterial;
     public waterFoamMaterial: WaterFoamMaterial;
+    public foamPointPositions: Float32Array;
+    public foamPointCount: number = 200;
+    public foamParticleGeom: BufferGeometry;
+    public foamParticleMaterial: FoamParticle;
 
     public fog: FogGfx;
 
@@ -95,7 +100,7 @@ export default class FloatingRock {
         // this.loadModels();
         this.addWaterfall();
         this.addWaterFoam();
-        this.loadModel();
+        this.loadModel();   // current
         this.fireFlame();
 
         this.debug();
@@ -138,7 +143,7 @@ export default class FloatingRock {
 
         let pane = new Pane( { title: "Tweakpane", expanded: false } );
         pane.element.parentElement.style['z-index'] = '10';
-        pane.element.parentElement.style['padding-top'] = '60px';
+        pane.element.parentElement.style['padding-top'] = '100px';
 
         pane.addInput( props, 'color', { label: 'inner color' } ).on('change', () => {
 
@@ -172,12 +177,12 @@ export default class FloatingRock {
             'resources/models/stone1.gltf',
             ( gltf ) => {
 
-                this.rock1 = gltf.scene.children[0] as Mesh;
-                this.rock1.scale.set( 0.4, 0.4, 0.4 );
-                this.rock1.rotation.z += Math.PI / 1.2;
-                this.rock1.rotation.x -= Math.PI / 7;
-                this.rock1.position.set( 0, 0, 0 );
-                this.scene.add( this.rock1 );
+                this.middleRock = gltf.scene.children[0] as Mesh;
+                this.middleRock.scale.set( 0.4, 0.4, 0.4 );
+                this.middleRock.rotation.z += Math.PI / 1.2;
+                this.middleRock.rotation.x -= Math.PI / 7;
+                this.middleRock.position.set( 0, 0, 0 );
+                this.scene.add( this.middleRock );
 
             }
 
@@ -191,14 +196,14 @@ export default class FloatingRock {
             'resources/models/stone2.gltf',
             ( gltf ) => {
 
-                this.rock2 = gltf.scene.children[0] as Mesh;
-                this.rock2.scale.set( 0.1, 0.1, 0.1 );
+                this.rightRock = gltf.scene.children[0] as Mesh;
+                this.rightRock.scale.set( 0.1, 0.1, 0.1 );
 
-                this.rock2.rotation.y -= Math.PI / 3;
-                this.rock2.rotation.z -= Math.PI / 1.01;
-                this.rock2.rotation.x -= Math.PI / 9.5;
-                this.rock2.position.set( - 0.8, 0.3, 0.5 );
-                this.scene.add( this.rock2 );
+                this.rightRock.rotation.y -= Math.PI / 3;
+                this.rightRock.rotation.z -= Math.PI / 1.01;
+                this.rightRock.rotation.x -= Math.PI / 9.5;
+                this.rightRock.position.set( - 0.8, 0.3, 0.5 );
+                this.scene.add( this.rightRock );
 
             }
 
@@ -395,11 +400,11 @@ export default class FloatingRock {
             'resources/models/stone1.gltf',
             ( gltf ) => {
 
-                this.rock1 = gltf.scene.children[0] as Mesh;
-                this.rock1.scale.set( 0.3, 0.3, 0.3 );
-                this.rock1.rotation.z += Math.PI / 1;
-                this.rock1.position.set( 0, -0.056, 0 );
-                this.scene.add( this.rock1 );
+                this.middleRock = gltf.scene.children[0] as Mesh;
+                this.middleRock.scale.set( 0.3, 0.3, 0.3 );
+                this.middleRock.rotation.z += Math.PI / 1;
+                this.middleRock.position.set( 0, -0.056, 0 );
+                this.scene.add( this.middleRock );
 
             }
 
@@ -412,13 +417,13 @@ export default class FloatingRock {
             'resources/models/stone3.gltf',
             ( gltf ) => {
 
-                let rock = gltf.scene.children[0] as Mesh;
-                rock.scale.set( 0.03, 0.03, 0.03 );
-                rock.rotation.z += Math.PI / 1;
-                rock.rotation.x += Math.PI / 7;
-                rock.rotation.y += Math.PI / 7;
-                rock.position.set( 0.5, -0.200, -0.120 );
-                this.scene.add( rock );
+                this.rightRock = gltf.scene.children[0] as Mesh;
+                this.rightRock.scale.set( 0.03, 0.03, 0.03 );
+                this.rightRock.rotation.z += Math.PI / 1;
+                this.rightRock.rotation.x += Math.PI / 7;
+                this.rightRock.rotation.y += Math.PI / 7;
+                this.rightRock.position.set( 0.5, -0.200, -0.120 );
+                this.scene.add( this.rightRock );
 
             }
 
@@ -680,10 +685,55 @@ export default class FloatingRock {
     public addWaterFoam () : void {
 
         this.waterFoamMaterial = new WaterFoamMaterial();
-        let waterFoamGeometry = new PlaneGeometry( 0.7, 0.34 );
+        // let waterFoamGeometry = new SphereBufferGeometry( 0.2 );
+        let waterFoamGeometry = new PlaneGeometry( 0.3, 0.4 );
         let waterFoam = new Mesh( waterFoamGeometry, this.waterFoamMaterial );
 
+        let foamFade = [];
+        for ( let i = 0; i < 50; i ++ ) {
+
+            foamFade.push( 1 - i * 0.02 );
+
+        }
+
+        waterFoamGeometry.setAttribute( 'foamFade', new Float32BufferAttribute( foamFade, 1 ) );
+
         this.scene.add( waterFoam );
+
+        //
+
+        this.foamParticleMaterial = new FoamParticle();
+        this.foamParticleGeom = new BufferGeometry();
+
+        this.foamPointPositions = new Float32Array( this.foamPointCount * 3 );
+
+        let foamSize = [];
+
+        for ( let i = 0; i < this.foamPointCount; i++ ) {
+
+            this.foamPointPositions[ i * 3 ] = ( Math.random() - 0.5 ) * 0.015;
+            this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.015;
+            this.foamPointPositions[ i * 3 + 2 ] = ( Math.random() - 0.5 ) * 0.015;
+
+            if ( Math.abs( this.foamPointPositions[ i * 3 + 1 ] ) > Math.random() * 0.005 ) {
+
+                this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.001;
+                console.log('worked!');
+
+            }
+
+            foamSize.push( Math.random() );
+
+        }
+
+        this.foamParticleGeom.setAttribute( 'position', new BufferAttribute( this.foamPointPositions, 3 ) );
+        this.foamParticleGeom.setAttribute( 'foamSize', new Float32BufferAttribute( foamSize, 1 ) );
+
+        let foamParticle = new Points( this.foamParticleGeom, this.foamParticleMaterial );
+        foamParticle.position.x += 0.93;
+        foamParticle.position.z += 0.93;
+        foamParticle.position.y += 0.355;
+        this.scene.add( foamParticle );
 
     };
 
@@ -707,11 +757,14 @@ export default class FloatingRock {
         }
 
         this.waterfallMaterial.uniforms.uTime.value = this.elapsedTime / 1500;
+        this.waterFoamMaterial.uniforms.uTime.value = this.elapsedTime / 6000;
 
-        if ( this.rock2 ) this.rock2.position.y -= Math.sin( this.elapsedTime / 700 ) / 3500 + Math.cos( this.elapsedTime / 700 ) / 3500;
+        if ( this.rightRock ) this.rightRock.position.y -= Math.sin( this.elapsedTime / 700 ) / 3500 + Math.cos( this.elapsedTime / 700 ) / 3500;
         if ( this.rock3 ) this.rock3.position.y -= Math.sin( this.elapsedTime / 780 ) / 4500 + Math.cos( this.elapsedTime / 780 ) / 4500;
 
         if ( this.fog ) this.fog.material.uniforms.uTime.value = this.elapsedTime;
+
+        this.foamParticleMaterial.uniforms.uTime.value = Math.sin( this.elapsedTime / 500 ) * 0.005 + Math.cos( this.elapsedTime / 500 ) * 0.005;
 
         this.mapControls.update();
         this.renderer.render( this.scene, this.camera );

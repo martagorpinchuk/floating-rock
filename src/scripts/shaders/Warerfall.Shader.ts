@@ -21,8 +21,7 @@ export class WaterfallMaterial extends ShaderMaterial {
             vUv = uv;
             vBrightness = brightness;;
 
-        }
-        `,
+        }`,
 
         this.fragmentShader = `
         varying vec2 vUv;
@@ -101,8 +100,7 @@ export class WaterfallMaterial extends ShaderMaterial {
             gl_FragColor.rgb = mix( gl_FragColor.rgb, uDarkColor, 0.75 );
             gl_FragColor.rgb += mix( uDarkColor, whiteCol, mix1 );
 
-        }
-        `,
+        }`,
 
         this.uniforms = {
 
