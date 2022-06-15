@@ -1,16 +1,17 @@
-import { Color, ShaderMaterial } from "three"
+import { Color, ShaderMaterial, TextureLoader } from "three";
 
 //
 
-export class WaterfallMaterial extends ShaderMaterial {
+export let noise = new TextureLoader().load('resources/textures/noise.png');
+
+export class BottomFoamMaterial extends ShaderMaterial {
 
     constructor() {
 
         super(),
 
         this.vertexShader = `
-        varying vec2  vUv;
-        varying float vBrightness;
+        varying vec2 vUv;
 
         attribute float brightness;
         attribute vec4 transformRow1;
@@ -27,22 +28,20 @@ export class WaterfallMaterial extends ShaderMaterial {
                 transformRow4
             );
 
-            gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( position.x + 0.01, position.y - 0.234, position.z + 0.439, 1.0 );
+            gl_Position = projectionMatrix * modelViewMatrix  * transforms * vec4( vec3( position.x - 0.01, position.y - 0.37, position.z + 0.44 ), 1.0 );
 
             vUv = uv;
-            vBrightness = brightness;;
 
         }`,
 
         this.fragmentShader = `
-        varying vec2 vUv;
-        varying float vBrightness;
-
-        uniform float uTime;
-        uniform vec3 uLightColor;
-        uniform vec3 uDarkColor;
+        uniform sampler2D uNoise;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
         uniform vec3 uWhiteColor;
-        uniform vec3 uFoamColor;
+        uniform float uTime;
+
+        varying vec2 vUv;
 
         vec2 hash( in vec2 x )  // replace this by something better
         {
@@ -85,44 +84,32 @@ export class WaterfallMaterial extends ShaderMaterial {
 
         void main () {
 
-            vec3 noise = noised( vec2( vUv.x * 15.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 + uTime * 5.0 - 0.2 ) );
-
-            vec2 centeredUv = vec2( ( vUv.x - 0.5 ) * 14.0, ( vUv.y - 4.0 ) * 2.0 );
+            vec2 centeredUv = ( vUv - 0.5 ) * 2.0;
             float distanceToCenter = length( centeredUv );
 
-            vec2 centeredUvWhite = vec2( ( vUv.x - 0.5 ) * 10.0, ( vUv.y - 0.8 ) * 2.0 );
-            float distanceToCenterWhite = length( centeredUvWhite );
-
-            vec2 centeredUvFoam = vec2( ( vUv.x - 0.5 ), ( vUv.y - 1.0 ) );
-            float distanceToCenterFoam = length( centeredUvFoam );
-
+            vec3 noise = noised( vec2( vUv.x * 10.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 - uTime * 5.0 ) );
             vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
-            col = step( 0.1, 0.2 + col );
-            float mix1 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterWhite - 0.5 ) * noise.y * 0.09 );
-            vec3 whiteCol = mix( col, uWhiteColor, mix1 );
+            col = mix( uColor2, uColor1, noise.x );
 
-            //
+            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.15;
 
-            gl_FragColor = vec4( col, 1.0 );
+            if ( 3.4 * distanceToCenter * abs( centeredUv.y * 1.45 + 0.2 ) > 0.7 + noise.x ) { discard; };
 
-            if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; };
-
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uLightColor + abs( sin( uTime * 10.0 ) ) * vUv.y * vBrightness,  0.4 );
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uDarkColor, 0.75 );
-            gl_FragColor.rgb += mix( uDarkColor, whiteCol, mix1 );
+            gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
+            gl_FragColor.a = 1.0;
 
         }`,
 
         this.uniforms = {
 
-            uTime: { value: 0 },
-            uLightColor: { value: new Color( 0xc0fafa ) },
-            uDarkColor: { value: new Color( 0x3250a8 ) },
-            uWhiteColor: { value: new Color( 0xffffff ) },
-            uFoamColor: { value: new Color( 0xf5f6ff ) },
-            uRandom: { value: Math.random() }
+            uNoise: { value: noise },
+            uColor1: { value: new Color( 0x09a0e0 ) },  // dark
+            uColor2: { value: new Color( 0xd7e8fa ) },   // light
+            uWhiteColor: { value: new Color( 0xffffff ) },  // white
+            uTime: { value: 0 }
+
         }
 
     }
 
-};
+}

@@ -1,29 +1,40 @@
-import { Color, ShaderMaterial, TextureLoader } from "three";
+import { Color, ShaderMaterial } from "three";
+
 
 //
 
-export let noise = new TextureLoader().load('resources/textures/noise.png');
 
-export class WaterFoamMaterial extends ShaderMaterial {
+export class TopmFoamShader extends ShaderMaterial {
 
-    constructor() {
+    constructor () {
 
-        super(),
+        super();
 
         this.vertexShader = `
-
         varying vec2 vUv;
+
+        attribute float brightness;
+        attribute vec4 transformRow1;
+        attribute vec4 transformRow2;
+        attribute vec4 transformRow3;
+        attribute vec4 transformRow4;
 
         void main () {
 
-            gl_Position = vec4( vec3( position.x, position.y - 0.87, position.z - 0.7 ), 1.0 );
+            mat4 transforms = mat4 (
+                transformRow1,
+                transformRow2,
+                transformRow3,
+                transformRow4
+            );
+
+            gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( vec3( position.x + 0.01, position.y - 0.1354, position.z + 0.45 ), 1.0 );
 
             vUv = uv;
 
         }`,
 
         this.fragmentShader = `
-        uniform sampler2D uNoise;
         uniform vec3 uColor1;
         uniform vec3 uColor2;
         uniform vec3 uWhiteColor;
@@ -72,26 +83,25 @@ export class WaterFoamMaterial extends ShaderMaterial {
 
         void main () {
 
-            vec2 centeredUv = ( vUv - 0.5 ) * 2.0;
+            vec2 centeredUv = ( vec2( ( vUv.x - 0.5 ) * 2.1, vUv.y - 0.5 ) ) * 2.0;
             float distanceToCenter = length( centeredUv );
 
-            vec3 noise = noised( vec2( vUv.x * 10.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 - uTime * 5.0 ) );
+            vec3 noise = noised( vec2( vUv.x * 20.0 + sin( uTime * 10.0 ) * 0.35, vUv.y * 8.0 + uTime * 5.0 ) );
+            vec3 noiseBorder = noised( vec2( vUv.x * 10.0 + sin( uTime * 10.0 ) * 0.45, vUv.y * 5.0 + uTime * 10.0 ) );
             vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
             col = mix( uColor2, uColor1, noise.x );
 
-            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.15;
+            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.35;
 
-            if ( 3.4 * distanceToCenter * abs( centeredUv.y * 1.45 + 0.2 ) > 0.7 + noise.x ) { discard; };
+            if ( 2.0 * distanceToCenter * abs( centeredUv.y * 1.45 - 0.7 ) > 0.5 + yGradient + noiseBorder.x ) { discard; };
 
             gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
-            gl_FragColor.a = 1.0;
+            gl_FragColor.a = 0.7;
 
         }`,
-
         this.uniforms = {
 
-            uNoise: { value: noise },
-            uColor1: { value: new Color( 0x09a0e0 ) },  // dark
+            uColor1: { value: new Color( 0x7784b5 ) },  // dark
             uColor2: { value: new Color( 0xd7e8fa ) },   // light
             uWhiteColor: { value: new Color( 0xffffff ) },  // white
             uTime: { value: 0 }

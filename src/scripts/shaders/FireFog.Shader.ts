@@ -1,10 +1,10 @@
-import { Color, ShaderMaterial, TextureLoader, Vector2, Vector3, Vector4 } from "three";
+import { AdditiveBlending, Color, ShaderMaterial, TextureLoader } from "three";
 // import FogScene from '../index';
 
 let randomnum = Math.random();
 const textureLoader = new TextureLoader();
 const fogTexture = textureLoader.load( 'resources/textures/fog1.png' );
-const noise = textureLoader.load( 'resources/textures/tNoise.png' );
+const noise = textureLoader.load( 'resources/textures/noise.png' );
 
 export class FogMaterial extends ShaderMaterial {
 
@@ -75,6 +75,7 @@ export class FogMaterial extends ShaderMaterial {
 
         this.depthWrite = false;
         this.transparent = true;
+        this.blending = AdditiveBlending;
         // this.wireframe = true;
 
         this.fragmentShader = `
@@ -119,7 +120,7 @@ export class FogMaterial extends ShaderMaterial {
 
                 finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
 
-                gl_FragColor *= vec4( finalColor, vOpacityDecrease * vOpacity );
+                gl_FragColor *= vec4( finalColor, vOpacityDecrease );
 
                 if ( gl_FragColor.a < alphaTest ) discard;
 
@@ -137,7 +138,7 @@ export class FogMaterial extends ShaderMaterial {
             uTimeY: { value: 0.0 },
             uFrameDuration: { value: 16.0 },
             uOpacity: { value: 0.9 },
-            uInnerColor: { value: new Color( 0xFFCE00 ) }
+            uInnerColor: { value: new Color( 0x716222 ) }
         };
 
     }

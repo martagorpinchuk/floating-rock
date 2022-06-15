@@ -19,9 +19,9 @@ export class FoamParticle extends ShaderMaterial {
 
         void main () {
 
-            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x + uTime / 10.0, position.y - 0.026 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
+            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x - 0.057 + uTime / 10.0, position.y - 0.05 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
 
-            gl_PointSize = foamSize * 0.006  * ( 300.0 / -mvPosition.z );
+            gl_PointSize = foamSize * 0.0068  * ( 300.0 / -mvPosition.z );
 
             gl_Position = projectionMatrix * mvPosition;
 

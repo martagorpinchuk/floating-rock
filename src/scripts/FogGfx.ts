@@ -1,11 +1,11 @@
 import { BoxGeometry, Color, DoubleSide, Euler, Float32BufferAttribute, InstancedBufferAttribute, InstancedBufferGeometry, Matrix4, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from "three";
-import { FogMaterial } from './shaders/FireFog.Shader';
+import { FogMaterial } from './shaders/Fog.Shader';
 
 //
 
 export class FogGfx {
 
-    public numberOfSprites: number = 10;
+    public numberOfSprites: number = 60;
     public height: number = 1;
     public width: number = 1;
     public depth: number = 1;
@@ -19,13 +19,13 @@ export class FogGfx {
     public rotationX: number;
     public rotationY: number;
     public rotationZ: number;
-    public randomPos: number = ( Math.random() - 0.5 ) * 2;
+    public randomPos: number = (Math.random() - 0.5) * 2;
     public speedSizeChange: number = 0.137;
-    public coordEpearingParticle: number = 0;
-    public opacityCoef: number = 0.999;
+    public coordEpearingParticle: number = 0.3;
+    public opacityCoef: number = 0.00999;
     public cube: Mesh;
     public wrapper: Object3D = new Object3D();
-    public newPosition: Vector3 = new Vector3( -0.946, -0.37, -0.946 ); // --
+    public newPosition: Vector3 = new Vector3( 0, 0.5, 0 );
     public soursePosition: Vector3 = new Vector3( 0, 0.5, 0 );
     public cubeVisibility: Boolean = true;
     public sizeCoef: number = 0.1;
@@ -59,14 +59,14 @@ export class FogGfx {
 
     public generate ( density: number, height: number, width: number, depth: number, newPosition: Vector3 ) : void {
 
-        const boxGeometry = new BoxGeometry( 0.3, 0.3, 0.3 );
-        const boxMaterial = new MeshBasicMaterial( { color: 0x000000 } );
+        const boxGeometry = new BoxGeometry( 1, 1, 1 );
+        const boxMaterial = new MeshBasicMaterial( { color: 0x00ff00 } );
         boxMaterial.wireframe = true;
 
         if ( ! this.cube ) {
 
             this.cube = new Mesh( boxGeometry, boxMaterial );
-            // this.wrapper.add( this.cube );
+            this.wrapper.add( this.cube );
 
         }
 
@@ -98,6 +98,32 @@ export class FogGfx {
 
         for ( let i = 0; i < this.numberOfSprites; i ++ ) {
 
+            let x = ( Math.random() - 0.5 ) * width;
+            let y = Math.random() * height;
+            let z = ( Math.random() - 0.5 ) * depth;
+
+            let distanceX = fogPointPosition.x - x;
+            let distanceY = y - fogPointPosition.y;
+            let distanceZ = fogPointPosition.z - z;
+
+            if ( Math.abs( distanceX ) > width / 2.5 - Math.random() - 0.5 ) {
+
+                distanceX -= Math.random() - 0.5;
+
+            }
+
+            if ( Math.abs( distanceY ) > height / 2.5 - Math.random() - 0.5 ) {
+
+                distanceY -= Math.random() - 0.5;
+
+            }
+
+            if ( Math.abs( distanceZ ) > depth / 2.5 - Math.random() - 0.5 ) {
+
+                distanceZ -= Math.random() - 0.5;
+
+            }
+
             let scaleX = 1;
             let scaleY = 1;
             let scaleZ = 1;
@@ -106,16 +132,16 @@ export class FogGfx {
             const rotationY = 0;
             const rotationZ = 0;
 
-            let transformMatrix = new Matrix4().compose( new Vector3( -0.946, -0.3, -0.946 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( scaleX, scaleY, scaleZ ) ).toArray();
+            let transformMatrix = new Matrix4().compose( new Vector3( distanceX, distanceY, distanceZ ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( scaleX, scaleY, scaleZ ) ).toArray();
 
             transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
             transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
             transformRow3.push( transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11] );
             transformRow4.push( transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15] );
 
-            size.push( 0.3 );
+            size.push( Math.random() );
             sizeIncrease.push( Math.random() * 0.02 );
-            opacityDecrease.push( 0.9 );
+            opacityDecrease.push( Math.random() );
             this.velocity.push( ( Math.random() - 0.5 ) * 2 / 100, ( Math.random() - 0.5 ) * 2 / 100, ( Math.random() - 0.5 ) * 2 / 100 );
             offsetFrame.push( Math.floor( Math.random() * 50 * 16 ) );
 

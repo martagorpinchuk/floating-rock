@@ -1,4 +1,4 @@
-import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Clock, Color, DynamicDrawUsage, Float32BufferAttribute, LoadingManager, Material, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, PointsMaterial, Scene, ShaderMaterial, SphereBufferGeometry, TextureLoader, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Clock, Color, DynamicDrawUsage, Euler, Float32BufferAttribute, LoadingManager, Material, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, PointsMaterial, Quaternion, Scene, ShaderMaterial, SphereBufferGeometry, TextureLoader, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
@@ -7,7 +7,8 @@ import * as css from '../css/style.css';
 import { FlameMaterial } from "./shaders/Fire.Shader";
 import { FoamParticle } from "./shaders/FoamParticles.Shader";
 import { WaterfallMaterial } from "./shaders/Warerfall.Shader";
-import { WaterFoamMaterial } from "./shaders/WaterFoam.Shader";
+import { BottomFoamMaterial } from "./shaders/BottomFoam.Shader";
+import { TopmFoamShader } from "./shaders/TopFoam.Shader";
 import { Pane } from "tweakpane";
 import { FogGfx } from "./FireFog";
 
@@ -36,7 +37,8 @@ export default class FloatingRock {
     public flameMaterial: FlameMaterial;
     public animation: Animation;
     public waterfallMaterial: WaterfallMaterial;
-    public waterFoamMaterial: WaterFoamMaterial;
+    public bottomFoamMaterial: BottomFoamMaterial;
+    public topFoamMaterial: BottomFoamMaterial;
     public foamPointPositions: Float32Array;
     public foamPointCount: number = 200;
     public foamParticleGeom: BufferGeometry;
@@ -98,11 +100,12 @@ export default class FloatingRock {
         this.backgroundGradient();
         // this.loadingBar();
         this.addWaterfall();
-        this.addWaterFoam();
+        this.addBottomFoam();
+        this.addTopFoam();
         this.loadModel();   // current
         this.fireFlame();
 
-        this.debug();
+        // this.debug();
 
         this.tick();
 
@@ -479,40 +482,81 @@ export default class FloatingRock {
     public addWaterfall () : void {
 
         this.waterfallMaterial = new WaterfallMaterial();
-        let waterfallGeometry = new PlaneGeometry( 0.2, 0.42 );
+        let waterfallGeometry = new PlaneGeometry( 0.14, 0.327 );
         let waterfall = new Mesh( waterfallGeometry,this.waterfallMaterial );
 
         let brightness = [];
+        const transformRow1 = [];
+        const transformRow2 = [];
+        const transformRow3 = [];
+        const transformRow4 = [];
+
         for ( let i = 0; i < 50; i ++ ) {
 
             brightness.push( ( Math.random() - 0.5 ) * 2 );
 
+            let rotationX = 0;
+            let rotationY = Math.PI / 9;
+            let rotationZ = 0;
+
+            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0, 0.05 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
+
+            transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
+            transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
+            transformRow3.push( transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11] );
+            transformRow4.push( transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15] );
+
         }
+
         waterfallGeometry.setAttribute( 'brightness', new Float32BufferAttribute( brightness, 1 ) );
+        waterfallGeometry.setAttribute( 'transformRow1', new Float32BufferAttribute( new Float32Array( transformRow1 ), 4 ) );
+        waterfallGeometry.setAttribute( 'transformRow2', new Float32BufferAttribute( new Float32Array( transformRow2 ), 4 ) );
+        waterfallGeometry.setAttribute( 'transformRow3', new Float32BufferAttribute( new Float32Array( transformRow3 ), 4 ) );
+        waterfallGeometry.setAttribute( 'transformRow4', new Float32BufferAttribute( new Float32Array( transformRow4 ), 4 ) );
 
         this.scene.add( waterfall );
 
     };
 
-    public addWaterFoam () : void {
+    public addBottomFoam () : void {
 
-        this.waterFoamMaterial = new WaterFoamMaterial();
-        // let waterFoamGeometry = new SphereBufferGeometry( 0.2 );
-        let waterFoamGeometry = new PlaneGeometry( 0.16, 0.2 );
-        let waterFoam = new Mesh( waterFoamGeometry, this.waterFoamMaterial );
+        this.bottomFoamMaterial = new BottomFoamMaterial();
+        let waterFoamGeometry = new PlaneGeometry( 0.13, 0.2 );
+        let waterFoam = new Mesh( waterFoamGeometry, this.bottomFoamMaterial );
 
         let foamFade = [];
+        const transformRow1 = [];
+        const transformRow2 = [];
+        const transformRow3 = [];
+        const transformRow4 = [];
+
         for ( let i = 0; i < 50; i ++ ) {
 
             foamFade.push( 1 - i * 0.02 );
 
+            let rotationX = 0;
+            let rotationY = Math.PI / 9;
+            let rotationZ = 0;
+
+            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0, 0.05 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
+
+            transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
+            transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
+            transformRow3.push( transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11] );
+            transformRow4.push( transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15] );
+
         }
+
+        waterFoamGeometry.setAttribute( 'transformRow1', new Float32BufferAttribute( new Float32Array( transformRow1 ), 4 ) );
+        waterFoamGeometry.setAttribute( 'transformRow2', new Float32BufferAttribute( new Float32Array( transformRow2 ), 4 ) );
+        waterFoamGeometry.setAttribute( 'transformRow3', new Float32BufferAttribute( new Float32Array( transformRow3 ), 4 ) );
+        waterFoamGeometry.setAttribute( 'transformRow4', new Float32BufferAttribute( new Float32Array( transformRow4 ), 4 ) );
 
         waterFoamGeometry.setAttribute( 'foamFade', new Float32BufferAttribute( foamFade, 1 ) );
 
         this.scene.add( waterFoam );
 
-        //
+        // Particle
 
         this.foamParticleMaterial = new FoamParticle();
         this.foamParticleGeom = new BufferGeometry();
@@ -523,8 +567,8 @@ export default class FloatingRock {
 
         for ( let i = 0; i < this.foamPointCount; i++ ) {
 
-            this.foamPointPositions[ i * 3 ] = ( Math.random() - 0.5 ) * 0.01;
-            this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.01;
+            this.foamPointPositions[ i * 3 ] = ( Math.random() - 0.5 ) * 0.05;
+            this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.03;
             this.foamPointPositions[ i * 3 + 2 ] = ( Math.random() - 0.5 ) * 0.01;
 
             if ( Math.abs( this.foamPointPositions[ i * 3 + 1 ] ) > Math.random() * 0.005 ) {
@@ -548,6 +592,41 @@ export default class FloatingRock {
 
     };
 
+    public addTopFoam () : void {
+
+        let topFoamGeom = new PlaneGeometry( 0.16, 0.33 );
+        this.topFoamMaterial = new TopmFoamShader();
+
+        const transformRow1 = [];
+        const transformRow2 = [];
+        const transformRow3 = [];
+        const transformRow4 = [];
+
+        for ( let i = 0; i < 50; i ++ ) {
+
+            let rotationX = 0;
+            let rotationY = Math.PI / 9;
+            let rotationZ = 0;
+
+            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0, 0.05 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
+
+            transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
+            transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
+            transformRow3.push( transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11] );
+            transformRow4.push( transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15] );
+
+        }
+
+        topFoamGeom.setAttribute( 'transformRow1', new Float32BufferAttribute( new Float32Array( transformRow1 ), 4 ) );
+        topFoamGeom.setAttribute( 'transformRow2', new Float32BufferAttribute( new Float32Array( transformRow2 ), 4 ) );
+        topFoamGeom.setAttribute( 'transformRow3', new Float32BufferAttribute( new Float32Array( transformRow3 ), 4 ) );
+        topFoamGeom.setAttribute( 'transformRow4', new Float32BufferAttribute( new Float32Array( transformRow4 ), 4 ) );
+
+        let topFoam = new Mesh( topFoamGeom, this.topFoamMaterial );
+        this.scene.add( topFoam );
+
+    };
+
     public tick = () : void => {
 
         window.requestAnimationFrame( this.tick );
@@ -568,7 +647,8 @@ export default class FloatingRock {
         }
 
         this.waterfallMaterial.uniforms.uTime.value = this.elapsedTime / 1500;
-        this.waterFoamMaterial.uniforms.uTime.value = this.elapsedTime / 6000;
+        this.bottomFoamMaterial.uniforms.uTime.value = this.elapsedTime / 6000;
+        this.topFoamMaterial.uniforms.uTime.value = this.elapsedTime / 6000;
 
         if ( this.rightRock ) this.rightRock.position.y -= Math.sin( this.elapsedTime / 700 ) / 4500 + Math.cos( this.elapsedTime / 700 ) / 4300;
         if ( this.leftRock ) this.leftRock.position.y -= Math.sin( this.elapsedTime / 980 ) / 4500 + Math.cos( this.elapsedTime / 930 ) / 3500;

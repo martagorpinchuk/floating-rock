@@ -14,8 +14,8 @@ const FogConteiner = styled.div<{visible: boolean}>`
 
 export const FogComponent = ({ visible }) => {
 
-    return(
-        <FogConteiner visible={visible}>Fog</FogConteiner>
+    return (
+        <FogConteiner visible={visible} className="webglViewFog" />
     );
 
 };
