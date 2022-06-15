@@ -1,4 +1,4 @@
-import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Clock, Color, DynamicDrawUsage, Euler, Float32BufferAttribute, LoadingManager, Material, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, PointsMaterial, Quaternion, Scene, ShaderMaterial, SphereBufferGeometry, TextureLoader, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
@@ -79,7 +79,6 @@ export default class FloatingRock {
 
         // Controls
         this.mapControls = new OrbitControls( this.camera, this.canvas );
-        // this.mapControls.enableDamping = true;
         this.mapControls.enableZoom = false;
 
         // Renderer
@@ -102,10 +101,10 @@ export default class FloatingRock {
         this.addWaterfall();
         this.addBottomFoam();
         this.addTopFoam();
-        this.loadModel();   // current
+        this.loadModel();
         this.fireFlame();
 
-        // this.debug();
+        this.debug();
 
         this.tick();
 
@@ -143,9 +142,10 @@ export default class FloatingRock {
 
         };
 
-        let pane = new Pane( { title: "Tweakpane", expanded: false } );
+        let pane = new Pane( { title: "Fireplace", expanded: false } );
+        pane.element.parentElement.style['width'] = '330px';
+        pane.element.parentElement.style['margin-top'] = '171px';
         pane.element.parentElement.style['z-index'] = '10';
-        pane.element.parentElement.style['padding-top'] = '100px';
 
         pane.addInput( props, 'color', { label: 'inner color' } ).on('change', () => {
 

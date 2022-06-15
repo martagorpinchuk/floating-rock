@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { Water } from '../../Water';
 
 //
 
-const WaterConteiner = styled.div<{visible: boolean}>`
+const WaterConteiner = styled.canvas<{visible: boolean}>`
     color: red;
 
     display: ${( props ) => ( props.visible ? 'block' : 'none' ) };
 `;
 
+const water = new Water();
+
 export const WaterComponent = ({ visible }) => {
 
+    const canvasRef = useRef( null );
+
+    useEffect( () => {
+
+        if ( canvasRef ) {
+
+            water.init();
+
+        }
+
+    }, [ canvasRef ] );
+
     return(
-        <WaterConteiner visible={visible}>Water</WaterConteiner>
+        <WaterConteiner visible={visible} className='webglViewWater'>Water</WaterConteiner>
     );
 
 };

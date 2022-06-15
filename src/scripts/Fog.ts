@@ -11,7 +11,7 @@ export default class FogScene {
     public plane: Mesh;
     public scene: Scene;
     public canvas: HTMLCanvasElement;
-    public mapControls: OrbitControls;
+    public controls: OrbitControls;
     public renderer: WebGLRenderer;
     public delta: number;
     public elapsedTime: number = 0;
@@ -36,7 +36,7 @@ export default class FogScene {
 
     constructor() {
 
-        this.init();
+        // this.init();
 
     };
 
@@ -59,8 +59,8 @@ export default class FogScene {
         this.scene.add( this.camera );
 
         // Controls
-        this.mapControls = new OrbitControls( this.camera, this.canvas );
-        this.mapControls.enableDamping = true;
+        this.controls = new OrbitControls( this.camera, this.canvas );
+        this.controls.enableDamping = true;
 
         // Plane
         let planeGeometry = new PlaneBufferGeometry( 3000, 3000, 1, 1 );
@@ -101,15 +101,25 @@ export default class FogScene {
         this.pane = new Pane();
 
         this.pane.element.parentElement.style['width'] = '330px';
+        this.pane.element.parentElement.style['margin-top'] = '110px';
+        this.pane.element.parentElement.style['z-index'] = '19';
 
-        const fogParam = this.pane.addFolder( {
+        const fogFolder = this.pane.addFolder( {
             title: 'Fog',
+            expanded: false
         } );
-        const fogSize = this.pane.addFolder( {
+
+        const fogParam = fogFolder.addFolder( {
+            title: 'Fog',
+            expanded: false
+        } );
+        const fogSize = fogFolder.addFolder( {
             title: 'Size',
+            expanded: false
         } );
-        const fogAnimation = this.pane.addFolder( {
+        const fogAnimation = fogFolder.addFolder( {
             title: 'Animation',
+            expanded: false
         } );
 
         this.mouseMoveFog( 'click' );
@@ -282,7 +292,7 @@ export default class FogScene {
 
         }
 
-        this.mapControls.update();
+        this.controls.update();
         this.renderer.render( this.scene, this.camera );
 
     };

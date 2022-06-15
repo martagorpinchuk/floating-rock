@@ -1,12 +1,10 @@
 import FloatingRock from "./FloatingRock";
-// import FogScene from "./Fog";
 
 
  class MainPage {
 
     public dispatch: any;
     public floatingRock: FloatingRock = new FloatingRock();
-    // public fog: FogScene = new FogScene();
 
     //
 
@@ -14,7 +12,6 @@ import FloatingRock from "./FloatingRock";
 
         // this.devUI = new Pane();
         this.floatingRock.init();
-        // this.fog.init();
 
         //
 

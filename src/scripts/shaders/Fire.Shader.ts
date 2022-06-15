@@ -14,7 +14,6 @@ export class FlameMaterial extends ShaderMaterial{
 
         void main() {
 
-            // gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
             gl_Position = projectionMatrix * ( modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position, 1.0 ) );
 
             vUv = uv;
@@ -74,7 +73,6 @@ export class FlameMaterial extends ShaderMaterial{
             float yGradient = clamp( 0.9 - vUv.y, 0.0, 1.0 ) * 1.2;
 
             vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
-            // vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
 
             vec3 col = 0.55 + 0.99 * vec3( noise.x, noise.x, noise.x );
 
@@ -83,12 +81,9 @@ export class FlameMaterial extends ShaderMaterial{
             float strength = step( distance( vec2( vUv.x, vUv.y + 0.1 ), vec2(2.5) ), 0.4 );
 
             if ( 8.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.24 ) > 0.5 + ( noise.x / 1.5 + noise.y / 4.0 ) ) { discard; }
-            // if ( distanceToCenter > 0.3 + noise.x / 1.0 ) { discard; }
 
             gl_FragColor = vec4( vec3(yGradient) + col + uInnerColor, 1.0 );
             gl_FragColor.rgb = mix( gl_FragColor.rgb, uOuterColor, 0.7 );
-
-            // gl_FragColor = vec4( yGradient );
 
         }
         `,

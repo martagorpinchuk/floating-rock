@@ -2,6 +2,147 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/scripts/Combustion.ts":
+/*!***********************************!*\
+  !*** ./src/scripts/Combustion.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CombustionGfx = void 0;
+const three_2 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const tweakpane_2 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const _ombustion_Shader_1 = __webpack_require__(/*! ./shaders/Сombustion.Shader */ "./src/scripts/shaders/Сombustion.Shader.ts");
+class CombustionGfx {
+    constructor() {
+        // this.init();
+        this.delta = 0;
+        this.elapsedTime = 0;
+        this.timeCoef = 1;
+        this.timeStop = false;
+        this.sizes = {
+            width: 0,
+            height: 0
+        };
+        this.tick = () => {
+            window.requestAnimationFrame(this.tick);
+            if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
+                this.resize();
+            }
+            //
+            if (this.timeStop) {
+                this.delta = this.clock.getDelta() * 1000;
+                this.elapsedTime += this.delta;
+            }
+            else {
+                this.clock.running = false;
+            }
+            if (this.potatoMaterial)
+                this.potatoMaterial.uniforms.uTime.value = this.elapsedTime / 10 / 1000;
+            //
+            this.mapControls.update();
+            this.renderer.render(this.scene, this.camera);
+        };
+    }
+    ;
+    init() {
+        // Canvas
+        this.canvas = document.querySelector('canvas.webglViewCombustion');
+        // Scene
+        this.scene = new three_2.Scene();
+        this.scene.background = new three_2.Color('#78614c');
+        // Camera
+        this.camera = new three_2.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 1000);
+        this.camera.position.set(0, 10, 10);
+        this.scene.add(this.camera);
+        // Controls
+        this.mapControls = new OrbitControls_1.MapControls(this.camera, this.canvas);
+        this.mapControls.enableDamping = true;
+        // Renderer
+        this.renderer = new three_2.WebGLRenderer({ canvas: this.canvas });
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        // Plane
+        let planeGeometry = new three_2.PlaneBufferGeometry(3000, 3000, 1, 1);
+        let planeMaterial = new three_2.MeshBasicMaterial({ color: '#453322' });
+        let plane = new three_2.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x -= Math.PI / 2;
+        this.scene.add(plane);
+        /// Light
+        const light = new three_2.PointLight(0xe9f7ec, 1, 500);
+        light.position.set(1, 3, 5);
+        this.scene.add(light);
+        this.clock = new three_2.Clock();
+        this.potatoLoading();
+        if (this.potato) {
+            this.potato.rotation.z += Math.PI;
+            this.potato.position.y = 1.35;
+        }
+        this.debug();
+        //
+        this.tick();
+    }
+    ;
+    debug() {
+        const combustionTwp = new tweakpane_2.Pane({ title: "Combustion", expanded: false });
+        combustionTwp.element.parentElement.style['z-index'] = '20';
+        combustionTwp.element.parentElement.style['margin-top'] = '80px';
+        combustionTwp.element.parentElement.style['width'] = '330px';
+        combustionTwp.addInput(this, 'timeStop', { title: 'Time stop' }).on('change', () => {
+            if (this.timeStop) {
+                this.timeCoef = this.elapsedTime;
+                this.potatoMaterial.uniforms.uTime.value = this.timeCoef / 10 / 100;
+                // this.clock.stop;
+                // console.log(this.elapsedTime);
+                // this.timeCoef = 0;
+            }
+            else
+                this.timeCoef = 1;
+        });
+        combustionTwp.addInput(this, 'timeCoef', { min: 0.00001, max: 1 });
+    }
+    ;
+    resize() {
+        this.sizes.width = window.innerWidth;
+        this.sizes.height = window.innerHeight;
+        this.camera.aspect = this.sizes.width / this.sizes.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+    ;
+    potatoLoading() {
+        // this.potatoMaterial = new СombustionMaterial();
+        // Loading potato_character
+        this.loader = new GLTFLoader_1.GLTFLoader();
+        this.loader.load('resources/models/potato_character/scene.gltf', (gltf) => {
+            this.potato = gltf.scene.children[0];
+            this.potato.traverse((item) => {
+                if (item instanceof three_2.Mesh && item.material instanceof three_2.Material) {
+                    // @ts-ignore
+                    this.potatoMaterial = new _ombustion_Shader_1.СombustionMaterial({ color: 0xffffff });
+                    // @ts-ignore
+                    this.potatoMaterial.uniforms.tDiffuse.value = item.material.map;
+                    // @ts-ignore
+                    item.material = this.potatoMaterial;
+                }
+                this.potato.rotation.z += Math.PI;
+                this.potato.position.y = 1.35;
+                this.scene.add(this.potato);
+            });
+        });
+    }
+    ;
+}
+exports.CombustionGfx = CombustionGfx;
+;
+exports["default"] = new CombustionGfx();
+
+
+/***/ }),
+
 /***/ "./src/scripts/FireFog.ts":
 /*!********************************!*\
   !*** ./src/scripts/FireFog.ts ***!
@@ -11,7 +152,7 @@
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FogGfx = void 0;
-const three_9 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 const FireFog_Shader_1 = __webpack_require__(/*! ./shaders/FireFog.Shader */ "./src/scripts/shaders/FireFog.Shader.ts");
 //
 class FogGfx {
@@ -28,12 +169,12 @@ class FogGfx {
         this.speedSizeChange = 0.137;
         this.coordEpearingParticle = 0;
         this.opacityCoef = 0.999;
-        this.wrapper = new three_9.Object3D();
-        this.newPosition = new three_9.Vector3(-0.946, -0.37, -0.946); // --
-        this.soursePosition = new three_9.Vector3(0, 0.5, 0);
+        this.wrapper = new three_3.Object3D();
+        this.newPosition = new three_3.Vector3(-0.946, -0.37, -0.946); // --
+        this.soursePosition = new three_3.Vector3(0, 0.5, 0);
         this.cubeVisibility = true;
         this.sizeCoef = 0.1;
-        this.externalForce = new three_9.Vector3(0, 0, 0);
+        this.externalForce = new three_3.Vector3(0, 0, 0);
         this._frameDuration = 300;
         this.height = height;
         this.width = width;
@@ -41,18 +182,18 @@ class FogGfx {
         this.numberOfSprites = numberOfSprites;
         // create fog
         this.material = new FireFog_Shader_1.FogMaterial();
-        this.material.side = three_9.DoubleSide;
+        this.material.side = three_3.DoubleSide;
         this.material.uniforms.uColor.value.setHex(color);
         this.material.uniforms.uFrameDuration.value = this._frameDuration;
         this.generate(this.density, this.height, this.width, this.depth, this.newPosition);
     }
     ;
     generate(density, height, width, depth, newPosition) {
-        const boxGeometry = new three_9.BoxGeometry(0.3, 0.3, 0.3);
-        const boxMaterial = new three_9.MeshBasicMaterial({ color: 0x000000 });
+        const boxGeometry = new three_3.BoxGeometry(0.3, 0.3, 0.3);
+        const boxMaterial = new three_3.MeshBasicMaterial({ color: 0x000000 });
         boxMaterial.wireframe = true;
         if (!this.cube) {
-            this.cube = new three_9.Mesh(boxGeometry, boxMaterial);
+            this.cube = new three_3.Mesh(boxGeometry, boxMaterial);
             // this.wrapper.add( this.cube );
         }
         if (this.mesh) {
@@ -66,7 +207,7 @@ class FogGfx {
         this.height = height;
         this.width = width;
         this.depth = depth;
-        let fogPointPosition = new three_9.Vector3(0, 0, 0);
+        let fogPointPosition = new three_3.Vector3(0, 0, 0);
         this.numberOfSprites = density * height * width * depth;
         let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [], color = [];
         const transformRow1 = [];
@@ -80,7 +221,7 @@ class FogGfx {
             const rotationX = 0;
             const rotationY = 0;
             const rotationZ = 0;
-            let transformMatrix = new three_9.Matrix4().compose(new three_9.Vector3(-0.946, -0.3, -0.946), new three_9.Quaternion().setFromEuler(new three_9.Euler(rotationX, rotationY, rotationZ)), new three_9.Vector3(scaleX, scaleY, scaleZ)).toArray();
+            let transformMatrix = new three_3.Matrix4().compose(new three_3.Vector3(-0.946, -0.3, -0.946), new three_3.Quaternion().setFromEuler(new three_3.Euler(rotationX, rotationY, rotationZ)), new three_3.Vector3(scaleX, scaleY, scaleZ)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
@@ -107,18 +248,18 @@ class FogGfx {
             0, 1,
             0, 0
         ];
-        this.geometry = new three_9.InstancedBufferGeometry();
-        this.geometry.setAttribute('position', new three_9.Float32BufferAttribute(this.positions, 3));
-        this.geometry.setAttribute('uv', new three_9.Float32BufferAttribute(uv, 2));
-        this.geometry.setAttribute('transformRow1', new three_9.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
-        this.geometry.setAttribute('transformRow2', new three_9.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
-        this.geometry.setAttribute('transformRow3', new three_9.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
-        this.geometry.setAttribute('transformRow4', new three_9.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
-        this.geometry.setAttribute('offsetFrame', new three_9.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
-        this.geometry.setAttribute('velocity', new three_9.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
-        this.geometry.setAttribute('opacityDecrease', new three_9.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
-        this.geometry.setAttribute('size', new three_9.InstancedBufferAttribute(new Float32Array(size), 1));
-        this.mesh = new three_9.Mesh(this.geometry, this.material);
+        this.geometry = new three_3.InstancedBufferGeometry();
+        this.geometry.setAttribute('position', new three_3.Float32BufferAttribute(this.positions, 3));
+        this.geometry.setAttribute('uv', new three_3.Float32BufferAttribute(uv, 2));
+        this.geometry.setAttribute('transformRow1', new three_3.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
+        this.geometry.setAttribute('transformRow2', new three_3.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
+        this.geometry.setAttribute('transformRow3', new three_3.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
+        this.geometry.setAttribute('transformRow4', new three_3.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
+        this.geometry.setAttribute('offsetFrame', new three_3.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
+        this.geometry.setAttribute('velocity', new three_3.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
+        this.geometry.setAttribute('opacityDecrease', new three_3.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
+        this.geometry.setAttribute('size', new three_3.InstancedBufferAttribute(new Float32Array(size), 1));
+        this.mesh = new three_3.Mesh(this.geometry, this.material);
         this.wrapper.add(this.mesh);
     }
     ;
@@ -209,16 +350,16 @@ exports.FogGfx = FogGfx;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const three_1 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_js_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_js_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const GLTFLoader_2 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const gsap_1 = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
 const Fire_Shader_1 = __webpack_require__(/*! ./shaders/Fire.Shader */ "./src/scripts/shaders/Fire.Shader.ts");
 const FoamParticles_Shader_1 = __webpack_require__(/*! ./shaders/FoamParticles.Shader */ "./src/scripts/shaders/FoamParticles.Shader.ts");
 const Warerfall_Shader_1 = __webpack_require__(/*! ./shaders/Warerfall.Shader */ "./src/scripts/shaders/Warerfall.Shader.ts");
 const BottomFoam_Shader_1 = __webpack_require__(/*! ./shaders/BottomFoam.Shader */ "./src/scripts/shaders/BottomFoam.Shader.ts");
 const TopFoam_Shader_1 = __webpack_require__(/*! ./shaders/TopFoam.Shader */ "./src/scripts/shaders/TopFoam.Shader.ts");
-const tweakpane_1 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_4 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 const FireFog_1 = __webpack_require__(/*! ./FireFog */ "./src/scripts/FireFog.ts");
 //
 class FloatingRock {
@@ -258,33 +399,32 @@ class FloatingRock {
         // Canvas
         this.canvas = document.querySelector('canvas.webglView');
         // Scene
-        this.scene = new three_1.Scene();
-        this.scene.background = new three_1.Color('#69deeb'); //324345 - at night  // b2eef5
+        this.scene = new three_6.Scene();
+        this.scene.background = new three_6.Color('#69deeb'); //324345 - at night  // b2eef5
         // Sizes
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
         // Camera
-        this.camera = new three_1.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera = new three_6.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
         this.camera.position.set(1, 0.4, 1);
         this.scene.add(this.camera);
         // Light
-        const light = new three_1.PointLight(0xffffff, 3, 10);
+        const light = new three_6.PointLight(0xffffff, 3, 10);
         light.position.set(3, 7, 3);
         this.scene.add(light);
-        const ambientLight = new three_1.AmbientLight(0xffffff, 0.4);
+        const ambientLight = new three_6.AmbientLight(0xffffff, 0.4);
         this.scene.add(ambientLight);
         // Controls
-        this.mapControls = new OrbitControls_js_1.OrbitControls(this.camera, this.canvas);
-        // this.mapControls.enableDamping = true;
+        this.mapControls = new OrbitControls_js_2.OrbitControls(this.camera, this.canvas);
         this.mapControls.enableZoom = false;
         // Renderer
-        this.renderer = new three_1.WebGLRenderer({ canvas: this.canvas, antialias: true });
+        this.renderer = new three_6.WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         // Resize
         window.addEventListener('resize', this.resize());
-        this.clock = new three_1.Clock();
-        const axesHelper = new three_1.AxesHelper(5);
+        this.clock = new three_6.Clock();
+        const axesHelper = new three_6.AxesHelper(5);
         this.scene.add(axesHelper);
         //
         this.addFog();
@@ -293,9 +433,9 @@ class FloatingRock {
         this.addWaterfall();
         this.addBottomFoam();
         this.addTopFoam();
-        this.loadModel(); // current
+        this.loadModel();
         this.fireFlame();
-        // this.debug();
+        this.debug();
         this.tick();
     }
     ;
@@ -308,9 +448,9 @@ class FloatingRock {
             depth: 0.001,
             outerColor: '#ff0000',
             innerColor: '#FFCE00',
-            newPosition: new three_1.Vector3(-0.946, 1.37, -0.946) // -0.49, -0.8, -0.4 --
+            newPosition: new three_6.Vector3(-0.946, 1.37, -0.946) // -0.49, -0.8, -0.4 --
         };
-        this.fog = new FireFog_1.FogGfx(new three_1.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
+        this.fog = new FireFog_1.FogGfx(new three_6.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
         this.animation = new Animation();
         this.scene.add(this.fog.wrapper);
         props.newPosition = this.fog.newPosition;
@@ -322,9 +462,10 @@ class FloatingRock {
             outerColor: '#ff0000',
             innerColor: '#FFCE00',
         };
-        let pane = new tweakpane_1.Pane({ title: "Tweakpane", expanded: false });
+        let pane = new tweakpane_4.Pane({ title: "Fireplace", expanded: false });
+        pane.element.parentElement.style['width'] = '330px';
+        pane.element.parentElement.style['margin-top'] = '171px';
         pane.element.parentElement.style['z-index'] = '10';
-        pane.element.parentElement.style['padding-top'] = '100px';
         pane.addInput(props, 'color', { label: 'inner color' }).on('change', () => {
             this.flameMaterial.uniforms.uInnerColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
@@ -341,7 +482,7 @@ class FloatingRock {
     ;
     //
     loadModel() {
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
+        this.loader = new GLTFLoader_2.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/scene.gltf', (gltf) => {
             gltf.scene.children.forEach(element => {
                 // gltf.scene.children[0] as Mesh;
@@ -349,7 +490,7 @@ class FloatingRock {
             });
         });
         //  middle rock
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
+        this.loader = new GLTFLoader_2.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/stone1.gltf', (gltf) => {
             this.middleRock = gltf.scene.children[0];
             this.middleRock.scale.set(0.3, 0.3, 0.3);
@@ -358,7 +499,7 @@ class FloatingRock {
             this.scene.add(this.middleRock);
         });
         //  right rock
-        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
+        this.loader = new GLTFLoader_2.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/stone3.gltf', (gltf) => {
             this.rightRock = gltf.scene.children[0];
             this.rightRock.scale.set(0.03, 0.03, 0.03);
@@ -419,8 +560,8 @@ class FloatingRock {
     }
     ;
     backgroundGradient() {
-        let planeGeometry = new three_1.PlaneGeometry(2, 2);
-        let planeMaterial = new three_1.ShaderMaterial({
+        let planeGeometry = new three_6.PlaneGeometry(2, 2);
+        let planeMaterial = new three_6.ShaderMaterial({
             depthWrite: false,
             vertexShader: `
                 varying vec2 vUv;
@@ -455,19 +596,19 @@ class FloatingRock {
                 }
             `,
             uniforms: {
-                uInnerColor: { value: new three_1.Color(0xedf6f7) },
-                uOuterColor: { value: new three_1.Color(0xb3eeff) }
+                uInnerColor: { value: new three_6.Color(0xedf6f7) },
+                uOuterColor: { value: new three_6.Color(0xb3eeff) }
             }
         });
-        let backgroundPlane = new three_1.Mesh(planeGeometry, planeMaterial);
+        let backgroundPlane = new three_6.Mesh(planeGeometry, planeMaterial);
         // backgroundPlane.position.set( -2, -2, -2 );
         this.scene.add(backgroundPlane);
     }
     ;
     fireFlame() {
         this.flameMaterial = new Fire_Shader_1.FlameMaterial();
-        let flameGeometry = new three_1.PlaneGeometry(0.18, 0.23);
-        let flame = new three_1.Mesh(flameGeometry, this.flameMaterial);
+        let flameGeometry = new three_6.PlaneGeometry(0.18, 0.23);
+        let flame = new three_6.Mesh(flameGeometry, this.flameMaterial);
         flame.scale.set(0.66, 0.66, 0.66);
         flame.position.set(-0.946, -0.37, -0.946);
         this.scene.add(flame);
@@ -475,7 +616,7 @@ class FloatingRock {
     ;
     loadingBar() {
         const loadingBarElement = document.querySelector('.loading-bar');
-        this.loadingManager = new three_1.LoadingManager(() => {
+        this.loadingManager = new three_6.LoadingManager(() => {
             window.setTimeout(() => {
                 gsap_1.gsap.to(overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 });
                 loadingBarElement.classList.add('ended');
@@ -493,8 +634,8 @@ class FloatingRock {
         /**
          * Overlay
          */
-        const overlayGeometry = new three_1.PlaneGeometry(2, 2, 1, 1);
-        const overlayMaterial = new three_1.ShaderMaterial({
+        const overlayGeometry = new three_6.PlaneGeometry(2, 2, 1, 1);
+        const overlayMaterial = new three_6.ShaderMaterial({
             // wireframe: true,
             transparent: true,
             uniforms: {
@@ -517,7 +658,7 @@ class FloatingRock {
                 }
             `
         });
-        const overlay = new three_1.Mesh(overlayGeometry, overlayMaterial);
+        const overlay = new three_6.Mesh(overlayGeometry, overlayMaterial);
         this.scene.add(overlay);
     }
     ;
@@ -532,8 +673,8 @@ class FloatingRock {
     ;
     addWaterfall() {
         this.waterfallMaterial = new Warerfall_Shader_1.WaterfallMaterial();
-        let waterfallGeometry = new three_1.PlaneGeometry(0.14, 0.327);
-        let waterfall = new three_1.Mesh(waterfallGeometry, this.waterfallMaterial);
+        let waterfallGeometry = new three_6.PlaneGeometry(0.14, 0.327);
+        let waterfall = new three_6.Mesh(waterfallGeometry, this.waterfallMaterial);
         let brightness = [];
         const transformRow1 = [];
         const transformRow2 = [];
@@ -544,24 +685,24 @@ class FloatingRock {
             let rotationX = 0;
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
-            let transformMatrix = new three_1.Matrix4().compose(new three_1.Vector3(-0.1, 0, 0.05), new three_1.Quaternion().setFromEuler(new three_1.Euler(rotationX, rotationY, rotationZ)), new three_1.Vector3(1, 1, 1)).toArray();
+            let transformMatrix = new three_6.Matrix4().compose(new three_6.Vector3(-0.1, 0, 0.05), new three_6.Quaternion().setFromEuler(new three_6.Euler(rotationX, rotationY, rotationZ)), new three_6.Vector3(1, 1, 1)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
             transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
         }
-        waterfallGeometry.setAttribute('brightness', new three_1.Float32BufferAttribute(brightness, 1));
-        waterfallGeometry.setAttribute('transformRow1', new three_1.Float32BufferAttribute(new Float32Array(transformRow1), 4));
-        waterfallGeometry.setAttribute('transformRow2', new three_1.Float32BufferAttribute(new Float32Array(transformRow2), 4));
-        waterfallGeometry.setAttribute('transformRow3', new three_1.Float32BufferAttribute(new Float32Array(transformRow3), 4));
-        waterfallGeometry.setAttribute('transformRow4', new three_1.Float32BufferAttribute(new Float32Array(transformRow4), 4));
+        waterfallGeometry.setAttribute('brightness', new three_6.Float32BufferAttribute(brightness, 1));
+        waterfallGeometry.setAttribute('transformRow1', new three_6.Float32BufferAttribute(new Float32Array(transformRow1), 4));
+        waterfallGeometry.setAttribute('transformRow2', new three_6.Float32BufferAttribute(new Float32Array(transformRow2), 4));
+        waterfallGeometry.setAttribute('transformRow3', new three_6.Float32BufferAttribute(new Float32Array(transformRow3), 4));
+        waterfallGeometry.setAttribute('transformRow4', new three_6.Float32BufferAttribute(new Float32Array(transformRow4), 4));
         this.scene.add(waterfall);
     }
     ;
     addBottomFoam() {
         this.bottomFoamMaterial = new BottomFoam_Shader_1.BottomFoamMaterial();
-        let waterFoamGeometry = new three_1.PlaneGeometry(0.13, 0.2);
-        let waterFoam = new three_1.Mesh(waterFoamGeometry, this.bottomFoamMaterial);
+        let waterFoamGeometry = new three_6.PlaneGeometry(0.13, 0.2);
+        let waterFoam = new three_6.Mesh(waterFoamGeometry, this.bottomFoamMaterial);
         let foamFade = [];
         const transformRow1 = [];
         const transformRow2 = [];
@@ -572,21 +713,21 @@ class FloatingRock {
             let rotationX = 0;
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
-            let transformMatrix = new three_1.Matrix4().compose(new three_1.Vector3(-0.1, 0, 0.05), new three_1.Quaternion().setFromEuler(new three_1.Euler(rotationX, rotationY, rotationZ)), new three_1.Vector3(1, 1, 1)).toArray();
+            let transformMatrix = new three_6.Matrix4().compose(new three_6.Vector3(-0.1, 0, 0.05), new three_6.Quaternion().setFromEuler(new three_6.Euler(rotationX, rotationY, rotationZ)), new three_6.Vector3(1, 1, 1)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
             transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
         }
-        waterFoamGeometry.setAttribute('transformRow1', new three_1.Float32BufferAttribute(new Float32Array(transformRow1), 4));
-        waterFoamGeometry.setAttribute('transformRow2', new three_1.Float32BufferAttribute(new Float32Array(transformRow2), 4));
-        waterFoamGeometry.setAttribute('transformRow3', new three_1.Float32BufferAttribute(new Float32Array(transformRow3), 4));
-        waterFoamGeometry.setAttribute('transformRow4', new three_1.Float32BufferAttribute(new Float32Array(transformRow4), 4));
-        waterFoamGeometry.setAttribute('foamFade', new three_1.Float32BufferAttribute(foamFade, 1));
+        waterFoamGeometry.setAttribute('transformRow1', new three_6.Float32BufferAttribute(new Float32Array(transformRow1), 4));
+        waterFoamGeometry.setAttribute('transformRow2', new three_6.Float32BufferAttribute(new Float32Array(transformRow2), 4));
+        waterFoamGeometry.setAttribute('transformRow3', new three_6.Float32BufferAttribute(new Float32Array(transformRow3), 4));
+        waterFoamGeometry.setAttribute('transformRow4', new three_6.Float32BufferAttribute(new Float32Array(transformRow4), 4));
+        waterFoamGeometry.setAttribute('foamFade', new three_6.Float32BufferAttribute(foamFade, 1));
         this.scene.add(waterFoam);
         // Particle
         this.foamParticleMaterial = new FoamParticles_Shader_1.FoamParticle();
-        this.foamParticleGeom = new three_1.BufferGeometry();
+        this.foamParticleGeom = new three_6.BufferGeometry();
         this.foamPointPositions = new Float32Array(this.foamPointCount * 3);
         let foamSize = [];
         for (let i = 0; i < this.foamPointCount; i++) {
@@ -598,9 +739,9 @@ class FloatingRock {
             }
             foamSize.push(Math.random());
         }
-        this.foamParticleGeom.setAttribute('position', new three_1.BufferAttribute(this.foamPointPositions, 3));
-        this.foamParticleGeom.setAttribute('foamSize', new three_1.Float32BufferAttribute(foamSize, 1));
-        let foamParticle = new three_1.Points(this.foamParticleGeom, this.foamParticleMaterial);
+        this.foamParticleGeom.setAttribute('position', new three_6.BufferAttribute(this.foamPointPositions, 3));
+        this.foamParticleGeom.setAttribute('foamSize', new three_6.Float32BufferAttribute(foamSize, 1));
+        let foamParticle = new three_6.Points(this.foamParticleGeom, this.foamParticleMaterial);
         foamParticle.position.x += 0.93;
         foamParticle.position.z += 0.93;
         foamParticle.position.y += 0.355;
@@ -608,7 +749,7 @@ class FloatingRock {
     }
     ;
     addTopFoam() {
-        let topFoamGeom = new three_1.PlaneGeometry(0.16, 0.33);
+        let topFoamGeom = new three_6.PlaneGeometry(0.16, 0.33);
         this.topFoamMaterial = new TopFoam_Shader_1.TopmFoamShader();
         const transformRow1 = [];
         const transformRow2 = [];
@@ -618,23 +759,626 @@ class FloatingRock {
             let rotationX = 0;
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
-            let transformMatrix = new three_1.Matrix4().compose(new three_1.Vector3(-0.1, 0, 0.05), new three_1.Quaternion().setFromEuler(new three_1.Euler(rotationX, rotationY, rotationZ)), new three_1.Vector3(1, 1, 1)).toArray();
+            let transformMatrix = new three_6.Matrix4().compose(new three_6.Vector3(-0.1, 0, 0.05), new three_6.Quaternion().setFromEuler(new three_6.Euler(rotationX, rotationY, rotationZ)), new three_6.Vector3(1, 1, 1)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
             transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
         }
-        topFoamGeom.setAttribute('transformRow1', new three_1.Float32BufferAttribute(new Float32Array(transformRow1), 4));
-        topFoamGeom.setAttribute('transformRow2', new three_1.Float32BufferAttribute(new Float32Array(transformRow2), 4));
-        topFoamGeom.setAttribute('transformRow3', new three_1.Float32BufferAttribute(new Float32Array(transformRow3), 4));
-        topFoamGeom.setAttribute('transformRow4', new three_1.Float32BufferAttribute(new Float32Array(transformRow4), 4));
-        let topFoam = new three_1.Mesh(topFoamGeom, this.topFoamMaterial);
+        topFoamGeom.setAttribute('transformRow1', new three_6.Float32BufferAttribute(new Float32Array(transformRow1), 4));
+        topFoamGeom.setAttribute('transformRow2', new three_6.Float32BufferAttribute(new Float32Array(transformRow2), 4));
+        topFoamGeom.setAttribute('transformRow3', new three_6.Float32BufferAttribute(new Float32Array(transformRow3), 4));
+        topFoamGeom.setAttribute('transformRow4', new three_6.Float32BufferAttribute(new Float32Array(transformRow4), 4));
+        let topFoam = new three_6.Mesh(topFoamGeom, this.topFoamMaterial);
         this.scene.add(topFoam);
     }
     ;
 }
 exports["default"] = FloatingRock;
 ;
+
+
+/***/ }),
+
+/***/ "./src/scripts/Fog.ts":
+/*!****************************!*\
+  !*** ./src/scripts/Fog.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const three_1 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_js_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const FogGfx_1 = __webpack_require__(/*! ./FogGfx */ "./src/scripts/FogGfx.ts");
+const tweakpane_1 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+//
+class FogScene {
+    constructor() {
+        // this.init();
+        this.elapsedTime = 0;
+        this.fogMovement = true;
+        this.sizes = {
+            width: 0,
+            height: 0
+        };
+        this.addRaycasterPointer = (event) => {
+            this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            this.raycaster.setFromCamera(this.pointer, this.camera);
+        };
+        this.tick = () => {
+            window.requestAnimationFrame(this.tick);
+            this.delta = this.clock.getDelta() * 1000;
+            this.elapsedTime += this.delta;
+            //
+            this.intersects = this.raycaster.intersectObject(this.plane)[0].point;
+            this.fog.soursePosition.set(this.intersects.x, 0.5, this.intersects.z);
+            this.fog.cube.position.set(this.intersects.x, 0.5, this.intersects.z);
+            this.fog.update(this.delta, this.intersects, this.fog.externalForce);
+            //
+            this.fog.material.uniforms.uTime.value = this.elapsedTime;
+            //
+            if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
+                this.resize();
+            }
+            this.controls.update();
+            this.renderer.render(this.scene, this.camera);
+        };
+    }
+    ;
+    init() {
+        // Canvas
+        this.canvas = document.querySelector('canvas.webglViewFog');
+        // Scene
+        this.scene = new three_1.Scene();
+        this.scene.background = new three_1.Color('#c7c1b7');
+        // Sizes
+        this.sizes.width = window.innerWidth,
+            this.sizes.height = window.innerHeight;
+        // Camera
+        this.camera = new three_1.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera.position.set(3, 4, 2);
+        this.scene.add(this.camera);
+        // Controls
+        this.controls = new OrbitControls_js_1.OrbitControls(this.camera, this.canvas);
+        this.controls.enableDamping = true;
+        // Plane
+        let planeGeometry = new three_1.PlaneBufferGeometry(3000, 3000, 1, 1);
+        let planeMaterial = new three_1.MeshBasicMaterial({ color: '#e6a67a' });
+        this.plane = new three_1.Mesh(planeGeometry, planeMaterial);
+        this.plane.rotation.x -= Math.PI / 2;
+        this.scene.add(this.plane);
+        // Renderer
+        this.renderer = new three_1.WebGLRenderer({ canvas: this.canvas });
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // Resize
+        window.addEventListener('resize', this.resize());
+        this.clock = new three_1.Clock();
+        // Fog
+        let props = {
+            numberOfSprites: 16,
+            height: 1,
+            width: 1,
+            depth: 1,
+            outerColor: '#ff0000',
+            innerColor: '#FFCE00',
+            newPosition: new three_1.Vector3(0, 0.5, 0)
+        };
+        this.fog = new FogGfx_1.FogGfx(new three_1.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
+        this.animation = new Animation();
+        this.scene.add(this.fog.wrapper);
+        props.newPosition = this.fog.newPosition;
+        // debug fog
+        this.pane = new tweakpane_1.Pane();
+        this.pane.element.parentElement.style['width'] = '330px';
+        this.pane.element.parentElement.style['margin-top'] = '110px';
+        this.pane.element.parentElement.style['z-index'] = '19';
+        const fogFolder = this.pane.addFolder({
+            title: 'Fog',
+            expanded: false
+        });
+        const fogParam = fogFolder.addFolder({
+            title: 'Fog',
+            expanded: false
+        });
+        const fogSize = fogFolder.addFolder({
+            title: 'Size',
+            expanded: false
+        });
+        const fogAnimation = fogFolder.addFolder({
+            title: 'Animation',
+            expanded: false
+        });
+        this.mouseMoveFog('click');
+        fogParam.addInput(props, 'outerColor', { view: 'color', alpha: true, label: 'outer color' }).on('change', (ev) => {
+            this.fog.outerColor = ev.value;
+        });
+        fogParam.addInput(props, 'innerColor', { view: 'color', alpha: true, label: 'inner color' }).on('change', (ev) => {
+            this.fog.innerColor = ev.value;
+        });
+        fogAnimation.addInput(this.fog, 'frameDuration', { min: 10, max: 800, label: 'frameDuration' }).on('change', (ev) => {
+            this.fog.frameDuration = ev.value;
+        });
+        fogSize.addInput(this.fog, 'height', { min: 0, max: 5, step: 0.01, label: 'size X' }).on('change', (ev) => {
+            this.fog.height = ev.value;
+            this.fog.generate(this.fog.density, this.fog.height, this.fog.width, this.fog.depth, props.newPosition);
+        });
+        fogSize.addInput(this.fog, 'width', { min: 0, max: 5, step: 0.01, label: 'size Y' }).on('change', (ev) => {
+            this.fog.width = ev.value;
+            this.fog.generate(this.fog.density, this.fog.height, this.fog.width, this.fog.depth, props.newPosition);
+        });
+        fogSize.addInput(this.fog, 'depth', { min: 0, max: 5, step: 0.01, label: 'size Z' }).on('change', (ev) => {
+            this.fog.depth = ev.value;
+            this.fog.generate(this.fog.density, this.fog.height, this.fog.width, this.fog.depth, props.newPosition);
+        });
+        fogParam.addInput(this.fog, 'density', { min: 3, max: 1000, step: 1, label: 'density' }).on('change', (ev) => {
+            this.fog.density = ev.value;
+            this.fog.generate(this.fog.density, this.fog.height, this.fog.width, this.fog.depth, props.newPosition);
+        });
+        fogAnimation.addInput(this.fog, 'speedSizeChange', { min: 0, max: 0.5, step: 0.001, label: 'growth speed' }).on('change', (ev) => {
+            this.fog.speedSizeChange = ev.value;
+        });
+        fogSize.addInput(this.fog, 'coordEpearingParticle', { min: 0, max: 1, step: 0.001, label: 'circle of appearance' }).on('change', (ev) => {
+            this.fog.coordEpearingParticle = ev.value;
+        });
+        fogAnimation.addInput(this.fog, 'opacityCoef', { min: 0, max: 0.03, step: 0.001, label: 'fade' }).on('change', (ev) => {
+            this.fog.opacityCoef = ev.value;
+        });
+        fogParam.addInput(this.fog, 'cubeVisibility', { label: 'bounding box' }).on('change', (ev) => {
+            if (!ev.value) {
+                this.fog.wrapper.remove(this.fog.cube);
+            }
+            if (ev.value) {
+                this.fog.wrapper.add(this.fog.cube);
+            }
+        });
+        fogParam.addInput(this, 'fogMovement', { label: 'mouse follow' }).on('change', (ev) => {
+            if (ev.value) {
+                let movementProp = 'mousemove';
+                this.canvas.removeEventListener('click', this.addRaycasterPointer);
+                this.mouseMoveFog(movementProp);
+            }
+            else {
+                let movementProp = 'click';
+                this.canvas.removeEventListener('mousemove', this.addRaycasterPointer);
+                this.mouseMoveFog(movementProp);
+            }
+        });
+        fogParam.addInput(this.fog.material.uniforms.uOpacity, 'value', { min: 0, max: 0.9, step: 0.001, label: 'opacity' });
+        fogSize.addInput(this.fog.externalForce, 'x', { min: -20, max: 20, step: 0.1, label: 'external force X' }).on('change', (ev) => {
+            this.fog.externalForce.x = ev.value;
+        });
+        fogSize.addInput(this.fog.externalForce, 'y', { min: -20, max: 20, step: 0.1, label: 'external force Y' }).on('change', (ev) => {
+            this.fog.externalForce.y = ev.value;
+        });
+        fogSize.addInput(this.fog.externalForce, 'z', { min: -20, max: 20, step: 0.1, label: 'external force Z' }).on('change', (ev) => {
+            this.fog.externalForce.z = ev.value;
+        });
+        //
+        this.tick();
+    }
+    ;
+    mouseMoveFog(movementProp) {
+        // Raycaster
+        this.raycaster = new three_1.Raycaster();
+        this.pointer = new three_1.Vector2();
+        this.canvas.addEventListener(movementProp, this.addRaycasterPointer);
+    }
+    ;
+    resize() {
+        this.sizes.width = window.innerWidth;
+        this.sizes.height = window.innerHeight;
+        this.camera.aspect = this.sizes.width / this.sizes.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+    ;
+}
+exports["default"] = FogScene;
+
+
+/***/ }),
+
+/***/ "./src/scripts/FogGfx.ts":
+/*!*******************************!*\
+  !*** ./src/scripts/FogGfx.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FogGfx = void 0;
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const Fog_Shader_1 = __webpack_require__(/*! ./shaders/Fog.Shader */ "./src/scripts/shaders/Fog.Shader.ts");
+//
+class FogGfx {
+    //
+    constructor(color, numberOfSprites, height, width, depth) {
+        this.numberOfSprites = 60;
+        this.height = 1;
+        this.width = 1;
+        this.depth = 1;
+        this.density = 105;
+        this.velocity = [];
+        this.positions = [];
+        this.randomPos = (Math.random() - 0.5) * 2;
+        this.speedSizeChange = 0.137;
+        this.coordEpearingParticle = 0.3;
+        this.opacityCoef = 0.00999;
+        this.wrapper = new three_4.Object3D();
+        this.newPosition = new three_4.Vector3(0, 0.5, 0);
+        this.soursePosition = new three_4.Vector3(0, 0.5, 0);
+        this.cubeVisibility = true;
+        this.sizeCoef = 0.1;
+        this.externalForce = new three_4.Vector3(0, 0, 0);
+        this._frameDuration = 300;
+        this.height = height;
+        this.width = width;
+        this.depth = depth;
+        this.numberOfSprites = numberOfSprites;
+        // create fog
+        this.material = new Fog_Shader_1.FogMaterial();
+        this.material.side = three_4.DoubleSide;
+        this.material.uniforms.uColor.value.setHex(color);
+        this.material.uniforms.uFrameDuration.value = this._frameDuration;
+        this.generate(this.density, this.height, this.width, this.depth, this.newPosition);
+    }
+    ;
+    generate(density, height, width, depth, newPosition) {
+        const boxGeometry = new three_4.BoxGeometry(1, 1, 1);
+        const boxMaterial = new three_4.MeshBasicMaterial({ color: 0x00ff00 });
+        boxMaterial.wireframe = true;
+        if (!this.cube) {
+            this.cube = new three_4.Mesh(boxGeometry, boxMaterial);
+            this.wrapper.add(this.cube);
+        }
+        if (this.mesh) {
+            this.geometry.dispose();
+            boxGeometry.dispose();
+            this.wrapper.remove(this.mesh);
+        }
+        this.newPosition.x = newPosition.x;
+        this.newPosition.y = newPosition.y;
+        this.newPosition.z = newPosition.z;
+        this.height = height;
+        this.width = width;
+        this.depth = depth;
+        let fogPointPosition = new three_4.Vector3(0, 0, 0);
+        this.numberOfSprites = density * height * width * depth;
+        let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [], color = [];
+        const transformRow1 = [];
+        const transformRow2 = [];
+        const transformRow3 = [];
+        const transformRow4 = [];
+        for (let i = 0; i < this.numberOfSprites; i++) {
+            let x = (Math.random() - 0.5) * width;
+            let y = Math.random() * height;
+            let z = (Math.random() - 0.5) * depth;
+            let distanceX = fogPointPosition.x - x;
+            let distanceY = y - fogPointPosition.y;
+            let distanceZ = fogPointPosition.z - z;
+            if (Math.abs(distanceX) > width / 2.5 - Math.random() - 0.5) {
+                distanceX -= Math.random() - 0.5;
+            }
+            if (Math.abs(distanceY) > height / 2.5 - Math.random() - 0.5) {
+                distanceY -= Math.random() - 0.5;
+            }
+            if (Math.abs(distanceZ) > depth / 2.5 - Math.random() - 0.5) {
+                distanceZ -= Math.random() - 0.5;
+            }
+            let scaleX = 1;
+            let scaleY = 1;
+            let scaleZ = 1;
+            const rotationX = 0;
+            const rotationY = 0;
+            const rotationZ = 0;
+            let transformMatrix = new three_4.Matrix4().compose(new three_4.Vector3(distanceX, distanceY, distanceZ), new three_4.Quaternion().setFromEuler(new three_4.Euler(rotationX, rotationY, rotationZ)), new three_4.Vector3(scaleX, scaleY, scaleZ)).toArray();
+            transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
+            transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
+            transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
+            transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
+            size.push(Math.random());
+            sizeIncrease.push(Math.random() * 0.02);
+            opacityDecrease.push(Math.random());
+            this.velocity.push((Math.random() - 0.5) * 2 / 100, (Math.random() - 0.5) * 2 / 100, (Math.random() - 0.5) * 2 / 100);
+            offsetFrame.push(Math.floor(Math.random() * 50 * 16));
+        }
+        this.positions = [
+            -1.0, -1.0, 0.0,
+            1.0, -1.0, 0.0,
+            1.0, 1.0, 0.0,
+            1.0, 1.0, 0.0,
+            -1.0, 1.0, 0.0,
+            -1.0, -1.0, 0.0
+        ];
+        uv = [
+            0, 0,
+            1, 0,
+            1, 1,
+            1, 1,
+            0, 1,
+            0, 0
+        ];
+        this.geometry = new three_4.InstancedBufferGeometry();
+        this.geometry.setAttribute('position', new three_4.Float32BufferAttribute(this.positions, 3));
+        this.geometry.setAttribute('uv', new three_4.Float32BufferAttribute(uv, 2));
+        this.geometry.setAttribute('transformRow1', new three_4.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
+        this.geometry.setAttribute('transformRow2', new three_4.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
+        this.geometry.setAttribute('transformRow3', new three_4.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
+        this.geometry.setAttribute('transformRow4', new three_4.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
+        this.geometry.setAttribute('offsetFrame', new three_4.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
+        this.geometry.setAttribute('velocity', new three_4.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
+        this.geometry.setAttribute('opacityDecrease', new three_4.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
+        this.geometry.setAttribute('size', new three_4.InstancedBufferAttribute(new Float32Array(size), 1));
+        this.mesh = new three_4.Mesh(this.geometry, this.material);
+        this.wrapper.add(this.mesh);
+    }
+    ;
+    update(delta, intersects, externalForce) {
+        for (let i = 0; i < this.numberOfSprites; i++) {
+            const newSize = this.geometry.attributes.size.getX(i) + this.speedSizeChange * this.sizeCoef;
+            this.geometry.attributes.size.setX(i, newSize);
+            let velosityX = this.geometry.attributes.velocity.getX(i);
+            let velosityY = this.geometry.attributes.velocity.getY(i);
+            let velosityZ = this.geometry.attributes.velocity.getZ(i);
+            let newPosX = this.geometry.attributes.transformRow4.getX(i);
+            let newPosY = this.geometry.attributes.transformRow4.getY(i);
+            let newPosZ = this.geometry.attributes.transformRow4.getZ(i);
+            let velosityAccelerationX = (intersects.x - newPosX + externalForce.x) / 200;
+            let velosityAccelerationY = (intersects.y - newPosY + externalForce.y) / 200;
+            ;
+            let velosityAccelerationZ = (intersects.z - newPosZ + externalForce.z) / 200;
+            const newOpacity = this.geometry.attributes.opacityDecrease.getX(i) - this.opacityCoef;
+            this.geometry.attributes.opacityDecrease.setX(i, newOpacity);
+            newPosX += ((velosityX + velosityAccelerationX * newOpacity) * delta) / 16;
+            newPosY += ((velosityY + velosityAccelerationY * newOpacity) * delta) / 16;
+            newPosZ += ((velosityZ + velosityAccelerationZ * newOpacity) * delta) / 16;
+            if (newOpacity <= 0.001) {
+                newPosX = (Math.random() - 0.5) * this.coordEpearingParticle + this.soursePosition.x;
+                newPosY = (Math.random() - 0.5) * this.coordEpearingParticle + this.soursePosition.y;
+                newPosZ = (Math.random() - 0.5) * this.coordEpearingParticle + this.soursePosition.z;
+                this.geometry.attributes.size.setX(i, 0);
+                this.geometry.attributes.opacityDecrease.setX(i, 1);
+            }
+            this.geometry.attributes.transformRow4.setX(i, newPosX);
+            this.geometry.attributes.transformRow4.setY(i, newPosY);
+            this.geometry.attributes.transformRow4.setZ(i, newPosZ);
+        }
+        this.geometry.attributes.opacityDecrease.needsUpdate = true;
+        this.geometry.attributes.size.needsUpdate = true;
+        this.geometry.attributes.transformRow4.needsUpdate = true;
+    }
+    ;
+    //
+    get frameDuration() {
+        return this._frameDuration;
+    }
+    ;
+    set frameDuration(frameDuration) {
+        this.material.uniforms.uFrameDuration.value = frameDuration;
+        this._frameDuration = this.material.uniforms.uFrameDuration.value;
+    }
+    ;
+    get outerColor() {
+        return this._outerColor;
+    }
+    ;
+    set outerColor(color) {
+        this._outerColor = color;
+        if (typeof color === 'string') {
+            this.material.uniforms.uColor.value.setHex(parseInt(color.replace('#', '0x')));
+        }
+        else {
+            this.material.uniforms.uColor.value.setHex(color);
+        }
+    }
+    ;
+    get innerColor() {
+        return this._innerColor;
+    }
+    ;
+    set innerColor(color) {
+        this._innerColor = color;
+        if (typeof color === 'string') {
+            this.material.uniforms.uInnerColor.value.setHex(parseInt(color.replace('#', '0x')));
+        }
+        else {
+            this.material.uniforms.uInnerColor.value.setHex(color);
+        }
+    }
+    ;
+}
+exports.FogGfx = FogGfx;
+
+
+/***/ }),
+
+/***/ "./src/scripts/Water.ts":
+/*!******************************!*\
+  !*** ./src/scripts/Water.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Water = void 0;
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const GLTFLoader_js_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader.js */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const Water_Shader_1 = __webpack_require__(/*! ./shaders/Water.Shader */ "./src/scripts/shaders/Water.Shader.ts");
+const tweakpane_3 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+//
+class Water {
+    constructor() {
+        // this.init();
+        this.elapsedTime = 0;
+        this.sizes = {
+            width: 0,
+            height: 0
+        };
+        this.tick = () => {
+            window.requestAnimationFrame(this.tick);
+            this.delta = this.clock.getDelta() * 1000;
+            this.elapsedTime += this.delta;
+            //
+            if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
+                this.resize();
+            }
+            // render scene into target
+            this.waterMesh.visible = false;
+            this.renderer.setRenderTarget(this.target);
+            this.renderer.render(this.scene, this.camera);
+            this.mapControls.update();
+            this.renderer.setRenderTarget(null);
+            this.waterMesh.visible = true;
+            this.waterMaterial.uniforms.tDepth.value = this.target.depthTexture;
+            this.waterMaterial.uniforms.cameraNear.value = this.camera.near;
+            this.waterMaterial.uniforms.cameraFar.value = this.camera.far;
+            this.waterMaterial.uniforms.uTime.value = Math.sin(this.elapsedTime / 1068) + 2; //1068
+            this.renderer.render(this.scene, this.camera);
+        };
+    }
+    ;
+    init() {
+        // Canvas
+        this.canvas = document.querySelector('canvas.webglViewWater');
+        // Scene
+        this.scene = new three_4.Scene();
+        this.scene.background = new three_4.Color('#c7c1b7');
+        // Camera
+        this.camera = new three_4.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera.position.set(1, 2, 2);
+        this.scene.add(this.camera);
+        // Controls
+        this.mapControls = new OrbitControls_2.MapControls(this.camera, this.canvas);
+        this.mapControls.enableDamping = true;
+        // Light
+        const light = new three_4.PointLight(0xe9f7ec, 1, 100);
+        light.position.set(5, 5, 5);
+        this.scene.add(light);
+        // Plane
+        this.loadPlane();
+        // Water
+        let waterGeom = new three_4.PlaneGeometry(1.9, 1.9);
+        this.waterMaterial = new Water_Shader_1.WaterMaterial();
+        this.waterMesh = new three_4.Mesh(waterGeom, this.waterMaterial);
+        this.waterMesh.rotation.x = -Math.PI / 2;
+        this.waterMesh.position.set(0, -0.05, 0);
+        this.scene.add(this.waterMesh);
+        // Renderer
+        this.renderer = new three_4.WebGLRenderer({ canvas: this.canvas });
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.scene.add(new three_4.Mesh(new three_4.BoxGeometry(0.2, 0.2, 0.2), new three_4.MeshBasicMaterial({ color: 0xebb734 })));
+        // Create a render target with depth texture
+        this.setupRenderTarget();
+        // Resize
+        window.addEventListener('resize', this.resize());
+        // Debug
+        let props = { waterColor: '#8eb4e6' };
+        const waterTwp = new tweakpane_3.Pane({ title: "Water", expanded: false });
+        waterTwp.element.parentElement.style['width'] = '330px';
+        waterTwp.element.parentElement.style['margin-top'] = '140px';
+        waterTwp.element.parentElement.style['z-index'] = '18';
+        waterTwp.addInput(props, 'waterColor', { view: 'color', alpha: true, label: 'inner color' }).on('change', (ev) => {
+            this.waterMaterial.uniforms.uColor.value.setHex(parseInt(ev.value.replace('#', '0x')));
+        });
+        this.clock = new three_4.Clock();
+        //
+        this.tick();
+    }
+    ;
+    findingDepth() {
+        // Setup post processing stage
+        this.postCamera = new three_4.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        this.postMaterial = new three_4.ShaderMaterial({
+            vertexShader: `
+            varying vec2 vUv;
+
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+            `,
+            fragmentShader: `
+            #include <packing>
+
+            varying vec2 vUv;
+            uniform sampler2D tDiffuse;
+            uniform sampler2D tDepth;
+            uniform float cameraNear;
+            uniform float cameraFar;
+
+
+            float readDepth( sampler2D depthSampler, vec2 coord ) {
+                float fragCoordZ = texture2D( depthSampler, coord ).x;
+                float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+                return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+            }
+
+            void main() {
+                //vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
+                float depth = readDepth( tDepth, vUv );
+
+                gl_FragColor.rgb = 1.0 - vec3( pow( depth, 0.2 ) );
+                gl_FragColor.a = 1.0;
+            }
+            `,
+            uniforms: {
+                cameraNear: { value: this.camera.near },
+                cameraFar: { value: this.camera.far },
+                tDiffuse: { value: null },
+                tDepth: { value: null }
+            }
+        });
+        const postPlane = new three_4.PlaneGeometry(2, 2);
+        const postQuad = new three_4.Mesh(postPlane, this.postMaterial);
+        this.postScene = new three_4.Scene();
+        this.postScene.add(postQuad);
+    }
+    ;
+    loadPlane() {
+        // Loading tree
+        this.loader = new GLTFLoader_js_1.GLTFLoader();
+        this.loader.load('resources/models/plane.gltf', (gltf) => {
+            gltf.scene.children[0].scale;
+            this.scene.add(gltf.scene.children[0]);
+        });
+    }
+    ;
+    setupRenderTarget() {
+        if (this.target)
+            this.target.dispose();
+        //
+        this.target = new three_4.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+        this.target.texture.format = three_4.RGBFormat;
+        this.target.texture.minFilter = three_4.NearestFilter;
+        this.target.texture.magFilter = three_4.NearestFilter;
+        this.target.texture.generateMipmaps = false;
+        this.target.stencilBuffer = false;
+        this.target.depthBuffer = true;
+        this.target.depthTexture = new three_4.DepthTexture(window.innerWidth, window.innerHeight);
+        this.target.depthTexture.type = three_4.UnsignedShortType;
+        this.target.depthTexture.format = three_4.DepthFormat;
+    }
+    ;
+    resize() {
+        this.sizes.width = window.innerWidth;
+        this.sizes.height = window.innerHeight;
+        this.camera.aspect = this.sizes.width / this.sizes.height;
+        this.camera.updateProjectionMatrix();
+        const dpr = this.renderer.getPixelRatio();
+        this.target.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+    }
+    ;
+}
+exports.Water = Water;
+;
+exports["default"] = new Water();
 
 
 /***/ }),
@@ -648,10 +1392,10 @@ exports["default"] = FloatingRock;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BottomFoamMaterial = exports.noise = void 0;
-const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_8 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-exports.noise = new three_5.TextureLoader().load('resources/textures/noise.png');
-class BottomFoamMaterial extends three_5.ShaderMaterial {
+exports.noise = new three_8.TextureLoader().load('resources/textures/noise.png');
+class BottomFoamMaterial extends three_8.ShaderMaterial {
     constructor() {
         super(),
             this.vertexShader = `
@@ -744,9 +1488,9 @@ class BottomFoamMaterial extends three_5.ShaderMaterial {
         }`,
             this.uniforms = {
                 uNoise: { value: exports.noise },
-                uColor1: { value: new three_5.Color(0x09a0e0) },
-                uColor2: { value: new three_5.Color(0xd7e8fa) },
-                uWhiteColor: { value: new three_5.Color(0xffffff) },
+                uColor1: { value: new three_8.Color(0x09a0e0) },
+                uColor2: { value: new three_8.Color(0xd7e8fa) },
+                uWhiteColor: { value: new three_8.Color(0xffffff) },
                 uTime: { value: 0 }
             };
     }
@@ -765,10 +1509,10 @@ exports.BottomFoamMaterial = BottomFoamMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FlameMaterial = exports.noise = void 0;
-const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_7 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-exports.noise = new three_3.TextureLoader().load('resources/textures/noise.png');
-class FlameMaterial extends three_3.ShaderMaterial {
+exports.noise = new three_7.TextureLoader().load('resources/textures/noise.png');
+class FlameMaterial extends three_7.ShaderMaterial {
     constructor() {
         super();
         this.vertexShader = `
@@ -776,7 +1520,6 @@ class FlameMaterial extends three_3.ShaderMaterial {
 
         void main() {
 
-            // gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
             gl_Position = projectionMatrix * ( modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position, 1.0 ) );
 
             vUv = uv;
@@ -835,7 +1578,6 @@ class FlameMaterial extends three_3.ShaderMaterial {
             float yGradient = clamp( 0.9 - vUv.y, 0.0, 1.0 ) * 1.2;
 
             vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
-            // vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
 
             vec3 col = 0.55 + 0.99 * vec3( noise.x, noise.x, noise.x );
 
@@ -844,20 +1586,17 @@ class FlameMaterial extends three_3.ShaderMaterial {
             float strength = step( distance( vec2( vUv.x, vUv.y + 0.1 ), vec2(2.5) ), 0.4 );
 
             if ( 8.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.24 ) > 0.5 + ( noise.x / 1.5 + noise.y / 4.0 ) ) { discard; }
-            // if ( distanceToCenter > 0.3 + noise.x / 1.0 ) { discard; }
 
             gl_FragColor = vec4( vec3(yGradient) + col + uInnerColor, 1.0 );
             gl_FragColor.rgb = mix( gl_FragColor.rgb, uOuterColor, 0.7 );
-
-            // gl_FragColor = vec4( yGradient );
 
         }
         `,
             this.uniforms = {
                 uTime: { value: 0 },
                 uNoise: { value: exports.noise },
-                uInnerColor: { value: new three_3.Color(0xfff30f) },
-                uOuterColor: { value: new three_3.Color(0xfc4e03) }
+                uInnerColor: { value: new three_7.Color(0xfff30f) },
+                uOuterColor: { value: new three_7.Color(0xfc4e03) }
             };
     }
 }
@@ -876,12 +1615,216 @@ exports.FlameMaterial = FlameMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FogMaterial = void 0;
+const three_10 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+// import FogScene from '../index';
+let randomnum = Math.random();
+const textureLoader = new three_10.TextureLoader();
+const fogTexture = textureLoader.load('resources/textures/fog1.png');
+const noise = textureLoader.load('resources/textures/noise.png');
+class FogMaterial extends three_10.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+            attribute vec4 transformRow1;
+            attribute vec4 transformRow2;
+            attribute vec4 transformRow3;
+            attribute vec4 transformRow4;
+            attribute float offsetFrame;
+            attribute float size;
+            attribute vec3 velocity;
+            attribute float opacityDecrease;
+
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform float uRandomNum;
+            uniform sampler2D uNoise;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform float uOpacity;
+
+            void main() {
+
+                float numOfFrames = 16.0;
+
+                float currentFrameId = mod( floor( mod( uTime + offsetFrame, numOfFrames * uFrameDuration ) / uFrameDuration ), numOfFrames );
+
+                float nextFrameId;
+                if ( currentFrameId == numOfFrames - 1.0 ) {
+
+                    nextFrameId = 0.0;
+
+                } else {
+
+                    nextFrameId = currentFrameId + 1.0;
+
+                }
+
+                mat4 transforms = mat4(
+                    transformRow1,
+                    transformRow2,
+                    transformRow3,
+                    transformRow4
+                );
+
+                gl_Position = projectionMatrix * ( modelViewMatrix * transforms * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position * size, 1.0 ) );
+
+                vUv = uv;
+                vOffsetFrame = offsetFrame;
+                vNextFrameId = nextFrameId;
+                vCurrentFrameId  = currentFrameId;
+                vOpacityDecrease = opacityDecrease;
+                vOpacity = uOpacity;
+                vPosition = transformRow4.xyz;
+
+            }
+        `;
+        this.depthWrite = false;
+        this.transparent = true;
+        this.blending = three_10.AdditiveBlending;
+        // this.wireframe = true;
+        this.fragmentShader = `
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform sampler2D uPointTexture;
+            uniform float alphaTest;
+            uniform vec3 uColor;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform vec3 uInnerColor;
+
+            void main() {
+
+                gl_FragColor = vec4( uColor, 0.04 );
+
+                //
+
+                vec4 offsets;
+
+                offsets.y = floor( vCurrentFrameId / 4.0 ) * 0.25;
+                offsets.x = mod( vCurrentFrameId, 4.0 ) * 0.25;
+
+                offsets.w = floor( vNextFrameId / 4.0 ) * 0.25;
+                offsets.z = mod( vNextFrameId, 4.0 ) * 0.25;
+
+                //
+
+                vec4 texture1 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.x, vUv.y * 0.25 + offsets.y ) );
+                vec4 texture2 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.z, vUv.y * 0.25 + offsets.w ) );
+
+                float fragmentTime = mod( uTime + vOffsetFrame, uFrameDuration ) / uFrameDuration;
+
+                gl_FragColor = mix( texture1, texture2, fragmentTime );
+                vec3 finalColor = uColor;
+
+                finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
+
+                gl_FragColor *= vec4( finalColor, vOpacityDecrease );
+
+                if ( gl_FragColor.a < alphaTest ) discard;
+
+            }
+        `;
+        this.uniforms = {
+            uRandomNum: { value: randomnum },
+            uPointTexture: { value: fogTexture },
+            uNoise: { value: noise },
+            alphaTest: { value: 0.0001 },
+            uColor: { value: new three_10.Color(0x1A75FF) },
+            uTime: { value: 0.0 },
+            uTimeX: { value: 0.0 },
+            uTimeY: { value: 0.0 },
+            uFrameDuration: { value: 16.0 },
+            uOpacity: { value: 0.9 },
+            uInnerColor: { value: new three_10.Color(0x716222) }
+        };
+    }
+}
+exports.FogMaterial = FogMaterial;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/FoamParticles.Shader.ts":
+/*!*****************************************************!*\
+  !*** ./src/scripts/shaders/FoamParticles.Shader.ts ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FoamParticle = exports.textureLoader = void 0;
+const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+exports.textureLoader = new three_5.TextureLoader();
+const particleTexture = exports.textureLoader.load('/resources/textures/particle.png');
+class FoamParticle extends three_5.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true;
+        this.vertexShader = `
+        attribute float foamSize;
+
+        uniform float uTime;
+
+        void main () {
+
+            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x - 0.057 + uTime / 10.0, position.y - 0.05 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
+
+            gl_PointSize = foamSize * 0.0068  * ( 300.0 / -mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }`,
+            this.fragmentShader = `
+        uniform sampler2D uPointTexture;
+        uniform vec3 uColor;
+
+        void main () {
+
+            gl_FragColor = vec4( uColor, 1.0 ) * texture2D( uPointTexture, gl_PointCoord );
+            if ( gl_FragColor.a < 0.3 ) discard;
+
+        }`,
+            this.uniforms = {
+                uPointTexture: { value: particleTexture },
+                uColor: { value: new three_5.Color(0xc5e0fc) },
+                uTime: { value: 0 }
+            };
+    }
+}
+exports.FoamParticle = FoamParticle;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Fog.Shader.ts":
+/*!*******************************************!*\
+  !*** ./src/scripts/shaders/Fog.Shader.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FogMaterial = void 0;
 const three_11 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 // import FogScene from '../index';
 let randomnum = Math.random();
 const textureLoader = new three_11.TextureLoader();
 const fogTexture = textureLoader.load('resources/textures/fog1.png');
-const noise = textureLoader.load('resources/textures/noise.png');
+const noise = textureLoader.load('resources/textures/tNoise.png');
 class FogMaterial extends three_11.ShaderMaterial {
     constructor() {
         super();
@@ -947,7 +1890,6 @@ class FogMaterial extends three_11.ShaderMaterial {
         `;
         this.depthWrite = false;
         this.transparent = true;
-        this.blending = three_11.AdditiveBlending;
         // this.wireframe = true;
         this.fragmentShader = `
             varying vec2 vUv;
@@ -991,7 +1933,7 @@ class FogMaterial extends three_11.ShaderMaterial {
 
                 finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
 
-                gl_FragColor *= vec4( finalColor, vOpacityDecrease );
+                gl_FragColor *= vec4( finalColor, vOpacityDecrease * vOpacity );
 
                 if ( gl_FragColor.a < alphaTest ) discard;
 
@@ -1008,65 +1950,11 @@ class FogMaterial extends three_11.ShaderMaterial {
             uTimeY: { value: 0.0 },
             uFrameDuration: { value: 16.0 },
             uOpacity: { value: 0.9 },
-            uInnerColor: { value: new three_11.Color(0x716222) }
+            uInnerColor: { value: new three_11.Color(0xFFCE00) }
         };
     }
 }
 exports.FogMaterial = FogMaterial;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/FoamParticles.Shader.ts":
-/*!*****************************************************!*\
-  !*** ./src/scripts/shaders/FoamParticles.Shader.ts ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FoamParticle = exports.textureLoader = void 0;
-const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-exports.textureLoader = new three_4.TextureLoader();
-const particleTexture = exports.textureLoader.load('/resources/textures/particle.png');
-class FoamParticle extends three_4.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true;
-        this.vertexShader = `
-        attribute float foamSize;
-
-        uniform float uTime;
-
-        void main () {
-
-            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x - 0.057 + uTime / 10.0, position.y - 0.05 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
-
-            gl_PointSize = foamSize * 0.0068  * ( 300.0 / -mvPosition.z );
-
-            gl_Position = projectionMatrix * mvPosition;
-
-        }`,
-            this.fragmentShader = `
-        uniform sampler2D uPointTexture;
-        uniform vec3 uColor;
-
-        void main () {
-
-            gl_FragColor = vec4( uColor, 1.0 ) * texture2D( uPointTexture, gl_PointCoord );
-            if ( gl_FragColor.a < 0.3 ) discard;
-
-        }`,
-            this.uniforms = {
-                uPointTexture: { value: particleTexture },
-                uColor: { value: new three_4.Color(0xc5e0fc) },
-                uTime: { value: 0 }
-            };
-    }
-}
-exports.FoamParticle = FoamParticle;
-;
 
 
 /***/ }),
@@ -1080,9 +1968,9 @@ exports.FoamParticle = FoamParticle;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TopmFoamShader = void 0;
-const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_9 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-class TopmFoamShader extends three_6.ShaderMaterial {
+class TopmFoamShader extends three_9.ShaderMaterial {
     constructor() {
         super();
         this.vertexShader = `
@@ -1174,9 +2062,9 @@ class TopmFoamShader extends three_6.ShaderMaterial {
 
         }`,
             this.uniforms = {
-                uColor1: { value: new three_6.Color(0x7784b5) },
-                uColor2: { value: new three_6.Color(0xd7e8fa) },
-                uWhiteColor: { value: new three_6.Color(0xffffff) },
+                uColor1: { value: new three_9.Color(0x7784b5) },
+                uColor2: { value: new three_9.Color(0xd7e8fa) },
+                uWhiteColor: { value: new three_9.Color(0xffffff) },
                 uTime: { value: 0 }
             };
     }
@@ -1195,9 +2083,9 @@ exports.TopmFoamShader = TopmFoamShader;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WaterfallMaterial = void 0;
-const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-class WaterfallMaterial extends three_3.ShaderMaterial {
+class WaterfallMaterial extends three_6.ShaderMaterial {
     constructor() {
         super(),
             this.vertexShader = `
@@ -1305,15 +2193,244 @@ class WaterfallMaterial extends three_3.ShaderMaterial {
         }`,
             this.uniforms = {
                 uTime: { value: 0 },
-                uLightColor: { value: new three_3.Color(0xc0fafa) },
-                uDarkColor: { value: new three_3.Color(0x3250a8) },
-                uWhiteColor: { value: new three_3.Color(0xffffff) },
-                uFoamColor: { value: new three_3.Color(0xf5f6ff) },
+                uLightColor: { value: new three_6.Color(0xc0fafa) },
+                uDarkColor: { value: new three_6.Color(0x3250a8) },
+                uWhiteColor: { value: new three_6.Color(0xffffff) },
+                uFoamColor: { value: new three_6.Color(0xf5f6ff) },
                 uRandom: { value: Math.random() }
             };
     }
 }
 exports.WaterfallMaterial = WaterfallMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Water.Shader.ts":
+/*!*********************************************!*\
+  !*** ./src/scripts/shaders/Water.Shader.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WaterMaterial = void 0;
+const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+class WaterMaterial extends three_5.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+        #include <packing>
+
+        varying vec2 vUv;
+        varying vec4 vPos;
+        varying vec3 vPosFoam;
+
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+        }
+
+        void main() {
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+            vPos = gl_Position.xyzw;
+
+            vUv = uv;
+
+            vPosFoam = position;
+
+        }
+
+        `,
+            this.transparent = true;
+        this.fragmentShader = `
+        #include <packing>
+        #define PI 3.1415926538;
+
+        varying vec2 vUv;
+        varying float vDepth;
+        varying vec4 vPos;
+        varying vec3 vPosFoam;
+
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+        uniform vec3 uColor;
+        uniform vec3 uFoamColor1;
+        uniform vec3 uFoamColor2;
+        uniform vec3 uFoamColor3;
+        uniform float uTime;
+
+        //	Classic Perlin 2D Noise
+        //	by Stefan Gustavson
+        //
+        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+        vec2 fade(vec2 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
+
+        float getPerlinNoise2d(vec2 P)
+        {
+            vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
+            vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
+            Pi = mod(Pi, 289.0); // To avoid truncation effects in permutation
+            vec4 ix = Pi.xzxz;
+            vec4 iy = Pi.yyww;
+            vec4 fx = Pf.xzxz;
+            vec4 fy = Pf.yyww;
+            vec4 i = permute(permute(ix) + iy);
+            vec4 gx = 2.0 * fract(i * 0.0243902439) - 1.0; // 1/41 = 0.024...
+            vec4 gy = abs(gx) - 0.5;
+            vec4 tx = floor(gx + 0.5);
+            gx = gx - tx;
+            vec2 g00 = vec2(gx.x,gy.x);
+            vec2 g10 = vec2(gx.y,gy.y);
+            vec2 g01 = vec2(gx.z,gy.z);
+            vec2 g11 = vec2(gx.w,gy.w);
+            vec4 norm = 1.79284291400159 - 0.85373472095314 *
+            vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11));
+            g00 *= norm.x;
+            g01 *= norm.y;
+            g10 *= norm.z;
+            g11 *= norm.w;
+            float n00 = dot(g00, vec2(fx.x, fy.x));
+            float n10 = dot(g10, vec2(fx.y, fy.y));
+            float n01 = dot(g01, vec2(fx.z, fy.z));
+            float n11 = dot(g11, vec2(fx.w, fy.w));
+            vec2 fade_xy = fade(Pf.xy);
+            vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
+            float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
+            return 2.3 * n_xy;
+        }
+
+        float convertDepth ( float depth ) {
+
+            float viewZ = perspectiveDepthToViewZ( depth, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+
+        }
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            return convertDepth( fragCoordZ );
+
+        }
+
+        void main() {
+
+            vec2 centeredUv = vUv - 0.5;
+            float distanceToCenter = length( centeredUv );
+
+            //
+
+            vec2 vViewportCoord = vPos.xy;
+            vViewportCoord /= vPos.w;
+            vViewportCoord = vViewportCoord * 0.5 + 0.5;
+
+            float depth = readDepth( tDepth, vViewportCoord );
+
+            float waterDepth = ( depth - convertDepth( gl_FragCoord.z ) );
+
+            float perlinNoise = getPerlinNoise2d( centeredUv * 203.0 + uTime / 20.0 );
+            vec3 color = uColor;
+            float foamDiff = min( ( waterDepth * 700.0 ) / ( uTime ) / 0.55, 1.0 );
+
+            float foam = 1.0 - step( foamDiff - clamp( sin( ( foamDiff + sin( uTime / 30.0 ) ) * 9.0 * 3.1415 ), 0.0, 1.0 ) * ( 1.0 - foamDiff ), perlinNoise );
+            color = mix( uFoamColor2, uColor, foamDiff );
+
+            gl_FragColor.rgb = vec3( color );
+            gl_FragColor.a = mix( foam, 0.8, foamDiff + 1.5 );
+
+        }
+        `;
+        this.uniforms = {
+            cameraNear: { value: 0 },
+            cameraFar: { value: 0 },
+            tDiffuse: { value: null },
+            tDepth: { value: null },
+            uColor: { value: new three_5.Color(0x8eb4e6) },
+            uFoamColor1: { value: new three_5.Color(0xc2e3ff) },
+            uFoamColor2: { value: new three_5.Color(0xe6f6ff) },
+            uFoamColor3: { value: new three_5.Color(0x000001) },
+            uTime: { value: 0 }
+        };
+    }
+}
+exports.WaterMaterial = WaterMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Сombustion.Shader.ts":
+/*!**************************************************!*\
+  !*** ./src/scripts/shaders/Сombustion.Shader.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["СombustionMaterial"] = exports.uNoise = void 0;
+const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+// perlin noise texture
+exports.uNoise = new three_3.TextureLoader().load('resources/textures/tNoise.png');
+class СombustionMaterial extends three_3.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true;
+        this.vertexShader = `
+        varying vec2 vUv;
+
+        void main() {
+
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+
+            vUv = uv;
+
+        }
+        `,
+            this.fragmentShader = `
+        varying vec2 vUv;
+
+        uniform sampler2D uNoise;
+        uniform float uTime;
+        uniform vec3 uColor;
+        uniform sampler2D tDiffuse;
+
+        void main() {
+
+            vec2 newUv = vUv;
+            vec2 displUV = texture2D( uNoise, vUv ).xy + uTime / 5.0;
+            vec4 potatoTexture = texture2D( tDiffuse, vUv );
+
+            float col = pow( clamp( mix( 0.5, texture2D( uNoise, newUv + displUV ).x, 2.0 ), 0.0, 1.0 ), 20.0 );
+
+            float nn = texture2D( uNoise, newUv / 15.0 + displUV ).r;
+            gl_FragColor.rgb = vec3( max( 1.0, 24.0 * smoothstep( 1.0 - uTime / 0.7, 1.0 - uTime / 1.0, nn ) ) ) * potatoTexture.rgb;
+            gl_FragColor.a = 1.0 - smoothstep( 1.0 - uTime / 0.8, 1.0 - uTime / 1.0, nn );
+
+        }
+        `,
+            this.uniforms = {
+                uTime: { value: 0.0 },
+                uNoise: { value: exports.uNoise },
+                uColor: { value: new three_3.Color(0xff0000) },
+                tDiffuse: { value: null }
+            };
+    }
+}
+exports["СombustionMaterial"] = СombustionMaterial;
 ;
 
 
@@ -1331,16 +2448,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const FloatingRock_1 = __importDefault(__webpack_require__(/*! ./FloatingRock */ "./src/scripts/FloatingRock.ts"));
-// import FogScene from "./Fog";
 class MainPage {
     constructor() {
         this.floatingRock = new FloatingRock_1.default();
-        // public fog: FogScene = new FogScene();
         //
         this.init = () => {
             // this.devUI = new Pane();
             this.floatingRock.init();
-            // this.fog.init();
             //
             // this.dispatch({ type: APP_INITED });
         };
@@ -1373,21 +2487,48 @@ exports.APP_INITED = 'APP_INITED';
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CombustionComponent = void 0;
-const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
+const Combustion_1 = __webpack_require__(/*! ../../Combustion */ "./src/scripts/Combustion.ts");
 //
-const CombistionConteiner = styled_components_1.default.div `
+const CombistionConteiner = styled_components_1.default.canvas `
     color: black;
 
     display: ${(props) => (props.visible ? 'block' : 'none')};
 `;
+const combustion = new Combustion_1.CombustionGfx();
 const CombustionComponent = ({ visible }) => {
-    return (react_1.default.createElement(CombistionConteiner, { visible: visible }, "Combustion"));
+    const canvasRef = (0, react_1.useRef)(null);
+    (0, react_1.useEffect)(() => {
+        if (canvasRef) {
+            combustion.init();
+        }
+    }, [canvasRef]);
+    return (react_1.default.createElement(CombistionConteiner, { visible: visible, className: 'webglViewCombustion' }, "Combustion"));
 };
 exports.CombustionComponent = CombustionComponent;
 
@@ -1401,15 +2542,35 @@ exports.CombustionComponent = CombustionComponent;
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FogComponent = void 0;
-const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
+const Fog_1 = __importDefault(__webpack_require__(/*! ../../Fog */ "./src/scripts/Fog.ts"));
 //
-const FogConteiner = styled_components_1.default.div `
+const FogConteiner = styled_components_1.default.canvas `
     color: green;
     position: static;
     // text-align: center;
@@ -1417,8 +2578,16 @@ const FogConteiner = styled_components_1.default.div `
 
     display: ${(props) => (props.visible ? 'block' : 'none')};
 `;
+const fog = new Fog_1.default();
 const FogComponent = ({ visible }) => {
-    return (react_1.default.createElement(FogConteiner, { visible: visible, className: "webglViewFog" }));
+    const canvasRef = (0, react_1.useRef)(null);
+    (0, react_1.useEffect)(() => {
+        if (canvasRef) {
+            fog.init();
+        }
+    }, [canvasRef]);
+    //
+    return (react_1.default.createElement(FogConteiner, { ref: canvasRef, visible: visible, className: "webglViewFog" }));
 };
 exports.FogComponent = FogComponent;
 
@@ -1883,6 +3052,9 @@ const TopPanelLeft = styled_components_1.default.div `
     float: right;
     opacity: 0.8;
 `;
+const Menu = styled_components_1.default.div `
+    z-index: 20;
+`;
 const MainComponent = () => {
     const dispatch = (0, react_redux_1.useDispatch)();
     // Game.dispatch = dispatch;
@@ -1898,14 +3070,15 @@ const MainComponent = () => {
     const CombustionClick = () => { setPath('/combustion'); };
     return (react_1.default.createElement(Div, null,
         react_1.default.createElement(TopMenu_Component_1.TopMenuComponent, null),
+        react_1.default.createElement(Menu, null,
+            react_1.default.createElement(TopPanelLeft, { onClick: HomeClick }, "Home"),
+            react_1.default.createElement(TopPanelLeft, { onClick: WaterClick }, "Water"),
+            react_1.default.createElement(TopPanelLeft, { onClick: FogClick }, "Fog"),
+            react_1.default.createElement(TopPanelLeft, { onClick: CombustionClick }, "Combustion")),
         react_1.default.createElement(view_1.default, { visible: path === '/' }),
         react_1.default.createElement(Water_Component_1.WaterComponent, { visible: path === '/water' }),
         react_1.default.createElement(Fog_Component_1.FogComponent, { visible: path === '/fog' }),
         react_1.default.createElement(Combustion_Component_1.CombustionComponent, { visible: path === '/combustion' }),
-        react_1.default.createElement(TopPanelLeft, { onClick: HomeClick }, "Home"),
-        react_1.default.createElement(TopPanelLeft, { onClick: WaterClick }, "Water"),
-        react_1.default.createElement(TopPanelLeft, { onClick: FogClick }, "Fog"),
-        react_1.default.createElement(TopPanelLeft, { onClick: CombustionClick }, "Combustion"),
         react_1.default.createElement(items_1.default, null),
         react_1.default.createElement(form_1.default, null),
         react_1.default.createElement(Footer_Component_1.FooterComponent, null)));
@@ -2035,21 +3208,48 @@ exports["default"] = View_Component_1.ViewComponent;
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WaterComponent = void 0;
-const react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+const react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 const styled_components_1 = __importDefault(__webpack_require__(/*! styled-components */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"));
+const Water_1 = __webpack_require__(/*! ../../Water */ "./src/scripts/Water.ts");
 //
-const WaterConteiner = styled_components_1.default.div `
+const WaterConteiner = styled_components_1.default.canvas `
     color: red;
 
     display: ${(props) => (props.visible ? 'block' : 'none')};
 `;
+const water = new Water_1.Water();
 const WaterComponent = ({ visible }) => {
-    return (react_1.default.createElement(WaterConteiner, { visible: visible }, "Water"));
+    const canvasRef = (0, react_1.useRef)(null);
+    (0, react_1.useEffect)(() => {
+        if (canvasRef) {
+            water.init();
+        }
+    }, [canvasRef]);
+    return (react_1.default.createElement(WaterConteiner, { visible: visible, className: 'webglViewWater' }, "Water"));
 };
 exports.WaterComponent = WaterComponent;
 

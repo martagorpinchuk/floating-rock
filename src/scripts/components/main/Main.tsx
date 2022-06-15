@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import BottomMenuComponent from '../bottom-menu';
 import { TopMenuComponent } from '../top-menu/TopMenu.Component';
 import ViewComponent from '../view';
 import ItemComponent from '../items';
@@ -40,6 +39,10 @@ const TopPanelLeft = styled.div`
     opacity: 0.8;
 `;
 
+const Menu = styled.div`
+    z-index: 20;
+`;
+
 export const MainComponent = () => {
 
     const dispatch = useDispatch();
@@ -61,25 +64,17 @@ export const MainComponent = () => {
 
     return (
         <Div>
-            {/* <Router> */}
-                <TopMenuComponent />
-                <ViewComponent visible={ path === '/' } />
-                <WaterComponent visible={ path === '/water' }/>
-                <FogComponent visible={ path === '/fog' }/>
-                <CombustionComponent visible={ path === '/combustion' }/>
-
-                <TopPanelLeft onClick={HomeClick}>Home</TopPanelLeft>
-                <TopPanelLeft onClick={WaterClick}>Water</TopPanelLeft>
-                <TopPanelLeft onClick={FogClick}>Fog</TopPanelLeft>
-                <TopPanelLeft onClick={CombustionClick}>Combustion</TopPanelLeft>
-
-                {/* <Routes>
-                    <Route  path="/" element={ <ViewComponent/> } />
-                    <Route path="/water" element={ <WaterComponent/> } />
-                    <Route path="/fog" element={ <FogComponent/> } />
-                    <Route path="/combustion" element={ <CombustionComponent/> } />
-                </Routes> */}
-            {/* </Router> */}
+            <TopMenuComponent />
+            <Menu>
+                <TopPanelLeft onClick={ HomeClick }>Home</TopPanelLeft>
+                <TopPanelLeft onClick={ WaterClick }>Water</TopPanelLeft>
+                <TopPanelLeft onClick={ FogClick }>Fog</TopPanelLeft>
+                <TopPanelLeft onClick={ CombustionClick }>Combustion</TopPanelLeft>
+            </Menu>
+            <ViewComponent visible={ path === '/' } />
+            <WaterComponent visible={ path === '/water' }/>
+            <FogComponent visible={ path === '/fog' }/>
+            <CombustionComponent visible={ path === '/combustion' }/>
             <ItemComponent />
             <FormComponent />
             <FooterComponent />
