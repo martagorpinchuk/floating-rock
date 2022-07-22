@@ -95,16 +95,15 @@ export default class FloatingRock {
         this.scene.add( axesHelper );
 
         //
+        this.loadingBar();
+        this.debug();
+        this.loadModel();
         this.addFog();
         this.backgroundGradient();
-        this.loadingBar();
         this.addWaterfall();
-        this.addBottomFoam();
         this.addTopFoam();
-        this.loadModel();
         this.fireFlame();
-
-        this.debug();
+        this.addBottomFoam();
 
         this.tick();
 
@@ -142,7 +141,7 @@ export default class FloatingRock {
 
         };
 
-        let pane = new Pane( { title: "Fireplace", expanded: false } );
+        let pane: any = new Pane( { title: "Fireplace", expanded: false } );
         pane.element.parentElement.style['width'] = '330px';
         pane.element.parentElement.style['margin-top'] = '171px';
         pane.element.parentElement.style['z-index'] = '10';
@@ -398,7 +397,7 @@ export default class FloatingRock {
 
     public loadingBar () : void {
 
-        const loadingBarElement = document.querySelector( '.loading-bar' );
+        const loadingBarElement: any = document.querySelector( '.loading-bar' );
 
         this.loadingManager = new LoadingManager(
 
@@ -524,11 +523,11 @@ export default class FloatingRock {
         let waterFoamGeometry = new PlaneGeometry( 0.13, 0.2 );
         let waterFoam = new Mesh( waterFoamGeometry, this.bottomFoamMaterial );
 
-        let foamFade = [];
-        const transformRow1 = [];
-        const transformRow2 = [];
-        const transformRow3 = [];
-        const transformRow4 = [];
+        let foamFade: number[] = [];
+        const transformRow1: number[] = [];
+        const transformRow2: number[] = [];
+        const transformRow3: number[] = [];
+        const transformRow4: number[] = [];
 
         for ( let i = 0; i < 50; i ++ ) {
 
@@ -563,7 +562,7 @@ export default class FloatingRock {
 
         this.foamPointPositions = new Float32Array( this.foamPointCount * 3 );
 
-        let foamSize = [];
+        let foamSize: number[] = [];
 
         for ( let i = 0; i < this.foamPointCount; i++ ) {
 
@@ -588,7 +587,7 @@ export default class FloatingRock {
         foamParticle.position.x += 0.93;
         foamParticle.position.z += 0.93;
         foamParticle.position.y += 0.355;
-        this.scene.add( foamParticle );
+        // this.scene.add( foamParticle );
 
     };
 
@@ -597,10 +596,10 @@ export default class FloatingRock {
         let topFoamGeom = new PlaneGeometry( 0.16, 0.33 );
         this.topFoamMaterial = new TopmFoamShader();
 
-        const transformRow1 = [];
-        const transformRow2 = [];
-        const transformRow3 = [];
-        const transformRow4 = [];
+        const transformRow1: number[] = [];
+        const transformRow2: number[] = [];
+        const transformRow3: number[] = [];
+        const transformRow4: number[] = [];
 
         for ( let i = 0; i < 50; i ++ ) {
 
