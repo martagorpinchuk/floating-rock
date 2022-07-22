@@ -97,7 +97,7 @@ export default class FloatingRock {
         //
         this.addFog();
         this.backgroundGradient();
-        // this.loadingBar();
+        this.loadingBar();
         this.addWaterfall();
         this.addBottomFoam();
         this.addTopFoam();
@@ -485,11 +485,11 @@ export default class FloatingRock {
         let waterfallGeometry = new PlaneGeometry( 0.14, 0.327 );
         let waterfall = new Mesh( waterfallGeometry,this.waterfallMaterial );
 
-        let brightness = [];
-        const transformRow1 = [];
-        const transformRow2 = [];
-        const transformRow3 = [];
-        const transformRow4 = [];
+        let brightness: number[] = [];
+        const transformRow1: number[] = [];
+        const transformRow2: number[] = [];
+        const transformRow3: number[] = [];
+        const transformRow4: number[] = [];
 
         for ( let i = 0; i < 50; i ++ ) {
 

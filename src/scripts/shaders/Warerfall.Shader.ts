@@ -30,7 +30,7 @@ export class WaterfallMaterial extends ShaderMaterial {
             gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( position.x + 0.01, position.y - 0.234, position.z + 0.439, 1.0 );
 
             vUv = uv;
-            vBrightness = brightness;;
+            vBrightness = brightness;
 
         }`,
 

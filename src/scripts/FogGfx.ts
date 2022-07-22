@@ -90,7 +90,7 @@ export class FogGfx {
 
         this.numberOfSprites = density * height * width * depth;
 
-        let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [], color = [];
+        let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [];
         const transformRow1 = [];
         const transformRow2 = [];
         const transformRow3 = [];
