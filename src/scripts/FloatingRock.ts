@@ -92,7 +92,7 @@ export default class FloatingRock {
         this.clock = new Clock();
 
         const axesHelper = new AxesHelper( 5 );
-        this.scene.add( axesHelper );
+        // this.scene.add( axesHelper );
 
         //
         this.loadingBar();
