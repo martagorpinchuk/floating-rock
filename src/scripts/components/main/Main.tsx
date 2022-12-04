@@ -11,6 +11,7 @@ import { FooterComponent } from '../footer/Footer.Component';
 import { FogComponent } from '../fog/Fog.Component';
 import { WaterComponent } from '../water/Water.Component';
 import { CombustionComponent } from '../combustion/Combustion.Component';
+import { SpheresComponent } from '../spheres/Sphere.Component';
 
 //
 
@@ -23,7 +24,7 @@ const Div = styled.div`
 
 const TopPanelLeft = styled.div`
     line-height: 50px;
-    height: 2.1%;
+    // height: 30.1%;
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 9px;
@@ -61,6 +62,7 @@ export const MainComponent = () => {
     const WaterClick = () => { setPath('/water') };
     const FogClick = () => { setPath('/fog') };
     const CombustionClick = () => { setPath('/combustion') };
+    const sphereClick = () => { setPath('/sphere') };
 
     return (
         <Div>
@@ -70,11 +72,13 @@ export const MainComponent = () => {
                 <TopPanelLeft onClick={ WaterClick }>Water</TopPanelLeft>
                 <TopPanelLeft onClick={ FogClick }>Fog</TopPanelLeft>
                 <TopPanelLeft onClick={ CombustionClick }>Combustion</TopPanelLeft>
+                <TopPanelLeft onClick={ sphereClick }>Sphere</TopPanelLeft>
             </Menu>
             <ViewComponent visible={ path === '/' } />
             <WaterComponent visible={ path === '/water' }/>
             <FogComponent visible={ path === '/fog' }/>
             <CombustionComponent visible={ path === '/combustion' }/>
+            <SpheresComponent visible={ path === '/sphere' }/>
             <ItemComponent />
             <FormComponent />
             <FooterComponent />

@@ -5,8 +5,6 @@ import { Water } from '../../Water';
 //
 
 const WaterConteiner = styled.canvas<{visible: boolean}>`
-    color: red;
-
     display: ${( props ) => ( props.visible ? 'block' : 'none' ) };
 `;
 

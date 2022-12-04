@@ -1,15 +1,15 @@
 import { BoxGeometry, Color, DoubleSide, Euler, Float32BufferAttribute, InstancedBufferAttribute, InstancedBufferGeometry, Matrix4, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from "three";
-import { FogMaterial } from './shaders/FireFog.Shader';
+import { FireFogMaterial } from './shaders/FireFog.Shader';
 
 //
 
-export class FogGfx {
+export class FireFogGfx {
 
     public numberOfSprites: number = 10;
     public height: number = 1;
     public width: number = 1;
     public depth: number = 1;
-    public material: FogMaterial;
+    public material: FireFogMaterial;
     public geometry: InstancedBufferGeometry;
     public mesh: Mesh;
     public size: number;
@@ -46,7 +46,7 @@ export class FogGfx {
         this.numberOfSprites = numberOfSprites;
 
         // create fog
-        this.material = new FogMaterial();
+        this.material = new FireFogMaterial();
         this.material.side = DoubleSide;
 
         this.material.uniforms.uColor.value.setHex( color );
@@ -90,11 +90,11 @@ export class FogGfx {
 
         this.numberOfSprites = density * height * width * depth;
 
-        let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [], color = [];
-        const transformRow1 = [];
-        const transformRow2 = [];
-        const transformRow3 = [];
-        const transformRow4 = [];
+        let size: Array<any> = [], uv, offsetFrame: Array<any> = [], sizeIncrease: Array<any> = [], opacityDecrease: Array<any> = [];
+        const transformRow1: Array<any> = [];
+        const transformRow2: Array<any> = [];
+        const transformRow3: Array<any> = [];
+        const transformRow4: Array<any> = [];
 
         for ( let i = 0; i < this.numberOfSprites; i ++ ) {
 

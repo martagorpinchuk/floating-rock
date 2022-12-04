@@ -91,7 +91,7 @@ export class CombustionGfx {
 
     public debug () : void {
 
-        const combustionTwp = new Pane( { title: "Combustion", expanded: false } );
+        const combustionTwp: any = new Pane( { title: "Combustion", expanded: false } );
         combustionTwp.element.parentElement.style['z-index'] = '20';
         combustionTwp.element.parentElement.style['margin-top'] = '80px';
         combustionTwp.element.parentElement.style['width'] = '330px';
@@ -102,14 +102,10 @@ export class CombustionGfx {
 
                 this.timeCoef = this.elapsedTime;
                 this.potatoMaterial.uniforms.uTime.value = this.timeCoef / 10 / 100;
-                // this.clock.stop;
-                // console.log(this.elapsedTime);
-                // this.timeCoef = 0;
 
             } else this.timeCoef = 1;
 
         } );
-        combustionTwp.addInput( this, 'timeCoef', { min: 0.00001, max: 1 } );
 
     };
 
@@ -127,8 +123,6 @@ export class CombustionGfx {
     };
 
     public potatoLoading () : void {
-
-        // this.potatoMaterial = new СombustionMaterial();
 
         // Loading potato_character
         this.loader = new GLTFLoader();

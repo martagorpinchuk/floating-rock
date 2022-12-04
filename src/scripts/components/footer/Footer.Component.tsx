@@ -79,10 +79,10 @@ export const FooterComponent = () => {
             <Logo href=''>Flat earth</Logo>
             <Contact>Contacts:</Contact>
             <FooterUL>
-                <FooterItem><AFooter href="#">Email</AFooter></FooterItem>
-                <FooterItem><AFooter href="#">Facebook</AFooter></FooterItem>
-                <FooterItem><AFooter href="#">Twitter</AFooter></FooterItem>
-                <FooterItem><AFooter href="#">Telegram</AFooter></FooterItem>
+                <FooterItem><AFooter href="mailto:martagorpinchuk@gmail.com">Email</AFooter></FooterItem>
+                <FooterItem><AFooter href="https://www.facebook.com/profile.php?id=100007322912499">Facebook</AFooter></FooterItem>
+                <FooterItem><AFooter href="https://twitter.com/martagorpinchuk">Twitter</AFooter></FooterItem>
+                <FooterItem><AFooter href="https://telegram.me/">Telegram</AFooter></FooterItem>
             </FooterUL>
             <Copyright>© 2022. All rights reserved.</Copyright>
         </FooterBasic>

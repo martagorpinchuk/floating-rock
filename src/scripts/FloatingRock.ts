@@ -10,7 +10,7 @@ import { WaterfallMaterial } from "./shaders/Warerfall.Shader";
 import { BottomFoamMaterial } from "./shaders/BottomFoam.Shader";
 import { TopmFoamShader } from "./shaders/TopFoam.Shader";
 import { Pane } from "tweakpane";
-import { FogGfx } from "./FireFog";
+import { FireFogGfx } from "./FireFog";
 
 //
 
@@ -43,8 +43,10 @@ export default class FloatingRock {
     public foamPointCount: number = 200;
     public foamParticleGeom: BufferGeometry;
     public foamParticleMaterial: FoamParticle;
+    public outerColor: string = '#000000';
+    public innerColor: string = '#FFCE00';
 
-    public fog: FogGfx;
+    public fog: FireFogGfx;
 
     private sizes = {
         width: 0,
@@ -91,14 +93,12 @@ export default class FloatingRock {
 
         this.clock = new Clock();
 
-        const axesHelper = new AxesHelper( 5 );
-        // this.scene.add( axesHelper );
 
         //
         this.loadingBar();
+        this.addFog();
         this.debug();
         this.loadModel();
-        this.addFog();
         this.backgroundGradient();
         this.addWaterfall();
         this.addTopFoam();
@@ -118,12 +118,12 @@ export default class FloatingRock {
             height: 0.001,
             width: 0.001,
             depth: 0.001,
-            outerColor: '#ff0000',
-            innerColor: '#FFCE00',
-            newPosition: new Vector3( -0.946, 1.37, -0.946 ) // -0.49, -0.8, -0.4 --
+            // outerColor: '#000000',
+            // innerColor: '#FFCE00',
+            newPosition: new Vector3( -0.946, -0.37, 1.946 ) // -0.49, -0.8, -0.4 --
 
         }
-        this.fog = new FogGfx( new Color().setHex( + props.outerColor.replace( '#', '0x' ) ).getHex(), props.numberOfSprites, props.height, props.width, props.depth );
+        this.fog = new FireFogGfx( new Color().setHex( + this.outerColor.replace( '#', '0x' ) ).getHex(), props.numberOfSprites, props.height, props.width, props.depth );
         this.animation = new Animation();
         this.scene.add( this.fog.wrapper );
 
@@ -156,16 +156,16 @@ export default class FloatingRock {
             this.flameMaterial.uniforms.uOuterColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
 
         } );
-        pane.addInput( props, 'outerColor', { view: 'color', alpha: true, label: 'outer fog color' } ).on( 'change', ( ev ) => {
+        // pane.addInput( this, 'outerColor', { view: 'color', alpha: true, label: 'outer fog color' } ).on( 'change', ( ev ) => {
 
-            this.fog.outerColor =  ev.value;
+        //     this.fog.outerColor =  ev.value;
 
-        } );
-        pane.addInput( props, 'innerColor', { view: 'color', alpha: true, label: 'inner fog color' } ).on( 'change', ( ev ) => {
+        // } );
+        // pane.addInput( this, 'innerColor', { view: 'color', alpha: true, label: 'inner fog color' } ).on( 'change', ( ev ) => {
 
-            this.fog.innerColor = ev.value;
+        //     this.fog.innerColor = ev.value;
 
-        } );
+        // } );
 
     };
 

@@ -6,7 +6,7 @@ const textureLoader = new TextureLoader();
 const fogTexture = textureLoader.load( 'resources/textures/fog1.png' );
 const noise = textureLoader.load( 'resources/textures/noise.png' );
 
-export class FogMaterial extends ShaderMaterial {
+export class FireFogMaterial extends ShaderMaterial {
 
     constructor() {
 

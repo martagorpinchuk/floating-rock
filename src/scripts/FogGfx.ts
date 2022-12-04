@@ -13,7 +13,7 @@ export class FogGfx {
     public geometry: InstancedBufferGeometry;
     public mesh: Mesh;
     public size: number;
-    public density: number = 105;
+    public density: number = 305;
     public velocity: Array<number> = [];
     public positions: Array<number> = [];
     public rotationX: number;
@@ -90,11 +90,11 @@ export class FogGfx {
 
         this.numberOfSprites = density * height * width * depth;
 
-        let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [];
-        const transformRow1 = [];
-        const transformRow2 = [];
-        const transformRow3 = [];
-        const transformRow4 = [];
+        let size: Array<number> = [], uv, offsetFrame: Array<any> = [], sizeIncrease: Array<any> = [], opacityDecrease: Array<any> = [];
+        const transformRow1: Array<any> = [];
+        const transformRow2: Array<any> = [];
+        const transformRow3: Array<any> = [];
+        const transformRow4: Array<any> = [];
 
         for ( let i = 0; i < this.numberOfSprites; i ++ ) {
 

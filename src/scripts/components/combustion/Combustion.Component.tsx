@@ -5,8 +5,6 @@ import { CombustionGfx } from '../../Combustion';
 //
 
 const CombistionConteiner = styled.canvas<{visible: boolean}>`
-    color: black;
-
     display: ${( props ) => ( props.visible ? 'block' : 'none' ) };
 `;
 
