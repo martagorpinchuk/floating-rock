@@ -59,14 +59,16 @@ const AFooter = styled.a`
     color: inherit;
     text-decoration: none;
     opacity: 0.6;
-    font-family: Menlo, monospace;
-`;
+    // font-family: Menlo, monospace;
+    font-family: serif;
+    `;
 
 const Contact = styled.div`
     display: grid;
     justify-content: center;
     margin-top: 25px;
-    font-family: Menlo, monospace;
+    // font-family: Menlo, monospace;
+    font-family: serif;
     font-size: 20px;
     opacity: 1;
     color: #aaa;

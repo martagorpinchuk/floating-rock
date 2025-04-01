@@ -11,10 +11,10 @@
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CombustionGfx = void 0;
-const three_9 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-const GLTFLoader_2 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
-const tweakpane_4 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const three_12 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const GLTFLoader_3 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const tweakpane_5 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 const _ombustion_Shader_1 = __webpack_require__(/*! ./shaders/Сombustion.Shader */ "./src/scripts/shaders/Сombustion.Shader.ts");
 class CombustionGfx {
     constructor() {
@@ -54,29 +54,29 @@ class CombustionGfx {
         // Canvas
         this.canvas = document.querySelector('canvas.webglViewCombustion');
         // Scene
-        this.scene = new three_9.Scene();
-        this.scene.background = new three_9.Color('#78614c');
+        this.scene = new three_12.Scene();
+        this.scene.background = new three_12.Color('#78614c');
         // Camera
-        this.camera = new three_9.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 1000);
+        this.camera = new three_12.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 1000);
         this.camera.position.set(0, 10, 10);
         this.scene.add(this.camera);
         // Controls
-        this.mapControls = new OrbitControls_1.MapControls(this.camera, this.canvas);
+        this.mapControls = new OrbitControls_2.MapControls(this.camera, this.canvas);
         this.mapControls.enableDamping = true;
         // Renderer
-        this.renderer = new three_9.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new three_12.WebGLRenderer({ canvas: this.canvas });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         // Plane
-        let planeGeometry = new three_9.PlaneBufferGeometry(3000, 3000, 1, 1);
-        let planeMaterial = new three_9.MeshBasicMaterial({ color: '#453322' });
-        let plane = new three_9.Mesh(planeGeometry, planeMaterial);
+        let planeGeometry = new three_12.PlaneBufferGeometry(3000, 3000, 1, 1);
+        let planeMaterial = new three_12.MeshBasicMaterial({ color: '#453322' });
+        let plane = new three_12.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x -= Math.PI / 2;
         this.scene.add(plane);
         /// Light
-        const light = new three_9.PointLight(0xe9f7ec, 1, 500);
+        const light = new three_12.PointLight(0xe9f7ec, 1, 500);
         light.position.set(1, 3, 5);
         this.scene.add(light);
-        this.clock = new three_9.Clock();
+        this.clock = new three_12.Clock();
         this.potatoLoading();
         if (this.potato) {
             this.potato.rotation.z += Math.PI;
@@ -88,7 +88,7 @@ class CombustionGfx {
     }
     ;
     debug() {
-        const combustionTwp = new tweakpane_4.Pane({ title: "Combustion", expanded: false });
+        const combustionTwp = new tweakpane_5.Pane({ title: "Combustion", expanded: false });
         combustionTwp.element.parentElement.style['z-index'] = '20';
         combustionTwp.element.parentElement.style['margin-top'] = '80px';
         combustionTwp.element.parentElement.style['width'] = '330px';
@@ -113,11 +113,11 @@ class CombustionGfx {
     ;
     potatoLoading() {
         // Loading potato_character
-        this.loader = new GLTFLoader_2.GLTFLoader();
+        this.loader = new GLTFLoader_3.GLTFLoader();
         this.loader.load('resources/models/potato_character/scene.gltf', (gltf) => {
             this.potato = gltf.scene.children[0];
             this.potato.traverse((item) => {
-                if (item instanceof three_9.Mesh && item.material instanceof three_9.Material) {
+                if (item instanceof three_12.Mesh && item.material instanceof three_12.Material) {
                     // @ts-ignore
                     this.potatoMaterial = new _ombustion_Shader_1.СombustionMaterial({ color: 0xffffff });
                     // @ts-ignore
@@ -149,11 +149,11 @@ exports["default"] = new CombustionGfx();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FaceGfx = void 0;
-const three_7 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_js_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const three_11 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_js_3 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const GLTFLoader_2 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const Face_Sader_1 = __webpack_require__(/*! ./shaders/faceShaders/Face.Sader */ "./src/scripts/shaders/faceShaders/Face.Sader.ts");
-const tweakpane_2 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_4 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 const Particles_Shader_1 = __webpack_require__(/*! ./shaders/faceShaders/Particles.Shader */ "./src/scripts/shaders/faceShaders/Particles.Shader.ts");
 //
 class FaceGfx {
@@ -238,58 +238,58 @@ class FaceGfx {
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
         // Scene
-        this.scene = new three_7.Scene();
-        this.scene.background = new three_7.Color('#020021');
+        this.scene = new three_11.Scene();
+        this.scene.background = new three_11.Color('#020021');
         // Camera
-        this.camera = new three_7.PerspectiveCamera(25, this.sizes.width / this.sizes.height, 0.1, 500);
-        this.cameraDepth = new three_7.PerspectiveCamera(25, this.sizes.width / this.sizes.height, 0.1, 4);
+        this.camera = new three_11.PerspectiveCamera(25, this.sizes.width / this.sizes.height, 0.1, 500);
+        this.cameraDepth = new three_11.PerspectiveCamera(25, this.sizes.width / this.sizes.height, 0.1, 4);
         this.camera.position.set(0, 0, 0.8);
         this.cameraDepth.position.set(0, 0, 0.8);
         this.scene.add(this.camera);
         // Light
-        const light = new three_7.PointLight('#ffffff', 4);
+        const light = new three_11.PointLight('#ffffff', 4);
         light.position.set(0, 7, 7);
         this.scene.add(light);
         // Controls
-        this.mapControls = new OrbitControls_js_2.MapControls(this.camera, this.canvas);
+        this.mapControls = new OrbitControls_js_3.MapControls(this.camera, this.canvas);
         this.mapControls.enableDamping = true;
         this.mapControls.minDistance = 0.8;
         this.mapControls.maxDistance = 2.5;
         // Renderer
-        this.renderer = new three_7.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new three_11.WebGLRenderer({ canvas: this.canvas });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         // Create a render target with depth texture
         this.setupRenderTarget();
         // Resize
         window.addEventListener('resize', this.resize());
-        this.clock = new three_7.Clock();
-        this.clockForClick = new three_7.Clock(false);
+        this.clock = new three_11.Clock();
+        this.clockForClick = new three_11.Clock(false);
         //f
         this.loadModel();
         // Setup post-processing step
         // this.findingDepth();
         // Face plane Shader
-        let planeGeometry = new three_7.PlaneGeometry(5, 5, 400, 400);
+        let planeGeometry = new three_11.PlaneGeometry(5, 5, 400, 400);
         this.planeMaterial = new Face_Sader_1.FaceSheder();
-        this.face = new three_7.Mesh(planeGeometry, this.planeMaterial);
+        this.face = new three_11.Mesh(planeGeometry, this.planeMaterial);
         this.face.position.set(0, 0, 1);
         // this.scene.add( this.face );
         // Lines
-        this.linesGeometry = new three_7.PlaneBufferGeometry(2, 10, 100, 100); //?
+        this.linesGeometry = new three_11.PlaneBufferGeometry(2, 10, 100, 100); //?
         this.linesMaterial = new Face_Sader_1.FaceSheder();
-        let line = new three_7.Mesh(this.linesGeometry, this.linesMaterial);
+        let line = new three_11.Mesh(this.linesGeometry, this.linesMaterial);
         line.position.set(0, 0, 1);
         // this.scene.add( line );
         for (let i = 0; i < this.numberOfLines; i++) {
-            this.linesGeometry = new three_7.PlaneBufferGeometry(2, 0.006, 100, 100);
+            this.linesGeometry = new three_11.PlaneBufferGeometry(2, 0.006, 100, 100);
             let lineY = [];
             let len = this.linesGeometry.attributes.position.array.length;
             for (let j = 0; j < len / 3; j++) {
                 lineY.push(i / 100);
             }
-            this.linesGeometry.setAttribute('lineY', new three_7.BufferAttribute(new Float32Array(lineY), 1));
-            this.lines = new three_7.Mesh(this.linesGeometry, this.linesMaterial);
+            this.linesGeometry.setAttribute('lineY', new three_11.BufferAttribute(new Float32Array(lineY), 1));
+            this.lines = new three_11.Mesh(this.linesGeometry, this.linesMaterial);
             this.lines.position.y = (i - 40) / 50;
             this.scene.add(this.lines);
         }
@@ -304,14 +304,14 @@ class FaceGfx {
         let props = {
             color: '#0f0017'
         };
-        const faceDebug = new tweakpane_2.Pane({ title: 'Face' });
+        const faceDebug = new tweakpane_4.Pane({ title: 'Face' });
         faceDebug.addInput(props, 'color').on('change', () => {
             this.linesMaterial.uniforms.uColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
     }
     ;
     loadModel() {
-        this.loader = new GLTFLoader_1.GLTFLoader();
+        this.loader = new GLTFLoader_2.GLTFLoader();
         this.loader.load('resources/models/zophrac/male_face/scene.gltf', (gltf) => {
             this.faceModel = gltf.scene.children[0];
             this.faceModel.scale.set(4.5, 3, 2.5);
@@ -321,10 +321,10 @@ class FaceGfx {
     }
     ;
     backgroundParticles() {
-        const textureLoader = new three_7.TextureLoader();
+        const textureLoader = new three_11.TextureLoader();
         const particleTexture = textureLoader.load('/resources/textures/particle1.png');
         this.particleMaterial = new Particles_Shader_1.ParticleShader();
-        const particlesGeometry = new three_7.BufferGeometry();
+        const particlesGeometry = new three_11.BufferGeometry();
         const count = 1000;
         let positions = new Float32Array(count * 3);
         let size = new Float32Array(count);
@@ -346,11 +346,11 @@ class FaceGfx {
             particleColor[i] = (Math.random() - 0.83) * 10;
             blinkStart[i] = (Math.random() - 0.5) * 10;
         }
-        particlesGeometry.setAttribute('position', new three_7.BufferAttribute(positions, 3));
-        particlesGeometry.setAttribute('size', new three_7.BufferAttribute(size, 1));
-        particlesGeometry.setAttribute('particleColor', new three_7.BufferAttribute(particleColor, 1));
-        particlesGeometry.setAttribute('blinkStart', new three_7.BufferAttribute(blinkStart, 1));
-        let points = new three_7.Points(particlesGeometry, this.particleMaterial);
+        particlesGeometry.setAttribute('position', new three_11.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('size', new three_11.BufferAttribute(size, 1));
+        particlesGeometry.setAttribute('particleColor', new three_11.BufferAttribute(particleColor, 1));
+        particlesGeometry.setAttribute('blinkStart', new three_11.BufferAttribute(blinkStart, 1));
+        let points = new three_11.Points(particlesGeometry, this.particleMaterial);
         this.scene.add(points);
     }
     ;
@@ -358,16 +358,16 @@ class FaceGfx {
         if (this.target)
             this.target.dispose();
         //
-        this.target = new three_7.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-        this.target.texture.format = three_7.RGBFormat;
-        this.target.texture.minFilter = three_7.NearestFilter;
-        this.target.texture.magFilter = three_7.NearestFilter;
+        this.target = new three_11.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+        this.target.texture.format = three_11.RGBFormat;
+        this.target.texture.minFilter = three_11.NearestFilter;
+        this.target.texture.magFilter = three_11.NearestFilter;
         this.target.texture.generateMipmaps = false;
         this.target.stencilBuffer = false;
         this.target.depthBuffer = true;
-        this.target.depthTexture = new three_7.DepthTexture(window.innerWidth, window.innerHeight);
-        this.target.depthTexture.type = three_7.UnsignedShortType;
-        this.target.depthTexture.format = three_7.DepthFormat;
+        this.target.depthTexture = new three_11.DepthTexture(window.innerWidth, window.innerHeight);
+        this.target.depthTexture.type = three_11.UnsignedShortType;
+        this.target.depthTexture.format = three_11.DepthFormat;
     }
     ;
     resize() {
@@ -595,16 +595,16 @@ exports.FireFogGfx = FireFogGfx;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const three_11 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_js_4 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-const GLTFLoader_3 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const three_1 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_js_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const gsap_1 = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
 const Fire_Shader_1 = __webpack_require__(/*! ./shaders/Fire.Shader */ "./src/scripts/shaders/Fire.Shader.ts");
 const FoamParticles_Shader_1 = __webpack_require__(/*! ./shaders/FoamParticles.Shader */ "./src/scripts/shaders/FoamParticles.Shader.ts");
 const Warerfall_Shader_1 = __webpack_require__(/*! ./shaders/Warerfall.Shader */ "./src/scripts/shaders/Warerfall.Shader.ts");
 const BottomFoam_Shader_1 = __webpack_require__(/*! ./shaders/BottomFoam.Shader */ "./src/scripts/shaders/BottomFoam.Shader.ts");
 const TopFoam_Shader_1 = __webpack_require__(/*! ./shaders/TopFoam.Shader */ "./src/scripts/shaders/TopFoam.Shader.ts");
-const tweakpane_6 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_1 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 const FireFog_1 = __webpack_require__(/*! ./FireFog */ "./src/scripts/FireFog.ts");
 //
 class FloatingRock {
@@ -648,31 +648,31 @@ class FloatingRock {
         // Canvas
         this.canvas = document.querySelector('canvas.webglView');
         // Scene
-        this.scene = new three_11.Scene();
-        this.scene.background = new three_11.Color('#69deeb');
+        this.scene = new three_1.Scene();
+        this.scene.background = new three_1.Color('#69deeb');
         // Sizes
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
         // Camera
-        this.camera = new three_11.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera = new three_1.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
         this.camera.position.set(1, 0.4, 1);
         this.scene.add(this.camera);
         // Light
-        const light = new three_11.PointLight(0xffffff, 3, 10);
+        const light = new three_1.PointLight(0xffffff, 3, 10);
         light.position.set(3, 7, 3);
         this.scene.add(light);
-        const ambientLight = new three_11.AmbientLight(0xffffff, 0.4);
+        const ambientLight = new three_1.AmbientLight(0xffffff, 0.4);
         this.scene.add(ambientLight);
         // Controls
-        this.mapControls = new OrbitControls_js_4.OrbitControls(this.camera, this.canvas);
+        this.mapControls = new OrbitControls_js_1.OrbitControls(this.camera, this.canvas);
         this.mapControls.enableZoom = false;
         // Renderer
-        this.renderer = new three_11.WebGLRenderer({ canvas: this.canvas, antialias: true });
+        this.renderer = new three_1.WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         // Resize
         window.addEventListener('resize', this.resize());
-        this.clock = new three_11.Clock();
+        this.clock = new three_1.Clock();
         //
         // this.addFog();
         this.loadingBar();
@@ -693,9 +693,9 @@ class FloatingRock {
             height: 0.001,
             width: 0.001,
             depth: 0.001,
-            newPosition: new three_11.Vector3(-0.946, -0.37, 1.946)
+            newPosition: new three_1.Vector3(-0.946, -0.37, 1.946)
         };
-        this.fog = new FireFog_1.FireFogGfx(new three_11.Color().setHex(+this.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
+        this.fog = new FireFog_1.FireFogGfx(new three_1.Color().setHex(+this.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
         this.animation = new Animation();
         this.scene.add(this.fog.wrapper);
         props.newPosition = this.fog.newPosition;
@@ -707,7 +707,7 @@ class FloatingRock {
             outerColor: '#ff0000',
             innerColor: '#FFCE00',
         };
-        let pane = new tweakpane_6.Pane({ title: "Fireplace", expanded: false });
+        let pane = new tweakpane_1.Pane({ title: "Fireplace", expanded: false });
         pane.element.parentElement.style['width'] = '330px';
         pane.element.parentElement.style['margin-top'] = '171px';
         pane.element.parentElement.style['z-index'] = '10';
@@ -727,7 +727,7 @@ class FloatingRock {
     ;
     //
     loadModel() {
-        this.loader = new GLTFLoader_3.GLTFLoader(this.loadingManager);
+        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/scene.gltf', (gltf) => {
             gltf.scene.children.forEach(element => {
                 // gltf.scene.children[0] as Mesh;
@@ -735,7 +735,7 @@ class FloatingRock {
             });
         });
         //  middle rock
-        this.loader = new GLTFLoader_3.GLTFLoader(this.loadingManager);
+        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/stone1.gltf', (gltf) => {
             this.middleRock = gltf.scene.children[0];
             this.middleRock.scale.set(0.3, 0.3, 0.3);
@@ -744,7 +744,7 @@ class FloatingRock {
             this.scene.add(this.middleRock);
         });
         //  right rock
-        this.loader = new GLTFLoader_3.GLTFLoader(this.loadingManager);
+        this.loader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
         this.loader.load('resources/models/stone3.gltf', (gltf) => {
             this.rightRock = gltf.scene.children[0];
             this.rightRock.scale.set(0.03, 0.03, 0.03);
@@ -805,8 +805,8 @@ class FloatingRock {
     }
     ;
     backgroundGradient() {
-        let planeGeometry = new three_11.PlaneGeometry(2, 2);
-        let planeMaterial = new three_11.ShaderMaterial({
+        let planeGeometry = new three_1.PlaneGeometry(2, 2);
+        let planeMaterial = new three_1.ShaderMaterial({
             depthWrite: false,
             vertexShader: `
                 varying vec2 vUv;
@@ -841,18 +841,18 @@ class FloatingRock {
                 }
             `,
             uniforms: {
-                uInnerColor: { value: new three_11.Color(0xedf6f7) },
-                uOuterColor: { value: new three_11.Color(0xb3eeff) }
+                uInnerColor: { value: new three_1.Color(0xedf6f7) },
+                uOuterColor: { value: new three_1.Color(0xb3eeff) }
             }
         });
-        let backgroundPlane = new three_11.Mesh(planeGeometry, planeMaterial);
+        let backgroundPlane = new three_1.Mesh(planeGeometry, planeMaterial);
         this.scene.add(backgroundPlane);
     }
     ;
     fireFlame() {
         this.flameMaterial = new Fire_Shader_1.FlameMaterial();
-        let flameGeometry = new three_11.PlaneGeometry(0.18, 0.23);
-        let flame = new three_11.Mesh(flameGeometry, this.flameMaterial);
+        let flameGeometry = new three_1.PlaneGeometry(0.18, 0.23);
+        let flame = new three_1.Mesh(flameGeometry, this.flameMaterial);
         flame.scale.set(0.66, 0.66, 0.66);
         flame.position.set(-0.946, -0.37, -0.946);
         this.scene.add(flame);
@@ -860,7 +860,7 @@ class FloatingRock {
     ;
     loadingBar() {
         const loadingBarElement = document.querySelector('.loading-bar');
-        this.loadingManager = new three_11.LoadingManager(() => {
+        this.loadingManager = new three_1.LoadingManager(() => {
             window.setTimeout(() => {
                 gsap_1.gsap.to(overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0, delay: 1 });
                 loadingBarElement.classList.add('ended');
@@ -878,8 +878,8 @@ class FloatingRock {
         /**
          * Overlay
          */
-        const overlayGeometry = new three_11.PlaneGeometry(2, 2, 1, 1);
-        const overlayMaterial = new three_11.ShaderMaterial({
+        const overlayGeometry = new three_1.PlaneGeometry(2, 2, 1, 1);
+        const overlayMaterial = new three_1.ShaderMaterial({
             // wireframe: true,
             transparent: true,
             uniforms: {
@@ -902,7 +902,7 @@ class FloatingRock {
                 }
             `
         });
-        const overlay = new three_11.Mesh(overlayGeometry, overlayMaterial);
+        const overlay = new three_1.Mesh(overlayGeometry, overlayMaterial);
         this.scene.add(overlay);
     }
     ;
@@ -917,8 +917,8 @@ class FloatingRock {
     ;
     addWaterfall() {
         this.waterfallMaterial = new Warerfall_Shader_1.WaterfallMaterial();
-        let waterfallGeometry = new three_11.PlaneGeometry(0.14, 0.327);
-        let waterfall = new three_11.Mesh(waterfallGeometry, this.waterfallMaterial);
+        let waterfallGeometry = new three_1.PlaneGeometry(0.14, 0.327);
+        let waterfall = new three_1.Mesh(waterfallGeometry, this.waterfallMaterial);
         let brightness = [];
         const transformRow1 = [];
         const transformRow2 = [];
@@ -929,24 +929,24 @@ class FloatingRock {
             let rotationX = 0;
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
-            let transformMatrix = new three_11.Matrix4().compose(new three_11.Vector3(-0.1, 0, 0.05), new three_11.Quaternion().setFromEuler(new three_11.Euler(rotationX, rotationY, rotationZ)), new three_11.Vector3(1, 1, 1)).toArray();
+            let transformMatrix = new three_1.Matrix4().compose(new three_1.Vector3(-0.1, 0, 0.05), new three_1.Quaternion().setFromEuler(new three_1.Euler(rotationX, rotationY, rotationZ)), new three_1.Vector3(1, 1, 1)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
             transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
         }
-        waterfallGeometry.setAttribute('brightness', new three_11.Float32BufferAttribute(brightness, 1));
-        waterfallGeometry.setAttribute('transformRow1', new three_11.Float32BufferAttribute(new Float32Array(transformRow1), 4));
-        waterfallGeometry.setAttribute('transformRow2', new three_11.Float32BufferAttribute(new Float32Array(transformRow2), 4));
-        waterfallGeometry.setAttribute('transformRow3', new three_11.Float32BufferAttribute(new Float32Array(transformRow3), 4));
-        waterfallGeometry.setAttribute('transformRow4', new three_11.Float32BufferAttribute(new Float32Array(transformRow4), 4));
+        waterfallGeometry.setAttribute('brightness', new three_1.Float32BufferAttribute(brightness, 1));
+        waterfallGeometry.setAttribute('transformRow1', new three_1.Float32BufferAttribute(new Float32Array(transformRow1), 4));
+        waterfallGeometry.setAttribute('transformRow2', new three_1.Float32BufferAttribute(new Float32Array(transformRow2), 4));
+        waterfallGeometry.setAttribute('transformRow3', new three_1.Float32BufferAttribute(new Float32Array(transformRow3), 4));
+        waterfallGeometry.setAttribute('transformRow4', new three_1.Float32BufferAttribute(new Float32Array(transformRow4), 4));
         this.scene.add(waterfall);
     }
     ;
     addBottomFoam() {
         this.bottomFoamMaterial = new BottomFoam_Shader_1.BottomFoamMaterial();
-        let waterFoamGeometry = new three_11.PlaneGeometry(0.13, 0.2);
-        let waterFoam = new three_11.Mesh(waterFoamGeometry, this.bottomFoamMaterial);
+        let waterFoamGeometry = new three_1.PlaneGeometry(0.13, 0.2);
+        let waterFoam = new three_1.Mesh(waterFoamGeometry, this.bottomFoamMaterial);
         let foamFade = [];
         const transformRow1 = [];
         const transformRow2 = [];
@@ -957,21 +957,21 @@ class FloatingRock {
             let rotationX = 0;
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
-            let transformMatrix = new three_11.Matrix4().compose(new three_11.Vector3(-0.1, 0, 0.05), new three_11.Quaternion().setFromEuler(new three_11.Euler(rotationX, rotationY, rotationZ)), new three_11.Vector3(1, 1, 1)).toArray();
+            let transformMatrix = new three_1.Matrix4().compose(new three_1.Vector3(-0.1, 0, 0.05), new three_1.Quaternion().setFromEuler(new three_1.Euler(rotationX, rotationY, rotationZ)), new three_1.Vector3(1, 1, 1)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
             transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
         }
-        waterFoamGeometry.setAttribute('transformRow1', new three_11.Float32BufferAttribute(new Float32Array(transformRow1), 4));
-        waterFoamGeometry.setAttribute('transformRow2', new three_11.Float32BufferAttribute(new Float32Array(transformRow2), 4));
-        waterFoamGeometry.setAttribute('transformRow3', new three_11.Float32BufferAttribute(new Float32Array(transformRow3), 4));
-        waterFoamGeometry.setAttribute('transformRow4', new three_11.Float32BufferAttribute(new Float32Array(transformRow4), 4));
-        waterFoamGeometry.setAttribute('foamFade', new three_11.Float32BufferAttribute(foamFade, 1));
+        waterFoamGeometry.setAttribute('transformRow1', new three_1.Float32BufferAttribute(new Float32Array(transformRow1), 4));
+        waterFoamGeometry.setAttribute('transformRow2', new three_1.Float32BufferAttribute(new Float32Array(transformRow2), 4));
+        waterFoamGeometry.setAttribute('transformRow3', new three_1.Float32BufferAttribute(new Float32Array(transformRow3), 4));
+        waterFoamGeometry.setAttribute('transformRow4', new three_1.Float32BufferAttribute(new Float32Array(transformRow4), 4));
+        waterFoamGeometry.setAttribute('foamFade', new three_1.Float32BufferAttribute(foamFade, 1));
         this.scene.add(waterFoam);
         // Particle
         this.foamParticleMaterial = new FoamParticles_Shader_1.FoamParticle();
-        this.foamParticleGeom = new three_11.BufferGeometry();
+        this.foamParticleGeom = new three_1.BufferGeometry();
         this.foamPointPositions = new Float32Array(this.foamPointCount * 3);
         let foamSize = [];
         for (let i = 0; i < this.foamPointCount; i++) {
@@ -983,9 +983,9 @@ class FloatingRock {
             }
             foamSize.push(Math.random());
         }
-        this.foamParticleGeom.setAttribute('position', new three_11.BufferAttribute(this.foamPointPositions, 3));
-        this.foamParticleGeom.setAttribute('foamSize', new three_11.Float32BufferAttribute(foamSize, 1));
-        let foamParticle = new three_11.Points(this.foamParticleGeom, this.foamParticleMaterial);
+        this.foamParticleGeom.setAttribute('position', new three_1.BufferAttribute(this.foamPointPositions, 3));
+        this.foamParticleGeom.setAttribute('foamSize', new three_1.Float32BufferAttribute(foamSize, 1));
+        let foamParticle = new three_1.Points(this.foamParticleGeom, this.foamParticleMaterial);
         foamParticle.position.x += 0.93;
         foamParticle.position.z += 0.93;
         foamParticle.position.y += 0.355;
@@ -993,7 +993,7 @@ class FloatingRock {
     }
     ;
     addTopFoam() {
-        let topFoamGeom = new three_11.PlaneGeometry(0.16, 0.33);
+        let topFoamGeom = new three_1.PlaneGeometry(0.16, 0.33);
         this.topFoamMaterial = new TopFoam_Shader_1.TopmFoamShader();
         const transformRow1 = [];
         const transformRow2 = [];
@@ -1003,17 +1003,17 @@ class FloatingRock {
             let rotationX = 0;
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
-            let transformMatrix = new three_11.Matrix4().compose(new three_11.Vector3(-0.1, 0, 0.05), new three_11.Quaternion().setFromEuler(new three_11.Euler(rotationX, rotationY, rotationZ)), new three_11.Vector3(1, 1, 1)).toArray();
+            let transformMatrix = new three_1.Matrix4().compose(new three_1.Vector3(-0.1, 0, 0.05), new three_1.Quaternion().setFromEuler(new three_1.Euler(rotationX, rotationY, rotationZ)), new three_1.Vector3(1, 1, 1)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
             transformRow4.push(transformMatrix[12], transformMatrix[13], transformMatrix[14], transformMatrix[15]);
         }
-        topFoamGeom.setAttribute('transformRow1', new three_11.Float32BufferAttribute(new Float32Array(transformRow1), 4));
-        topFoamGeom.setAttribute('transformRow2', new three_11.Float32BufferAttribute(new Float32Array(transformRow2), 4));
-        topFoamGeom.setAttribute('transformRow3', new three_11.Float32BufferAttribute(new Float32Array(transformRow3), 4));
-        topFoamGeom.setAttribute('transformRow4', new three_11.Float32BufferAttribute(new Float32Array(transformRow4), 4));
-        let topFoam = new three_11.Mesh(topFoamGeom, this.topFoamMaterial);
+        topFoamGeom.setAttribute('transformRow1', new three_1.Float32BufferAttribute(new Float32Array(transformRow1), 4));
+        topFoamGeom.setAttribute('transformRow2', new three_1.Float32BufferAttribute(new Float32Array(transformRow2), 4));
+        topFoamGeom.setAttribute('transformRow3', new three_1.Float32BufferAttribute(new Float32Array(transformRow3), 4));
+        topFoamGeom.setAttribute('transformRow4', new three_1.Float32BufferAttribute(new Float32Array(transformRow4), 4));
+        let topFoam = new three_1.Mesh(topFoamGeom, this.topFoamMaterial);
         this.scene.add(topFoam);
     }
     ;
@@ -1032,10 +1032,10 @@ exports["default"] = FloatingRock;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const three_8 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_js_3 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const three_9 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_js_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 const FogGfx_1 = __webpack_require__(/*! ./FogGfx */ "./src/scripts/FogGfx.ts");
-const tweakpane_3 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_2 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 //
 class FogScene {
     constructor() {
@@ -1077,31 +1077,31 @@ class FogScene {
         // Canvas
         this.canvas = document.querySelector('canvas.webglViewFog');
         // Scene
-        this.scene = new three_8.Scene();
-        this.scene.background = new three_8.Color('#c7c1b7');
+        this.scene = new three_9.Scene();
+        this.scene.background = new three_9.Color('#c7c1b7');
         // Sizes
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
         // Camera
-        this.camera = new three_8.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera = new three_9.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
         this.camera.position.set(3, 4, 2);
         this.scene.add(this.camera);
         // Controls
-        this.controls = new OrbitControls_js_3.OrbitControls(this.camera, this.canvas);
+        this.controls = new OrbitControls_js_2.OrbitControls(this.camera, this.canvas);
         this.controls.enableDamping = true;
         // Plane
-        let planeGeometry = new three_8.PlaneBufferGeometry(3000, 3000, 1, 1);
-        let planeMaterial = new three_8.MeshBasicMaterial({ color: '#e6a67a' });
-        this.plane = new three_8.Mesh(planeGeometry, planeMaterial);
+        let planeGeometry = new three_9.PlaneBufferGeometry(3000, 3000, 1, 1);
+        let planeMaterial = new three_9.MeshBasicMaterial({ color: '#e6a67a' });
+        this.plane = new three_9.Mesh(planeGeometry, planeMaterial);
         this.plane.rotation.x -= Math.PI / 2;
         this.scene.add(this.plane);
         // Renderer
-        this.renderer = new three_8.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new three_9.WebGLRenderer({ canvas: this.canvas });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         // Resize
         window.addEventListener('resize', this.resize());
-        this.clock = new three_8.Clock();
+        this.clock = new three_9.Clock();
         // Fog
         let props = {
             numberOfSprites: 16,
@@ -1110,14 +1110,14 @@ class FogScene {
             depth: 1,
             outerColor: '#ff0000',
             innerColor: '#FFCE00',
-            newPosition: new three_8.Vector3(0, 0.5, 0)
+            newPosition: new three_9.Vector3(0, 0.5, 0)
         };
-        this.fog = new FogGfx_1.FogGfx(new three_8.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
+        this.fog = new FogGfx_1.FogGfx(new three_9.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
         this.animation = new Animation();
         this.scene.add(this.fog.wrapper);
         props.newPosition = this.fog.newPosition;
         // debug fog
-        this.pane = new tweakpane_3.Pane();
+        this.pane = new tweakpane_2.Pane();
         this.pane.element.parentElement.style['width'] = '330px';
         this.pane.element.parentElement.style['margin-top'] = '110px';
         this.pane.element.parentElement.style['z-index'] = '19';
@@ -1208,8 +1208,8 @@ class FogScene {
     ;
     mouseMoveFog(movementProp) {
         // Raycaster
-        this.raycaster = new three_8.Raycaster();
-        this.pointer = new three_8.Vector2();
+        this.raycaster = new three_9.Raycaster();
+        this.pointer = new three_9.Vector2();
         this.canvas.addEventListener(movementProp, this.addRaycasterPointer);
     }
     ;
@@ -1237,7 +1237,7 @@ exports["default"] = FogScene;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FogGfx = void 0;
-const three_15 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_14 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 const Fog_Shader_1 = __webpack_require__(/*! ./shaders/Fog.Shader */ "./src/scripts/shaders/Fog.Shader.ts");
 //
 class FogGfx {
@@ -1254,12 +1254,12 @@ class FogGfx {
         this.speedSizeChange = 0.137;
         this.coordEpearingParticle = 0.3;
         this.opacityCoef = 0.00999;
-        this.wrapper = new three_15.Object3D();
-        this.newPosition = new three_15.Vector3(0, 0.5, 0);
-        this.soursePosition = new three_15.Vector3(0, 0.5, 0);
+        this.wrapper = new three_14.Object3D();
+        this.newPosition = new three_14.Vector3(0, 0.5, 0);
+        this.soursePosition = new three_14.Vector3(0, 0.5, 0);
         this.cubeVisibility = true;
         this.sizeCoef = 0.1;
-        this.externalForce = new three_15.Vector3(0, 0, 0);
+        this.externalForce = new three_14.Vector3(0, 0, 0);
         this._frameDuration = 300;
         this.height = height;
         this.width = width;
@@ -1267,18 +1267,18 @@ class FogGfx {
         this.numberOfSprites = numberOfSprites;
         // create fog
         this.material = new Fog_Shader_1.FogMaterial();
-        this.material.side = three_15.DoubleSide;
+        this.material.side = three_14.DoubleSide;
         this.material.uniforms.uColor.value.setHex(color);
         this.material.uniforms.uFrameDuration.value = this._frameDuration;
         this.generate(this.density, this.height, this.width, this.depth, this.newPosition);
     }
     ;
     generate(density, height, width, depth, newPosition) {
-        const boxGeometry = new three_15.BoxGeometry(1, 1, 1);
-        const boxMaterial = new three_15.MeshBasicMaterial({ color: 0x00ff00 });
+        const boxGeometry = new three_14.BoxGeometry(1, 1, 1);
+        const boxMaterial = new three_14.MeshBasicMaterial({ color: 0x00ff00 });
         boxMaterial.wireframe = true;
         if (!this.cube) {
-            this.cube = new three_15.Mesh(boxGeometry, boxMaterial);
+            this.cube = new three_14.Mesh(boxGeometry, boxMaterial);
             this.wrapper.add(this.cube);
         }
         if (this.mesh) {
@@ -1292,7 +1292,7 @@ class FogGfx {
         this.height = height;
         this.width = width;
         this.depth = depth;
-        let fogPointPosition = new three_15.Vector3(0, 0, 0);
+        let fogPointPosition = new three_14.Vector3(0, 0, 0);
         this.numberOfSprites = density * height * width * depth;
         let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [];
         const transformRow1 = [];
@@ -1321,7 +1321,7 @@ class FogGfx {
             const rotationX = 0;
             const rotationY = 0;
             const rotationZ = 0;
-            let transformMatrix = new three_15.Matrix4().compose(new three_15.Vector3(distanceX, distanceY, distanceZ), new three_15.Quaternion().setFromEuler(new three_15.Euler(rotationX, rotationY, rotationZ)), new three_15.Vector3(scaleX, scaleY, scaleZ)).toArray();
+            let transformMatrix = new three_14.Matrix4().compose(new three_14.Vector3(distanceX, distanceY, distanceZ), new three_14.Quaternion().setFromEuler(new three_14.Euler(rotationX, rotationY, rotationZ)), new three_14.Vector3(scaleX, scaleY, scaleZ)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
@@ -1348,18 +1348,18 @@ class FogGfx {
             0, 1,
             0, 0
         ];
-        this.geometry = new three_15.InstancedBufferGeometry();
-        this.geometry.setAttribute('position', new three_15.Float32BufferAttribute(this.positions, 3));
-        this.geometry.setAttribute('uv', new three_15.Float32BufferAttribute(uv, 2));
-        this.geometry.setAttribute('transformRow1', new three_15.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
-        this.geometry.setAttribute('transformRow2', new three_15.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
-        this.geometry.setAttribute('transformRow3', new three_15.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
-        this.geometry.setAttribute('transformRow4', new three_15.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
-        this.geometry.setAttribute('offsetFrame', new three_15.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
-        this.geometry.setAttribute('velocity', new three_15.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
-        this.geometry.setAttribute('opacityDecrease', new three_15.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
-        this.geometry.setAttribute('size', new three_15.InstancedBufferAttribute(new Float32Array(size), 1));
-        this.mesh = new three_15.Mesh(this.geometry, this.material);
+        this.geometry = new three_14.InstancedBufferGeometry();
+        this.geometry.setAttribute('position', new three_14.Float32BufferAttribute(this.positions, 3));
+        this.geometry.setAttribute('uv', new three_14.Float32BufferAttribute(uv, 2));
+        this.geometry.setAttribute('transformRow1', new three_14.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
+        this.geometry.setAttribute('transformRow2', new three_14.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
+        this.geometry.setAttribute('transformRow3', new three_14.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
+        this.geometry.setAttribute('transformRow4', new three_14.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
+        this.geometry.setAttribute('offsetFrame', new three_14.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
+        this.geometry.setAttribute('velocity', new three_14.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
+        this.geometry.setAttribute('opacityDecrease', new three_14.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
+        this.geometry.setAttribute('size', new three_14.InstancedBufferAttribute(new Float32Array(size), 1));
+        this.mesh = new three_14.Mesh(this.geometry, this.material);
         this.wrapper.add(this.mesh);
     }
     ;
@@ -1658,10 +1658,10 @@ exports["default"] = new SphereGfx();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Water = void 0;
 const three_10 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const OrbitControls_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 const GLTFLoader_js_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader.js */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const Water_Shader_1 = __webpack_require__(/*! ./shaders/Water.Shader */ "./src/scripts/shaders/Water.Shader.ts");
-const tweakpane_5 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_3 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 //
 class Water {
     constructor() {
@@ -1707,7 +1707,7 @@ class Water {
         this.camera.position.set(1, 2, 2);
         this.scene.add(this.camera);
         // Controls
-        this.mapControls = new OrbitControls_2.MapControls(this.camera, this.canvas);
+        this.mapControls = new OrbitControls_1.MapControls(this.camera, this.canvas);
         this.mapControls.enableDamping = true;
         // Light
         const light = new three_10.PointLight(0xe9f7ec, 1, 100);
@@ -1733,7 +1733,7 @@ class Water {
         window.addEventListener('resize', this.resize());
         // Debug
         let props = { waterColor: '#8eb4e6' };
-        const waterTwp = new tweakpane_5.Pane({ title: "Water", expanded: false });
+        const waterTwp = new tweakpane_3.Pane({ title: "Water", expanded: false });
         waterTwp.element.parentElement.style['width'] = '330px';
         waterTwp.element.parentElement.style['margin-top'] = '140px';
         waterTwp.element.parentElement.style['z-index'] = '18';
@@ -1846,10 +1846,10 @@ exports["default"] = new Water();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BottomFoamMaterial = exports.noise = void 0;
-const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-exports.noise = new three_5.TextureLoader().load('resources/textures/noise.png');
-class BottomFoamMaterial extends three_5.ShaderMaterial {
+exports.noise = new three_6.TextureLoader().load('resources/textures/noise.png');
+class BottomFoamMaterial extends three_6.ShaderMaterial {
     constructor() {
         super(),
             this.vertexShader = `
@@ -1942,9 +1942,9 @@ class BottomFoamMaterial extends three_5.ShaderMaterial {
         }`,
             this.uniforms = {
                 uNoise: { value: exports.noise },
-                uColor1: { value: new three_5.Color(0x09a0e0) },
-                uColor2: { value: new three_5.Color(0xd7e8fa) },
-                uWhiteColor: { value: new three_5.Color(0xffffff) },
+                uColor1: { value: new three_6.Color(0x09a0e0) },
+                uColor2: { value: new three_6.Color(0xd7e8fa) },
+                uWhiteColor: { value: new three_6.Color(0xffffff) },
                 uTime: { value: 0 }
             };
     }
@@ -2219,11 +2219,11 @@ exports.FireFogMaterial = FireFogMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FoamParticle = exports.textureLoader = void 0;
-const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-exports.textureLoader = new three_6.TextureLoader();
+exports.textureLoader = new three_4.TextureLoader();
 const particleTexture = exports.textureLoader.load('/resources/textures/particle.png');
-class FoamParticle extends three_6.ShaderMaterial {
+class FoamParticle extends three_4.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true;
@@ -2253,7 +2253,7 @@ class FoamParticle extends three_6.ShaderMaterial {
         }`,
             this.uniforms = {
                 uPointTexture: { value: particleTexture },
-                uColor: { value: new three_6.Color(0xc5e0fc) },
+                uColor: { value: new three_4.Color(0xc5e0fc) },
                 uTime: { value: 0 }
             };
     }
@@ -2537,9 +2537,9 @@ exports.TopmFoamShader = TopmFoamShader;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WaterfallMaterial = void 0;
-const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-class WaterfallMaterial extends three_4.ShaderMaterial {
+class WaterfallMaterial extends three_5.ShaderMaterial {
     constructor() {
         super(),
             this.vertexShader = `
@@ -2647,10 +2647,10 @@ class WaterfallMaterial extends three_4.ShaderMaterial {
         }`,
             this.uniforms = {
                 uTime: { value: 0 },
-                uLightColor: { value: new three_4.Color(0xc0fafa) },
-                uDarkColor: { value: new three_4.Color(0x3250a8) },
-                uWhiteColor: { value: new three_4.Color(0xffffff) },
-                uFoamColor: { value: new three_4.Color(0xf5f6ff) },
+                uLightColor: { value: new three_5.Color(0xc0fafa) },
+                uDarkColor: { value: new three_5.Color(0x3250a8) },
+                uWhiteColor: { value: new three_5.Color(0xffffff) },
+                uFoamColor: { value: new three_5.Color(0xf5f6ff) },
                 uRandom: { value: Math.random() }
             };
     }
@@ -2835,8 +2835,8 @@ exports.WaterMaterial = WaterMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FaceSheder = void 0;
-const three_18 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-class FaceSheder extends three_18.ShaderMaterial {
+const three_20 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+class FaceSheder extends three_20.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true;
@@ -3010,12 +3010,12 @@ class FaceSheder extends three_18.ShaderMaterial {
                 tDiffuse: { value: null },
                 tDepth: { value: null },
                 uTime: { value: 0 },
-                uColor: { value: new three_18.Color(0x00106b) },
+                uColor: { value: new three_20.Color(0x00106b) },
                 uNoiseTime: { value: 0 },
-                uDirection: { value: new three_18.Vector3(1.0, 0.2, 0.4) },
-                uLightColor: { value: new three_18.Color(0xf7f9fc) },
-                uColor2: { value: new three_18.Color(0x260007) },
-                uColor3: { value: new three_18.Color(0x230040) }
+                uDirection: { value: new three_20.Vector3(1.0, 0.2, 0.4) },
+                uLightColor: { value: new three_20.Color(0xf7f9fc) },
+                uColor2: { value: new three_20.Color(0x260007) },
+                uColor3: { value: new three_20.Color(0x230040) }
             };
     }
     ;
@@ -3034,11 +3034,11 @@ exports.FaceSheder = FaceSheder;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ParticleShader = void 0;
-const three_17 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_19 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-let loader = new three_17.TextureLoader();
+let loader = new three_19.TextureLoader();
 let particleTexture = loader.load('resources/textures/particle2.png');
-class ParticleShader extends three_17.ShaderMaterial {
+class ParticleShader extends three_19.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true,
@@ -3089,7 +3089,7 @@ class ParticleShader extends three_17.ShaderMaterial {
         }
         `,
             this.uniforms = {
-                uColor: { value: new three_17.Color(0x5796fa) },
+                uColor: { value: new three_19.Color(0x5796fa) },
                 uPointTexture: { value: particleTexture },
                 uTime: { value: 0 }
             };
@@ -3109,10 +3109,10 @@ exports.ParticleShader = ParticleShader;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BackgroundLShaderMaterial = void 0;
-const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-const loader = new three_3.TextureLoader();
-class BackgroundLShaderMaterial extends three_3.ShaderMaterial {
+const loader = new three_6.TextureLoader();
+class BackgroundLShaderMaterial extends three_6.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true,
@@ -3153,8 +3153,8 @@ class BackgroundLShaderMaterial extends three_3.ShaderMaterial {
         this.uniforms = {
             uTexture: { value: loader.load('/resources/textures/perlinNoise.png') },
             uTime: { value: 0 },
-            uBlueColor: { value: new three_3.Color(0x2936a6) },
-            uBlackColor: { value: new three_3.Color(0x000000) }
+            uBlueColor: { value: new three_6.Color(0x2936a6) },
+            uBlackColor: { value: new three_6.Color(0x000000) }
         };
     }
     ;
@@ -3174,10 +3174,10 @@ exports.BackgroundLShaderMaterial = BackgroundLShaderMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BackgroundRShaderMaterial = void 0;
-const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-const loader = new three_6.TextureLoader();
-class BackgroundRShaderMaterial extends three_6.ShaderMaterial {
+const loader = new three_4.TextureLoader();
+class BackgroundRShaderMaterial extends three_4.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true,
@@ -3222,8 +3222,8 @@ class BackgroundRShaderMaterial extends three_6.ShaderMaterial {
         this.uniforms = {
             uTexture: { value: loader.load('/resources/textures/perlinNoise.png') },
             uTime: { value: 0 },
-            uRedColor: { value: new three_6.Color(0xff0019) },
-            uBlackColor: { value: new three_6.Color(0x000000) }
+            uRedColor: { value: new three_4.Color(0xff0019) },
+            uBlackColor: { value: new three_4.Color(0x000000) }
         };
     }
     ;
@@ -3243,11 +3243,11 @@ exports.BackgroundRShaderMaterial = BackgroundRShaderMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BlueSphereMaterial = void 0;
-const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-const loader = new three_4.TextureLoader();
+const loader = new three_5.TextureLoader();
 let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
-class BlueSphereMaterial extends three_4.ShaderMaterial {
+class BlueSphereMaterial extends three_5.ShaderMaterial {
     constructor() {
         super();
         this.vertexShader = `
@@ -3419,10 +3419,10 @@ class BlueSphereMaterial extends three_4.ShaderMaterial {
         `,
             this.uniforms = {
                 uTime: { value: 0.0 },
-                uColorRed: { value: new three_4.Color(0x0a30ad) },
-                uColorDarkRed: { value: new three_4.Color(0x0a1363) },
-                uDirection: { value: new three_4.Vector3(-0.1, -0.10, -0.2) },
-                uLightColor: { value: new three_4.Color(0xcfdfe8) },
+                uColorRed: { value: new three_5.Color(0x0a30ad) },
+                uColorDarkRed: { value: new three_5.Color(0x0a1363) },
+                uDirection: { value: new three_5.Vector3(-0.1, -0.10, -0.2) },
+                uLightColor: { value: new three_5.Color(0xcfdfe8) },
                 uNoiseTexture: { value: noiseTexture }
             };
     }
@@ -3442,11 +3442,11 @@ exports.BlueSphereMaterial = BlueSphereMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PointsShaderMaterial = void 0;
-const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
-const loader = new three_5.TextureLoader();
+const loader = new three_3.TextureLoader();
 let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
-class PointsShaderMaterial extends three_5.ShaderMaterial {
+class PointsShaderMaterial extends three_3.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true,
@@ -3499,8 +3499,8 @@ class PointsShaderMaterial extends three_5.ShaderMaterial {
         }
         `,
             this.uniforms = {
-                uColor: { value: new three_5.Color(0x5796fa) },
-                uPointTexture: { value: new three_5.TextureLoader().load('resources/textures/point.png') },
+                uColor: { value: new three_3.Color(0x5796fa) },
+                uPointTexture: { value: new three_3.TextureLoader().load('resources/textures/point.png') },
                 uTime: { value: 0 },
                 uNoiseTexture: { value: noiseTexture }
             };
@@ -3617,11 +3617,11 @@ exports.RedSphereMaterial = RedSphereMaterial;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports["СombustionMaterial"] = exports.uNoise = void 0;
-const three_14 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_15 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 //
 // perlin noise texture
-exports.uNoise = new three_14.TextureLoader().load('resources/textures/tNoise.png');
-class СombustionMaterial extends three_14.ShaderMaterial {
+exports.uNoise = new three_15.TextureLoader().load('resources/textures/tNoise.png');
+class СombustionMaterial extends three_15.ShaderMaterial {
     constructor() {
         super();
         this.transparent = true;
@@ -3661,7 +3661,7 @@ class СombustionMaterial extends three_14.ShaderMaterial {
             this.uniforms = {
                 uTime: { value: 0.0 },
                 uNoise: { value: exports.uNoise },
-                uColor: { value: new three_14.Color(0xff0000) },
+                uColor: { value: new three_15.Color(0xff0000) },
                 tDiffuse: { value: null }
             };
     }
@@ -3985,13 +3985,15 @@ const AFooter = styled_components_1.default.a `
     color: inherit;
     text-decoration: none;
     opacity: 0.6;
-    font-family: Menlo, monospace;
-`;
+    // font-family: Menlo, monospace;
+    font-family: serif;
+    `;
 const Contact = styled_components_1.default.div `
     display: grid;
     justify-content: center;
     margin-top: 25px;
-    font-family: Menlo, monospace;
+    // font-family: Menlo, monospace;
+    font-family: serif;
     font-size: 20px;
     opacity: 1;
     color: #aaa;
@@ -4046,8 +4048,8 @@ const Item = styled_components_1.default.div `
     padding-top: 43px;
     padding-bottom: 40px;
     background-color: #000;
-    height: 390px;
-    width: 480px;
+    height: 690px;
+    width: 580px;
     display: grid;
     justify-content: center;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -4055,16 +4057,20 @@ const Item = styled_components_1.default.div `
 const ItemHeader = styled_components_1.default.div `
     position: static;
     text-align: center;
-    padding-bottom: 16px;
+    padding-bottom: 12px;
     text-decoration: none;
     text-transform: uppercase;
     opacity: 0.89;
     font-size: 27px;
+    font-family: serif;
 `;
 const ItemContent = styled_components_1.default.div `
     position: static;
-    text-align: center;
+    text-align: justify;
     opacity: 0.79;
+    font-family: serif;
+    padding-left: 3%;
+    padding-right: 3%;
 `;
 const ItemsComponent = () => {
     return (react_1.default.createElement(Items, null,
@@ -4072,7 +4078,7 @@ const ItemsComponent = () => {
             react_1.default.createElement(ItemHeader, null, "Combustion effect"),
             react_1.default.createElement("img", { src: '../../../resources/img/3.png', className: 'img' }),
             react_1.default.createElement(ItemContent, null, "Here is combustion effect made with shader."),
-            react_1.default.createElement(ItemContent, null, "Made with perlin noise function.")),
+            react_1.default.createElement(ItemContent, null, "Here the depth value of water is used. I\u2019m using the viewZToOrthographicDepth function to count depth. As the arguments it is needed viewZ - perspective depth to view Z-axes, cameraNear, cameraFar. After that part where there is shoal water I added some perlin noise so it looks like foam.                .")),
         react_1.default.createElement(Item, null,
             react_1.default.createElement(ItemHeader, null, "Fog effect"),
             react_1.default.createElement("img", { src: '../../../resources/img/2.png', className: 'img' }),

@@ -71,21 +71,13 @@ const Button = styled.button.attrs( {
     display: inline-block;
     // font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
-    // font-weight: 500;
-    // line-height: 20px;
     list-style: none;
     margin: 0;
     padding: 10px 34px;
     text-align: center;
-    // transition: all 200ms;
-    // vertical-align: baseline;
-    // white-space: nowrap;
-    // user-select: none;
-    // -webkit-user-select: none;
-    // touch-action: manipulation;
     margin-top: 5%;
     opacity: 0.8;
-    font-family: montserrat, arial, verdana;
+    // font-family: montserrat, arial, verdana;
 
     &:hover {
         opacity: 0.67;
