@@ -19,7 +19,7 @@ import { FaceComponent } from '../face/Face.Component';
 const Div = styled.div`
     position: absolute;
     width: 100%;
-    height: 349ivh;
+    height: 350%;// 349vh;
     background-color: #b2eeff;
 `;
 

@@ -19,8 +19,11 @@ const Logo = styled.a`
 `;
 
 const FooterBasic = styled.div`
+    position: absolute;
+    bottom: 0;
+    width: 100%;
     padding: 20px 0;
-    margin-top: 8.35%;
+    // margin-top: 12.35%;
     background-color: #111;
     color: #4b4c4d;
     opacity: 0.8;
