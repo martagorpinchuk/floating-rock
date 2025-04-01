@@ -53,8 +53,7 @@ html, body {
 }
 
 .img:hover {
-    opacity: 0.8;
-    cursor: pointer;
+    opacity: 1;
 }
 
 .loading-bar

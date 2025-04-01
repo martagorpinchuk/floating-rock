@@ -29,6 +29,8 @@ export class Water {
     public waterMesh: Mesh;
     public waterMaterial: WaterMaterial;
 
+    public renderScene: boolean;
+
     private sizes = {
         width: 0,
         height: 0
@@ -103,7 +105,6 @@ export class Water {
         this.clock = new Clock();
 
         //
-
         this.tick();
 
     };
@@ -214,6 +215,8 @@ export class Water {
     public tick = () : void => {
 
         window.requestAnimationFrame( this.tick );
+
+        if( this.renderScene == false ) return;
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

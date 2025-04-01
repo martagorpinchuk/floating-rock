@@ -92,8 +92,8 @@ export class FlameMaterial extends ShaderMaterial{
 
             uTime: { value: 0 },
             uNoise: { value: noise },
-            uInnerColor: { value: new Color(0xfff30f) },
-            uOuterColor: { value: new Color(0xfc4e03) }
+            uInnerColor: { value: new Color( 0xfff30f ) },
+            uOuterColor: { value: new Color( 0xfc4e03 ) }
 
         }
 

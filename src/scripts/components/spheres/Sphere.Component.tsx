@@ -24,6 +24,20 @@ export const SpheresComponent = ({ visible }) => {
 
     }, [ canvasRef ] );
 
+    useEffect( () => {
+
+        if ( visible ) {
+
+            if( sphere ) sphere.renderScene = true;
+
+        } else {
+
+            if( sphere ) sphere.renderScene = false;
+
+        }
+
+    }, [ visible ] );
+
     return(
         <SpheresConteiner visible={visible} className='webglViewSphere'>Sphere</SpheresConteiner>
     );

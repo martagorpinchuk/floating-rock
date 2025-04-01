@@ -25,6 +25,8 @@ export class CombustionGfx {
     public timeCoef: number = 1;
     public timeStop: Boolean = false;
 
+    public renderScene: boolean;
+
     private sizes = {
         width: 0,
         height: 0
@@ -163,6 +165,8 @@ export class CombustionGfx {
     public tick = () => {
 
         window.requestAnimationFrame( this.tick );
+
+        if( this.renderScene == false ) return;
 
         if ( this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight ) {
 

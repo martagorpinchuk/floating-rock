@@ -12,6 +12,7 @@ import { FogComponent } from '../fog/Fog.Component';
 import { WaterComponent } from '../water/Water.Component';
 import { CombustionComponent } from '../combustion/Combustion.Component';
 import { SpheresComponent } from '../spheres/Sphere.Component';
+import { FaceComponent } from '../face/Face.Component';
 
 //
 
@@ -63,6 +64,7 @@ export const MainComponent = () => {
     const FogClick = () => { setPath('/fog') };
     const CombustionClick = () => { setPath('/combustion') };
     const sphereClick = () => { setPath('/sphere') };
+    const faceClick = () => { setPath('/face'); };
 
     return (
         <Div>
@@ -73,14 +75,16 @@ export const MainComponent = () => {
                 <TopPanelLeft onClick={ FogClick }>Fog</TopPanelLeft>
                 <TopPanelLeft onClick={ CombustionClick }>Combustion</TopPanelLeft>
                 <TopPanelLeft onClick={ sphereClick }>Sphere</TopPanelLeft>
+                <TopPanelLeft onClick={ faceClick }>Face</TopPanelLeft>
             </Menu>
             <ViewComponent visible={ path === '/' } />
             <WaterComponent visible={ path === '/water' }/>
             <FogComponent visible={ path === '/fog' }/>
             <CombustionComponent visible={ path === '/combustion' }/>
             <SpheresComponent visible={ path === '/sphere' }/>
+            <FaceComponent visible={ path === '/face' }/>
             <ItemComponent />
-            <FormComponent />
+            {/* <FormComponent /> */}
             <FooterComponent />
         </Div>
     );

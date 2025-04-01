@@ -19,7 +19,7 @@ export class FogGfx {
     public rotationX: number;
     public rotationY: number;
     public rotationZ: number;
-    public randomPos: number = (Math.random() - 0.5) * 2;
+    public randomPos: number = ( Math.random() - 0.5 ) * 2;
     public speedSizeChange: number = 0.137;
     public coordEpearingParticle: number = 0.3;
     public opacityCoef: number = 0.00999;

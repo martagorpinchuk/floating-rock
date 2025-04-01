@@ -24,6 +24,20 @@ export const CombustionComponent = ({ visible }) => {
 
     }, [ canvasRef ] );
 
+    useEffect( () => {
+
+        if ( visible ) {
+
+            if( combustion ) combustion.renderScene = true;
+
+        } else {
+
+            if( combustion ) combustion.renderScene = false;
+
+        }
+
+    }, [ visible ] );
+
     return(
         <CombistionConteiner visible={visible} className='webglViewCombustion'>Combustion</CombistionConteiner>
     );

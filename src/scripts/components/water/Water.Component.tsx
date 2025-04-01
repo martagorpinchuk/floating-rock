@@ -24,6 +24,20 @@ export const WaterComponent = ({ visible }) => {
 
     }, [ canvasRef ] );
 
+    useEffect( () => {
+
+        if ( visible ) {
+
+            if( water ) water.renderScene = true;
+
+        } else {
+
+            if( water ) water.renderScene = false;
+
+        }
+
+    }, [ visible ] );
+
     return(
         <WaterConteiner visible={visible} className='webglViewWater'>Water</WaterConteiner>
     );

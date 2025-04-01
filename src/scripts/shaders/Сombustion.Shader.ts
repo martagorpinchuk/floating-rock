@@ -39,7 +39,7 @@ export class СombustionMaterial extends ShaderMaterial {
             vec2 displUV = texture2D( uNoise, vUv ).xy + uTime / 5.0;
             vec4 potatoTexture = texture2D( tDiffuse, vUv );
 
-            float col = pow( clamp( mix( 0.5, texture2D( uNoise, newUv + displUV ).x, 2.0 ), 0.0, 1.0 ), 20.0 );
+            //float col = pow( clamp( mix( 0.5, texture2D( uNoise, newUv + displUV ).x, 2.0 ), 0.0, 1.0 ), 20.0 );
 
             float nn = texture2D( uNoise, newUv / 15.0 + displUV ).r;
             gl_FragColor.rgb = vec3( max( 1.0, 24.0 * smoothstep( 1.0 - uTime / 0.7, 1.0 - uTime / 1.0, nn ) ) ) * potatoTexture.rgb;
@@ -48,7 +48,6 @@ export class СombustionMaterial extends ShaderMaterial {
         }
         `,
         this.uniforms = {
-
             uTime:      { value: 0.0 },
             uNoise:     { value: uNoise },
             uColor:     { value: new Color( 0xff0000 ) },
@@ -57,4 +56,4 @@ export class СombustionMaterial extends ShaderMaterial {
 
     }
 
- };
+};

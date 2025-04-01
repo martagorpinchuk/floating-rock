@@ -22,6 +22,7 @@ export default class FogScene {
     public fogMovement: Boolean = true;
     public attenuationTime: number;
     public intersects: Vector3;
+    public renderScene: boolean;
 
     public permanentX: number;
     public permanentZ: number;
@@ -247,7 +248,7 @@ export default class FogScene {
         this.raycaster = new Raycaster();
         this.pointer = new Vector2();
 
-        this.canvas.addEventListener( movementProp, this.addRaycasterPointer )
+        this.canvas.addEventListener( movementProp, this.addRaycasterPointer );
 
     };
 
@@ -267,6 +268,8 @@ export default class FogScene {
     public tick = () : void => {
 
         window.requestAnimationFrame( this.tick );
+
+        if( this.renderScene == false ) return;
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

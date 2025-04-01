@@ -1,4 +1,4 @@
-import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
@@ -48,6 +48,8 @@ export default class FloatingRock {
 
     public fog: FireFogGfx;
 
+    public renderScene: boolean;
+
     private sizes = {
         width: 0,
         height: 0
@@ -60,7 +62,7 @@ export default class FloatingRock {
 
         // Scene
         this.scene = new Scene();
-        this.scene.background = new Color( '#69deeb' ); //324345 - at night  // b2eef5
+        this.scene.background = new Color( '#69deeb' );
 
         // Sizes
         this.sizes.width = window.innerWidth,
@@ -95,8 +97,9 @@ export default class FloatingRock {
 
 
         //
+        // this.addFog();
+
         this.loadingBar();
-        this.addFog();
         this.debug();
         this.loadModel();
         this.backgroundGradient();
@@ -118,9 +121,7 @@ export default class FloatingRock {
             height: 0.001,
             width: 0.001,
             depth: 0.001,
-            // outerColor: '#000000',
-            // innerColor: '#FFCE00',
-            newPosition: new Vector3( -0.946, -0.37, 1.946 ) // -0.49, -0.8, -0.4 --
+            newPosition: new Vector3( -0.946, -0.37, 1.946 )
 
         }
         this.fog = new FireFogGfx( new Color().setHex( + this.outerColor.replace( '#', '0x' ) ).getHex(), props.numberOfSprites, props.height, props.width, props.depth );
@@ -368,7 +369,7 @@ export default class FloatingRock {
             `,
             uniforms: {
 
-                uInnerColor: { value: new Color( 0xedf6f7 ) }, //   0xe8fdff
+                uInnerColor: { value: new Color( 0xedf6f7 ) },
                 uOuterColor: { value: new Color( 0xb3eeff ) }
 
             }
@@ -376,7 +377,6 @@ export default class FloatingRock {
         } );
 
         let backgroundPlane = new Mesh( planeGeometry, planeMaterial );
-        // backgroundPlane.position.set( -2, -2, -2 );
         this.scene.add( backgroundPlane );
 
 
@@ -629,6 +629,8 @@ export default class FloatingRock {
     public tick = () : void => {
 
         window.requestAnimationFrame( this.tick );
+
+        if( this.renderScene == false ) return;
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

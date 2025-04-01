@@ -25,6 +25,20 @@ export const FogComponent = ({ visible }) => {
 
     }, [ canvasRef ] );
 
+    useEffect( () => {
+
+        if ( visible ) {
+
+            if( fog ) fog.renderScene = true;
+
+        } else {
+
+            if( fog ) fog.renderScene = false;
+
+        }
+
+    }, [ visible ] );
+
     //
 
     return (

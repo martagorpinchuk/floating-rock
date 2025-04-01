@@ -35,6 +35,8 @@ export class SphereGfx {
     public planeL: Mesh;
     public planeR: Mesh;
 
+    public renderScene: boolean;
+
     private sizes = {
         width: 0,
         height: 0
@@ -252,6 +254,8 @@ export class SphereGfx {
     public tick = () : void => {
 
         window.requestAnimationFrame( this.tick );
+
+        if( this.renderScene == false ) return;
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;
