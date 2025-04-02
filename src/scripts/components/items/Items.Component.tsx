@@ -22,7 +22,7 @@ const Item = styled.div`
     padding-top: 40px;
     padding-bottom: 40px;
     background-color: #000;
-    height: 90%;
+    height: 99%;
     width: 70%;
     display: grid;
     justify-content: center;
@@ -63,6 +63,14 @@ const ItemContent = styled.div`
     font-size: 2vh;
 `;
 
+const Img = styled.img`
+    display: block;
+    margin: 0 auto;
+    width: 80%; /* Adjust size relative to container */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: cover; /* Prevents stretching */
+`;
+
 export const ItemsComponent = () => {
 
     return (
@@ -71,7 +79,7 @@ export const ItemsComponent = () => {
             <Item>
 
                 <ItemHeader>Combustion effect</ItemHeader>
-                <img src='../../../resources/img/3.png' className='img' />
+                <Img src='../../../resources/img/3.png' className='img' />
                 <ItemContentHeader>Here is combustion effect made with shader.</ItemContentHeader>
                 <ItemContent>Purpose of combustion is to make the model disappear. To reach that effect we need to work with vertex and fragment shaders. To reach that goal we need a perlin noise picture. After we retrieve texels from a texture it is used in gl_FragColor alpha with smoothstep() function. Also you can stop combustion with tweakPane which is  timeStop coefficient.</ItemContent>
 
@@ -80,7 +88,7 @@ export const ItemsComponent = () => {
             <Item>
 
                 <ItemHeader>Fog effect</ItemHeader>
-                <img src='../../../resources/img/2.png' className='img' />
+                <Img src='../../../resources/img/2.png' className='img' />
                 <ItemContentHeader>Here you can look at fog effect made with shader.</ItemContentHeader>
                 <ItemContent>
                         There is a tweakpane where there are parameters which you can change to get to your ideal fog. You can change opacity of the fog, inner/outer color, density, fading (fading of one sprite), circle of appearance (sprite can appear from one point or from some area), external forces direction, speed of growth, frame duration, box visibility (box position is the same as center of fog source point).
@@ -91,7 +99,7 @@ export const ItemsComponent = () => {
             <Item>
 
                 <ItemHeader>Face effect</ItemHeader>
-                <img src='../../../resources/img/1.png' className='img' />
+                <Img src='../../../resources/img/1.png' className='img' />
                 <ItemContentHeader>Here is face model made with shader.</ItemContentHeader>
                 <ItemContent>In this project readDepth() for finding depth of the model and using that on the plane z-axis. For nice lines moving up/down independently one from another  it is used perlin noise. The face is moving forward to some point when you clickOn on the screen. When you clickOff face is moving back to some point. In the background there are small stars made with shader point. Stars have different color, size, time of fading and that result is reached with attributes. Also there is possibility to change line color with tweakpane.</ItemContent>
 
@@ -100,7 +108,7 @@ export const ItemsComponent = () => {
             <Item>
 
                 <ItemHeader>Water effect</ItemHeader>
-                <img src='../../../resources/img/4.png' className='img' />
+                <Img src='../../../resources/img/4.png' className='img' />
                 <ItemContentHeader>Here you can look at Water effect made with shader.</ItemContentHeader>
                 <ItemContent>Here the depth value of water is used. I’m using the viewZToOrthographicDepth function to count depth. After that part where there is shoal water I added some perlin noise so it looks like foam. You can change color of water with tweakPane.
                 </ItemContent>
