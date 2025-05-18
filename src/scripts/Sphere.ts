@@ -37,6 +37,9 @@ export class SphereGfx {
 
     public renderScene: boolean;
 
+    private previousRenderScene: boolean = this.renderScene;
+    private backgroundColorTwp: Pane;
+
     private sizes = {
         width: 0,
         height: 0
@@ -223,15 +226,15 @@ export class SphereGfx {
 
         };
 
-        const backgroundColor: any = new Pane( { title: 'Background' } );
-        backgroundColor.element.parentElement.style[ 'width' ] = '330px';
-        backgroundColor.addInput( props, 'color', { label: 'Right background' } ).on( 'change', () => {
+        this.backgroundColorTwp = new Pane( { title: 'Background' } );
+        this.backgroundColorTwp.element.parentElement.style[ 'width' ] = '330px';
+        this.backgroundColorTwp.addInput( props, 'color', { label: 'Right background' } ).on( 'change', () => {
 
             this.backgroundRShaderMaterial.uniforms.uRedColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
 
         } );
 
-        backgroundColor.addInput( props, 'color', { label: 'Left background' } ).on( 'change', () => {
+        this.backgroundColorTwp.addInput( props, 'color', { label: 'Left background' } ).on( 'change', () => {
 
             this.backgroundLShaderMaterial.uniforms.uBlackColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
 
@@ -255,7 +258,19 @@ export class SphereGfx {
 
         window.requestAnimationFrame( this.tick );
 
-        if( this.renderScene == false ) return;
+        if ( this.renderScene !== this.previousRenderScene ) {
+
+            this.previousRenderScene = this.renderScene;
+
+            if ( this.backgroundColorTwp ) {
+
+                this.backgroundColorTwp.hidden = !this.renderScene;
+
+            }
+
+        }
+
+        //
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

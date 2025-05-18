@@ -50,6 +50,9 @@ export default class FloatingRock {
 
     public renderScene: boolean;
 
+    private previousRenderScene: boolean = this.renderScene;
+    private fireplaceTwp: Pane;
+
     private sizes = {
         width: 0,
         height: 0
@@ -142,31 +145,23 @@ export default class FloatingRock {
 
         };
 
-        let pane: any = new Pane( { title: "Fireplace", expanded: false } );
-        pane.element.parentElement.style['width'] = '330px';
-        pane.element.parentElement.style['margin-top'] = '171px';
-        pane.element.parentElement.style['z-index'] = '10';
+        this.fireplaceTwp = new Pane( { title: "Fireplace", expanded: false } );
+        this.fireplaceTwp.element.parentElement.style['width'] = '330px';
+        this.fireplaceTwp.element.parentElement.style['margin-top'] = '80px';
+        this.fireplaceTwp.element.parentElement.style['z-index'] = '10';
 
-        pane.addInput( props, 'color', { label: 'inner color' } ).on('change', () => {
+        this.fireplaceTwp.addInput( props, 'color', { label: 'inner color' } ).on('change', () => {
 
             this.flameMaterial.uniforms.uInnerColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
 
         } );
-        pane.addInput( props, 'color', { label: 'outer color' } ).on('change', () => {
+        this.fireplaceTwp.addInput( props, 'color', { label: 'outer color' } ).on('change', () => {
 
             this.flameMaterial.uniforms.uOuterColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) );
 
         } );
-        // pane.addInput( this, 'outerColor', { view: 'color', alpha: true, label: 'outer fog color' } ).on( 'change', ( ev ) => {
 
-        //     this.fog.outerColor =  ev.value;
-
-        // } );
-        // pane.addInput( this, 'innerColor', { view: 'color', alpha: true, label: 'inner fog color' } ).on( 'change', ( ev ) => {
-
-        //     this.fog.innerColor = ev.value;
-
-        // } );
+        this.fireplaceTwp.hidden = !this.renderScene;
 
     };
 
@@ -630,7 +625,17 @@ export default class FloatingRock {
 
         window.requestAnimationFrame( this.tick );
 
-        if( this.renderScene == false ) return;
+        // if ( this.renderScene !== this.previousRenderScene ) {
+
+        //     this.previousRenderScene = this.renderScene;
+
+        //     if ( this.fireplaceTwp ) {
+
+        //         this.fireplaceTwp.hidden = !this.renderScene;
+
+        //     }
+
+        // }
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

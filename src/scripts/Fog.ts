@@ -16,7 +16,6 @@ export default class FogScene {
     public delta: number;
     public elapsedTime: number = 0;
     public clock: Clock;
-    public pane: Pane;
     public raycaster: Raycaster;
     public pointer: Vector2;
     public fogMovement: Boolean = true;
@@ -29,6 +28,9 @@ export default class FogScene {
 
     public fog: FogGfx;
     public animation: Animation;
+
+    private previousRenderScene: boolean = this.renderScene;
+    private pane: Pane;
 
     private sizes = {
         width: 0,
@@ -80,6 +82,16 @@ export default class FogScene {
 
         this.clock = new Clock();
 
+        this.debug();
+
+        //
+
+        this.tick();
+
+    };
+
+    public debug () : void {
+
         // Fog
         let props = {
 
@@ -102,25 +114,25 @@ export default class FogScene {
         this.pane = new Pane();
 
         this.pane.element.parentElement.style['width'] = '330px';
-        this.pane.element.parentElement.style['margin-top'] = '110px';
+        this.pane.element.parentElement.style['margin-top'] = '80px';
         this.pane.element.parentElement.style['z-index'] = '19';
 
         const fogFolder = this.pane.addFolder( {
             title: 'Fog',
-            expanded: false
+            expanded: true
         } );
 
         const fogParam = fogFolder.addFolder( {
             title: 'Fog',
-            expanded: false
+            expanded: true
         } );
         const fogSize = fogFolder.addFolder( {
             title: 'Size',
-            expanded: false
+            expanded: true
         } );
         const fogAnimation = fogFolder.addFolder( {
             title: 'Animation',
-            expanded: false
+            expanded: true
         } );
 
         this.mouseMoveFog( 'click' );
@@ -227,10 +239,6 @@ export default class FogScene {
 
         } );
 
-        //
-
-        this.tick();
-
     };
 
     private addRaycasterPointer = ( event ) : void => {
@@ -269,7 +277,19 @@ export default class FogScene {
 
         window.requestAnimationFrame( this.tick );
 
-        if( this.renderScene == false ) return;
+        if ( this.renderScene !== this.previousRenderScene ) {
+
+            this.previousRenderScene = this.renderScene;
+
+            if ( this.pane ) {
+
+                this.pane.hidden = !this.renderScene;
+
+            }
+
+        }
+
+        //
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

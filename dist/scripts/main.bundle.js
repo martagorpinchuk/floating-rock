@@ -11,9 +11,9 @@
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CombustionGfx = void 0;
-const three_9 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_2 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 const OrbitControls_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-const GLTFLoader_2 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
+const GLTFLoader_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const tweakpane_2 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 const _ombustion_Shader_1 = __webpack_require__(/*! ./shaders/Сombustion.Shader */ "./src/scripts/shaders/Сombustion.Shader.ts");
 class CombustionGfx {
@@ -23,14 +23,20 @@ class CombustionGfx {
         this.elapsedTime = 0;
         this.timeCoef = 1;
         this.timeStop = false;
+        this.previousRenderScene = this.renderScene;
         this.sizes = {
             width: 0,
             height: 0
         };
         this.tick = () => {
             window.requestAnimationFrame(this.tick);
-            if (this.renderScene == false)
-                return;
+            if (this.renderScene !== this.previousRenderScene) {
+                this.previousRenderScene = this.renderScene;
+                if (this.combustionTwp) {
+                    this.combustionTwp.hidden = !this.renderScene;
+                }
+            }
+            //
             if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
                 this.resize();
             }
@@ -43,7 +49,7 @@ class CombustionGfx {
                 this.clock.running = false;
             }
             if (this.potatoMaterial)
-                this.potatoMaterial.uniforms.uTime.value = this.elapsedTime / 10 / 1000;
+                this.potatoMaterial.uniforms.uTime.value = (this.elapsedTime % 7000) / 10 / 1000; //this.elapsedTime / 10 / 1000;
             //
             this.mapControls.update();
             this.renderer.render(this.scene, this.camera);
@@ -54,29 +60,29 @@ class CombustionGfx {
         // Canvas
         this.canvas = document.querySelector('canvas.webglViewCombustion');
         // Scene
-        this.scene = new three_9.Scene();
-        this.scene.background = new three_9.Color('#78614c');
+        this.scene = new three_2.Scene();
+        this.scene.background = new three_2.Color('#78614c');
         // Camera
-        this.camera = new three_9.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 1000);
+        this.camera = new three_2.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 1000);
         this.camera.position.set(0, 10, 10);
         this.scene.add(this.camera);
         // Controls
         this.mapControls = new OrbitControls_1.MapControls(this.camera, this.canvas);
         this.mapControls.enableDamping = true;
         // Renderer
-        this.renderer = new three_9.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new three_2.WebGLRenderer({ canvas: this.canvas });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         // Plane
-        let planeGeometry = new three_9.PlaneBufferGeometry(3000, 3000, 1, 1);
-        let planeMaterial = new three_9.MeshBasicMaterial({ color: '#453322' });
-        let plane = new three_9.Mesh(planeGeometry, planeMaterial);
+        let planeGeometry = new three_2.PlaneBufferGeometry(3000, 3000, 1, 1);
+        let planeMaterial = new three_2.MeshBasicMaterial({ color: '#453322' });
+        let plane = new three_2.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x -= Math.PI / 2;
         this.scene.add(plane);
         /// Light
-        const light = new three_9.PointLight(0xe9f7ec, 1, 500);
+        const light = new three_2.PointLight(0xe9f7ec, 1, 500);
         light.position.set(1, 3, 5);
         this.scene.add(light);
-        this.clock = new three_9.Clock();
+        this.clock = new three_2.Clock();
         this.potatoLoading();
         if (this.potato) {
             this.potato.rotation.z += Math.PI;
@@ -88,11 +94,12 @@ class CombustionGfx {
     }
     ;
     debug() {
-        const combustionTwp = new tweakpane_2.Pane({ title: "Combustion", expanded: false });
-        combustionTwp.element.parentElement.style['z-index'] = '20';
-        combustionTwp.element.parentElement.style['margin-top'] = '80px';
-        combustionTwp.element.parentElement.style['width'] = '330px';
-        combustionTwp.addInput(this, 'timeStop', { title: 'Time stop' }).on('change', () => {
+        this.combustionTwp = new tweakpane_2.Pane({ title: "Combustion", expanded: true });
+        this.combustionTwp.element.parentElement.style['z-index'] = '20';
+        this.combustionTwp.element.parentElement.style['margin-top'] = '29%';
+        this.combustionTwp.element.parentElement.style['margin-right'] = '40%';
+        this.combustionTwp.element.parentElement.style['width'] = '330px';
+        this.combustionTwp.addInput(this, 'timeStop', { title: 'Time stop' }).on('change', () => {
             if (this.timeStop) {
                 this.timeCoef = this.elapsedTime;
                 this.potatoMaterial.uniforms.uTime.value = this.timeCoef / 10 / 100;
@@ -100,6 +107,7 @@ class CombustionGfx {
             else
                 this.timeCoef = 1;
         });
+        this.combustionTwp.hidden = !this.renderScene;
     }
     ;
     resize() {
@@ -113,11 +121,11 @@ class CombustionGfx {
     ;
     potatoLoading() {
         // Loading potato_character
-        this.loader = new GLTFLoader_2.GLTFLoader();
+        this.loader = new GLTFLoader_1.GLTFLoader();
         this.loader.load('resources/models/potato_character/scene.gltf', (gltf) => {
             this.potato = gltf.scene.children[0];
             this.potato.traverse((item) => {
-                if (item instanceof three_9.Mesh && item.material instanceof three_9.Material) {
+                if (item instanceof three_2.Mesh && item.material instanceof three_2.Material) {
                     // @ts-ignore
                     this.potatoMaterial = new _ombustion_Shader_1.СombustionMaterial({ color: 0xffffff });
                     // @ts-ignore
@@ -614,14 +622,19 @@ class FloatingRock {
         this.foamPointCount = 200;
         this.outerColor = '#000000';
         this.innerColor = '#FFCE00';
+        this.previousRenderScene = this.renderScene;
         this.sizes = {
             width: 0,
             height: 0
         };
         this.tick = () => {
             window.requestAnimationFrame(this.tick);
-            if (this.renderScene == false)
-                return;
+            // if ( this.renderScene !== this.previousRenderScene ) {
+            //     this.previousRenderScene = this.renderScene;
+            //     if ( this.fireplaceTwp ) {
+            //         this.fireplaceTwp.hidden = !this.renderScene;
+            //     }
+            // }
             this.delta = this.clock.getDelta() * 1000;
             this.elapsedTime += this.delta;
             if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
@@ -707,22 +720,17 @@ class FloatingRock {
             outerColor: '#ff0000',
             innerColor: '#FFCE00',
         };
-        let pane = new tweakpane_1.Pane({ title: "Fireplace", expanded: false });
-        pane.element.parentElement.style['width'] = '330px';
-        pane.element.parentElement.style['margin-top'] = '171px';
-        pane.element.parentElement.style['z-index'] = '10';
-        pane.addInput(props, 'color', { label: 'inner color' }).on('change', () => {
+        this.fireplaceTwp = new tweakpane_1.Pane({ title: "Fireplace", expanded: false });
+        this.fireplaceTwp.element.parentElement.style['width'] = '330px';
+        this.fireplaceTwp.element.parentElement.style['margin-top'] = '80px';
+        this.fireplaceTwp.element.parentElement.style['z-index'] = '10';
+        this.fireplaceTwp.addInput(props, 'color', { label: 'inner color' }).on('change', () => {
             this.flameMaterial.uniforms.uInnerColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
-        pane.addInput(props, 'color', { label: 'outer color' }).on('change', () => {
+        this.fireplaceTwp.addInput(props, 'color', { label: 'outer color' }).on('change', () => {
             this.flameMaterial.uniforms.uOuterColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
-        // pane.addInput( this, 'outerColor', { view: 'color', alpha: true, label: 'outer fog color' } ).on( 'change', ( ev ) => {
-        //     this.fog.outerColor =  ev.value;
-        // } );
-        // pane.addInput( this, 'innerColor', { view: 'color', alpha: true, label: 'inner fog color' } ).on( 'change', ( ev ) => {
-        //     this.fog.innerColor = ev.value;
-        // } );
+        this.fireplaceTwp.hidden = !this.renderScene;
     }
     ;
     //
@@ -1032,16 +1040,17 @@ exports["default"] = FloatingRock;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const three_11 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_10 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 const OrbitControls_js_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 const FogGfx_1 = __webpack_require__(/*! ./FogGfx */ "./src/scripts/FogGfx.ts");
-const tweakpane_4 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_3 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 //
 class FogScene {
     constructor() {
         // this.init();
         this.elapsedTime = 0;
         this.fogMovement = true;
+        this.previousRenderScene = this.renderScene;
         this.sizes = {
             width: 0,
             height: 0
@@ -1053,8 +1062,13 @@ class FogScene {
         };
         this.tick = () => {
             window.requestAnimationFrame(this.tick);
-            if (this.renderScene == false)
-                return;
+            if (this.renderScene !== this.previousRenderScene) {
+                this.previousRenderScene = this.renderScene;
+                if (this.pane) {
+                    this.pane.hidden = !this.renderScene;
+                }
+            }
+            //
             this.delta = this.clock.getDelta() * 1000;
             this.elapsedTime += this.delta;
             //
@@ -1077,31 +1091,37 @@ class FogScene {
         // Canvas
         this.canvas = document.querySelector('canvas.webglViewFog');
         // Scene
-        this.scene = new three_11.Scene();
-        this.scene.background = new three_11.Color('#c7c1b7');
+        this.scene = new three_10.Scene();
+        this.scene.background = new three_10.Color('#c7c1b7');
         // Sizes
         this.sizes.width = window.innerWidth,
             this.sizes.height = window.innerHeight;
         // Camera
-        this.camera = new three_11.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera = new three_10.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
         this.camera.position.set(3, 4, 2);
         this.scene.add(this.camera);
         // Controls
         this.controls = new OrbitControls_js_2.OrbitControls(this.camera, this.canvas);
         this.controls.enableDamping = true;
         // Plane
-        let planeGeometry = new three_11.PlaneBufferGeometry(3000, 3000, 1, 1);
-        let planeMaterial = new three_11.MeshBasicMaterial({ color: '#e6a67a' });
-        this.plane = new three_11.Mesh(planeGeometry, planeMaterial);
+        let planeGeometry = new three_10.PlaneBufferGeometry(3000, 3000, 1, 1);
+        let planeMaterial = new three_10.MeshBasicMaterial({ color: '#e6a67a' });
+        this.plane = new three_10.Mesh(planeGeometry, planeMaterial);
         this.plane.rotation.x -= Math.PI / 2;
         this.scene.add(this.plane);
         // Renderer
-        this.renderer = new three_11.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new three_10.WebGLRenderer({ canvas: this.canvas });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         // Resize
         window.addEventListener('resize', this.resize());
-        this.clock = new three_11.Clock();
+        this.clock = new three_10.Clock();
+        this.debug();
+        //
+        this.tick();
+    }
+    ;
+    debug() {
         // Fog
         let props = {
             numberOfSprites: 16,
@@ -1110,32 +1130,32 @@ class FogScene {
             depth: 1,
             outerColor: '#ff0000',
             innerColor: '#FFCE00',
-            newPosition: new three_11.Vector3(0, 0.5, 0)
+            newPosition: new three_10.Vector3(0, 0.5, 0)
         };
-        this.fog = new FogGfx_1.FogGfx(new three_11.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
+        this.fog = new FogGfx_1.FogGfx(new three_10.Color().setHex(+props.outerColor.replace('#', '0x')).getHex(), props.numberOfSprites, props.height, props.width, props.depth);
         this.animation = new Animation();
         this.scene.add(this.fog.wrapper);
         props.newPosition = this.fog.newPosition;
         // debug fog
-        this.pane = new tweakpane_4.Pane();
+        this.pane = new tweakpane_3.Pane();
         this.pane.element.parentElement.style['width'] = '330px';
-        this.pane.element.parentElement.style['margin-top'] = '110px';
+        this.pane.element.parentElement.style['margin-top'] = '80px';
         this.pane.element.parentElement.style['z-index'] = '19';
         const fogFolder = this.pane.addFolder({
             title: 'Fog',
-            expanded: false
+            expanded: true
         });
         const fogParam = fogFolder.addFolder({
             title: 'Fog',
-            expanded: false
+            expanded: true
         });
         const fogSize = fogFolder.addFolder({
             title: 'Size',
-            expanded: false
+            expanded: true
         });
         const fogAnimation = fogFolder.addFolder({
             title: 'Animation',
-            expanded: false
+            expanded: true
         });
         this.mouseMoveFog('click');
         fogParam.addInput(props, 'outerColor', { view: 'color', alpha: true, label: 'outer color' }).on('change', (ev) => {
@@ -1202,14 +1222,12 @@ class FogScene {
         fogSize.addInput(this.fog.externalForce, 'z', { min: -20, max: 20, step: 0.1, label: 'external force Z' }).on('change', (ev) => {
             this.fog.externalForce.z = ev.value;
         });
-        //
-        this.tick();
     }
     ;
     mouseMoveFog(movementProp) {
         // Raycaster
-        this.raycaster = new three_11.Raycaster();
-        this.pointer = new three_11.Vector2();
+        this.raycaster = new three_10.Raycaster();
+        this.pointer = new three_10.Vector2();
         this.canvas.addEventListener(movementProp, this.addRaycasterPointer);
     }
     ;
@@ -1237,7 +1255,7 @@ exports["default"] = FogScene;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FogGfx = void 0;
-const three_15 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const three_14 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 const Fog_Shader_1 = __webpack_require__(/*! ./shaders/Fog.Shader */ "./src/scripts/shaders/Fog.Shader.ts");
 //
 class FogGfx {
@@ -1254,12 +1272,12 @@ class FogGfx {
         this.speedSizeChange = 0.137;
         this.coordEpearingParticle = 0.3;
         this.opacityCoef = 0.00999;
-        this.wrapper = new three_15.Object3D();
-        this.newPosition = new three_15.Vector3(0, 0.5, 0);
-        this.soursePosition = new three_15.Vector3(0, 0.5, 0);
+        this.wrapper = new three_14.Object3D();
+        this.newPosition = new three_14.Vector3(0, 0.5, 0);
+        this.soursePosition = new three_14.Vector3(0, 0.5, 0);
         this.cubeVisibility = true;
         this.sizeCoef = 0.1;
-        this.externalForce = new three_15.Vector3(0, 0, 0);
+        this.externalForce = new three_14.Vector3(0, 0, 0);
         this._frameDuration = 300;
         this.height = height;
         this.width = width;
@@ -1267,18 +1285,18 @@ class FogGfx {
         this.numberOfSprites = numberOfSprites;
         // create fog
         this.material = new Fog_Shader_1.FogMaterial();
-        this.material.side = three_15.DoubleSide;
+        this.material.side = three_14.DoubleSide;
         this.material.uniforms.uColor.value.setHex(color);
         this.material.uniforms.uFrameDuration.value = this._frameDuration;
         this.generate(this.density, this.height, this.width, this.depth, this.newPosition);
     }
     ;
     generate(density, height, width, depth, newPosition) {
-        const boxGeometry = new three_15.BoxGeometry(1, 1, 1);
-        const boxMaterial = new three_15.MeshBasicMaterial({ color: 0x00ff00 });
+        const boxGeometry = new three_14.BoxGeometry(1, 1, 1);
+        const boxMaterial = new three_14.MeshBasicMaterial({ color: 0x00ff00 });
         boxMaterial.wireframe = true;
         if (!this.cube) {
-            this.cube = new three_15.Mesh(boxGeometry, boxMaterial);
+            this.cube = new three_14.Mesh(boxGeometry, boxMaterial);
             this.wrapper.add(this.cube);
         }
         if (this.mesh) {
@@ -1292,7 +1310,7 @@ class FogGfx {
         this.height = height;
         this.width = width;
         this.depth = depth;
-        let fogPointPosition = new three_15.Vector3(0, 0, 0);
+        let fogPointPosition = new three_14.Vector3(0, 0, 0);
         this.numberOfSprites = density * height * width * depth;
         let size = [], uv, offsetFrame = [], sizeIncrease = [], opacityDecrease = [];
         const transformRow1 = [];
@@ -1321,7 +1339,7 @@ class FogGfx {
             const rotationX = 0;
             const rotationY = 0;
             const rotationZ = 0;
-            let transformMatrix = new three_15.Matrix4().compose(new three_15.Vector3(distanceX, distanceY, distanceZ), new three_15.Quaternion().setFromEuler(new three_15.Euler(rotationX, rotationY, rotationZ)), new three_15.Vector3(scaleX, scaleY, scaleZ)).toArray();
+            let transformMatrix = new three_14.Matrix4().compose(new three_14.Vector3(distanceX, distanceY, distanceZ), new three_14.Quaternion().setFromEuler(new three_14.Euler(rotationX, rotationY, rotationZ)), new three_14.Vector3(scaleX, scaleY, scaleZ)).toArray();
             transformRow1.push(transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3]);
             transformRow2.push(transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7]);
             transformRow3.push(transformMatrix[8], transformMatrix[9], transformMatrix[10], transformMatrix[11]);
@@ -1348,18 +1366,18 @@ class FogGfx {
             0, 1,
             0, 0
         ];
-        this.geometry = new three_15.InstancedBufferGeometry();
-        this.geometry.setAttribute('position', new three_15.Float32BufferAttribute(this.positions, 3));
-        this.geometry.setAttribute('uv', new three_15.Float32BufferAttribute(uv, 2));
-        this.geometry.setAttribute('transformRow1', new three_15.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
-        this.geometry.setAttribute('transformRow2', new three_15.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
-        this.geometry.setAttribute('transformRow3', new three_15.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
-        this.geometry.setAttribute('transformRow4', new three_15.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
-        this.geometry.setAttribute('offsetFrame', new three_15.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
-        this.geometry.setAttribute('velocity', new three_15.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
-        this.geometry.setAttribute('opacityDecrease', new three_15.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
-        this.geometry.setAttribute('size', new three_15.InstancedBufferAttribute(new Float32Array(size), 1));
-        this.mesh = new three_15.Mesh(this.geometry, this.material);
+        this.geometry = new three_14.InstancedBufferGeometry();
+        this.geometry.setAttribute('position', new three_14.Float32BufferAttribute(this.positions, 3));
+        this.geometry.setAttribute('uv', new three_14.Float32BufferAttribute(uv, 2));
+        this.geometry.setAttribute('transformRow1', new three_14.InstancedBufferAttribute(new Float32Array(transformRow1), 4));
+        this.geometry.setAttribute('transformRow2', new three_14.InstancedBufferAttribute(new Float32Array(transformRow2), 4));
+        this.geometry.setAttribute('transformRow3', new three_14.InstancedBufferAttribute(new Float32Array(transformRow3), 4));
+        this.geometry.setAttribute('transformRow4', new three_14.InstancedBufferAttribute(new Float32Array(transformRow4), 4));
+        this.geometry.setAttribute('offsetFrame', new three_14.InstancedBufferAttribute(new Float32Array(offsetFrame), 1));
+        this.geometry.setAttribute('velocity', new three_14.InstancedBufferAttribute(new Float32Array(this.velocity), 3));
+        this.geometry.setAttribute('opacityDecrease', new three_14.InstancedBufferAttribute(new Float32Array(opacityDecrease), 1));
+        this.geometry.setAttribute('size', new three_14.InstancedBufferAttribute(new Float32Array(size), 1));
+        this.mesh = new three_14.Mesh(this.geometry, this.material);
         this.wrapper.add(this.mesh);
     }
     ;
@@ -1442,6 +1460,36 @@ exports.FogGfx = FogGfx;
 
 /***/ }),
 
+/***/ "./src/scripts/MainPage.tsx":
+/*!**********************************!*\
+  !*** ./src/scripts/MainPage.tsx ***!
+  \**********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const FloatingRock_1 = __importDefault(__webpack_require__(/*! ./FloatingRock */ "./src/scripts/FloatingRock.ts"));
+class MainPage {
+    constructor() {
+        this.floatingRock = new FloatingRock_1.default();
+        //
+        this.init = () => {
+            // this.devUI = new Pane();
+            this.floatingRock.init();
+            //
+            // this.dispatch({ type: APP_INITED });
+        };
+    }
+}
+;
+exports["default"] = new MainPage();
+
+
+/***/ }),
+
 /***/ "./src/scripts/Sphere.ts":
 /*!*******************************!*\
   !*** ./src/scripts/Sphere.ts ***!
@@ -1465,14 +1513,20 @@ class SphereGfx {
         this.elapsedTime = 0;
         this.velocityAttribute = [];
         this.numbersOfPoints = 1000;
+        this.previousRenderScene = this.renderScene;
         this.sizes = {
             width: 0,
             height: 0
         };
         this.tick = () => {
             window.requestAnimationFrame(this.tick);
-            if (this.renderScene == false)
-                return;
+            if (this.renderScene !== this.previousRenderScene) {
+                this.previousRenderScene = this.renderScene;
+                if (this.backgroundColorTwp) {
+                    this.backgroundColorTwp.hidden = !this.renderScene;
+                }
+            }
+            //
             this.delta = this.clock.getDelta() * 1000;
             this.elapsedTime += this.delta;
             if (this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight) {
@@ -1622,12 +1676,12 @@ class SphereGfx {
         let props = {
             color: '#0f0017'
         };
-        const backgroundColor = new tweakpane_1.Pane({ title: 'Background' });
-        backgroundColor.element.parentElement.style['width'] = '330px';
-        backgroundColor.addInput(props, 'color', { label: 'Right background' }).on('change', () => {
+        this.backgroundColorTwp = new tweakpane_1.Pane({ title: 'Background' });
+        this.backgroundColorTwp.element.parentElement.style['width'] = '330px';
+        this.backgroundColorTwp.addInput(props, 'color', { label: 'Right background' }).on('change', () => {
             this.backgroundRShaderMaterial.uniforms.uRedColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
-        backgroundColor.addInput(props, 'color', { label: 'Left background' }).on('change', () => {
+        this.backgroundColorTwp.addInput(props, 'color', { label: 'Left background' }).on('change', () => {
             this.backgroundLShaderMaterial.uniforms.uBlackColor.value.setHex(parseInt(props.color.replace('#', '0x')));
         });
     }
@@ -1657,24 +1711,30 @@ exports["default"] = new SphereGfx();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Water = void 0;
-const three_10 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-const OrbitControls_2 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+const three_9 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+const OrbitControls_1 = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 const GLTFLoader_js_1 = __webpack_require__(/*! three/examples/jsm/loaders/GLTFLoader.js */ "./node_modules/three/examples/jsm/loaders/GLTFLoader.js");
 const Water_Shader_1 = __webpack_require__(/*! ./shaders/Water.Shader */ "./src/scripts/shaders/Water.Shader.ts");
-const tweakpane_3 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
+const tweakpane_2 = __webpack_require__(/*! tweakpane */ "./node_modules/tweakpane/dist/tweakpane.js");
 //
 class Water {
     constructor() {
         // this.init();
         this.elapsedTime = 0;
+        this.previousRenderScene = this.renderScene;
         this.sizes = {
             width: 0,
             height: 0
         };
         this.tick = () => {
             window.requestAnimationFrame(this.tick);
-            if (this.renderScene == false)
-                return;
+            if (this.renderScene !== this.previousRenderScene) {
+                this.previousRenderScene = this.renderScene;
+                if (this.waterTwp) {
+                    this.waterTwp.hidden = !this.renderScene;
+                }
+            }
+            //
             this.delta = this.clock.getDelta() * 1000;
             this.elapsedTime += this.delta;
             //
@@ -1700,55 +1760,60 @@ class Water {
         // Canvas
         this.canvas = document.querySelector('canvas.webglViewWater');
         // Scene
-        this.scene = new three_10.Scene();
-        this.scene.background = new three_10.Color('#c7c1b7');
+        this.scene = new three_9.Scene();
+        this.scene.background = new three_9.Color('#c7c1b7');
         // Camera
-        this.camera = new three_10.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera = new three_9.PerspectiveCamera(45, this.sizes.width / this.sizes.height, 0.1, 100);
         this.camera.position.set(1, 2, 2);
         this.scene.add(this.camera);
         // Controls
-        this.mapControls = new OrbitControls_2.MapControls(this.camera, this.canvas);
+        this.mapControls = new OrbitControls_1.MapControls(this.camera, this.canvas);
         this.mapControls.enableDamping = true;
         // Light
-        const light = new three_10.PointLight(0xe9f7ec, 1, 100);
+        const light = new three_9.PointLight(0xe9f7ec, 1, 100);
         light.position.set(5, 5, 5);
         this.scene.add(light);
         // Plane
         this.loadPlane();
         // Water
-        let waterGeom = new three_10.PlaneGeometry(1.9, 1.9);
+        let waterGeom = new three_9.PlaneGeometry(1.9, 1.9);
         this.waterMaterial = new Water_Shader_1.WaterMaterial();
-        this.waterMesh = new three_10.Mesh(waterGeom, this.waterMaterial);
+        this.waterMesh = new three_9.Mesh(waterGeom, this.waterMaterial);
         this.waterMesh.rotation.x = -Math.PI / 2;
         this.waterMesh.position.set(0, -0.05, 0);
         this.scene.add(this.waterMesh);
         // Renderer
-        this.renderer = new three_10.WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new three_9.WebGLRenderer({ canvas: this.canvas });
         this.renderer.setSize(this.sizes.width, this.sizes.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.scene.add(new three_10.Mesh(new three_10.BoxGeometry(0.2, 0.2, 0.2), new three_10.MeshBasicMaterial({ color: 0xebb734 })));
+        this.scene.add(new three_9.Mesh(new three_9.BoxGeometry(0.2, 0.2, 0.2), new three_9.MeshBasicMaterial({ color: 0xebb734 })));
         // Create a render target with depth texture
         this.setupRenderTarget();
         // Resize
         window.addEventListener('resize', this.resize());
-        // Debug
-        let props = { waterColor: '#8eb4e6' };
-        const waterTwp = new tweakpane_3.Pane({ title: "Water", expanded: false });
-        waterTwp.element.parentElement.style['width'] = '330px';
-        waterTwp.element.parentElement.style['margin-top'] = '140px';
-        waterTwp.element.parentElement.style['z-index'] = '18';
-        waterTwp.addInput(props, 'waterColor', { view: 'color', alpha: true, label: 'inner color' }).on('change', (ev) => {
-            this.waterMaterial.uniforms.uColor.value.setHex(parseInt(ev.value.replace('#', '0x')));
-        });
-        this.clock = new three_10.Clock();
+        this.debug();
+        this.clock = new three_9.Clock();
         //
         this.tick();
     }
     ;
+    debug() {
+        // Debug
+        let props = { waterColor: '#8eb4e6' };
+        this.waterTwp = new tweakpane_2.Pane({ title: "Water", expanded: true });
+        this.waterTwp.element.parentElement.style['width'] = '330px';
+        this.waterTwp.element.parentElement.style['margin-top'] = '80px';
+        this.waterTwp.element.parentElement.style['z-index'] = '18';
+        this.waterTwp.addInput(props, 'waterColor', { view: 'color', alpha: true, label: 'inner color' }).on('change', (ev) => {
+            this.waterMaterial.uniforms.uColor.value.setHex(parseInt(ev.value.replace('#', '0x')));
+        });
+        this.waterTwp.hidden = !this.renderScene;
+    }
+    ;
     findingDepth() {
         // Setup post processing stage
-        this.postCamera = new three_10.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        this.postMaterial = new three_10.ShaderMaterial({
+        this.postCamera = new three_9.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        this.postMaterial = new three_9.ShaderMaterial({
             vertexShader: `
             varying vec2 vUv;
 
@@ -1788,9 +1853,9 @@ class Water {
                 tDepth: { value: null }
             }
         });
-        const postPlane = new three_10.PlaneGeometry(2, 2);
-        const postQuad = new three_10.Mesh(postPlane, this.postMaterial);
-        this.postScene = new three_10.Scene();
+        const postPlane = new three_9.PlaneGeometry(2, 2);
+        const postQuad = new three_9.Mesh(postPlane, this.postMaterial);
+        this.postScene = new three_9.Scene();
         this.postScene.add(postQuad);
     }
     ;
@@ -1807,16 +1872,16 @@ class Water {
         if (this.target)
             this.target.dispose();
         //
-        this.target = new three_10.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-        this.target.texture.format = three_10.RGBFormat;
-        this.target.texture.minFilter = three_10.NearestFilter;
-        this.target.texture.magFilter = three_10.NearestFilter;
+        this.target = new three_9.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+        this.target.texture.format = three_9.RGBFormat;
+        this.target.texture.minFilter = three_9.NearestFilter;
+        this.target.texture.magFilter = three_9.NearestFilter;
         this.target.texture.generateMipmaps = false;
         this.target.stencilBuffer = false;
         this.target.depthBuffer = true;
-        this.target.depthTexture = new three_10.DepthTexture(window.innerWidth, window.innerHeight);
-        this.target.depthTexture.type = three_10.UnsignedShortType;
-        this.target.depthTexture.format = three_10.DepthFormat;
+        this.target.depthTexture = new three_9.DepthTexture(window.innerWidth, window.innerHeight);
+        this.target.depthTexture.type = three_9.UnsignedShortType;
+        this.target.depthTexture.format = three_9.DepthFormat;
     }
     ;
     resize() {
@@ -1833,1871 +1898,6 @@ class Water {
 exports.Water = Water;
 ;
 exports["default"] = new Water();
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/BottomFoam.Shader.ts":
-/*!**************************************************!*\
-  !*** ./src/scripts/shaders/BottomFoam.Shader.ts ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BottomFoamMaterial = exports.noise = void 0;
-const three_7 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-exports.noise = new three_7.TextureLoader().load('resources/textures/noise.png');
-class BottomFoamMaterial extends three_7.ShaderMaterial {
-    constructor() {
-        super(),
-            this.vertexShader = `
-        varying vec2 vUv;
-
-        attribute float brightness;
-        attribute vec4 transformRow1;
-        attribute vec4 transformRow2;
-        attribute vec4 transformRow3;
-        attribute vec4 transformRow4;
-
-        void main () {
-
-            mat4 transforms = mat4 (
-                transformRow1,
-                transformRow2,
-                transformRow3,
-                transformRow4
-            );
-
-            gl_Position = projectionMatrix * modelViewMatrix  * transforms * vec4( vec3( position.x - 0.01, position.y - 0.37, position.z + 0.44 ), 1.0 );
-
-            vUv = uv;
-
-        }`,
-            this.fragmentShader = `
-        uniform sampler2D uNoise;
-        uniform vec3 uColor1;
-        uniform vec3 uColor2;
-        uniform vec3 uWhiteColor;
-        uniform float uTime;
-
-        varying vec2 vUv;
-
-        vec2 hash( in vec2 x )  // replace this by something better
-        {
-            const vec2 k = vec2( 0.3183099, 0.3678794 );
-            x = x*k + k.yx;
-            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
-        }
-
-
-        // return gradient noise (in x) and its derivatives (in yz)
-        vec3 noised( in vec2 p )
-        {
-            vec2 i = floor( p );
-            vec2 f = fract( p );
-
-        #if 1
-            // quintic interpolation
-            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
-            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
-        #else
-            // cubic interpolation
-            vec2 u = f*f*(3.0-2.0*f);
-            vec2 du = 6.0*f*(1.0-f);
-        #endif
-
-            vec2 ga = hash( i + vec2(0.0,0.0) );
-            vec2 gb = hash( i + vec2(1.0,0.0) );
-            vec2 gc = hash( i + vec2(0.0,1.0) );
-            vec2 gd = hash( i + vec2(1.0,1.0) );
-
-            float va = dot( ga, f - vec2(0.0,0.0) );
-            float vb = dot( gb, f - vec2(1.0,0.0) );
-            float vc = dot( gc, f - vec2(0.0,1.0) );
-            float vd = dot( gd, f - vec2(1.0,1.0) );
-
-            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
-                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
-                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
-        }
-
-        void main () {
-
-            vec2 centeredUv = ( vUv - 0.5 ) * 2.0;
-            float distanceToCenter = length( centeredUv );
-
-            vec3 noise = noised( vec2( vUv.x * 10.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 - uTime * 5.0 ) );
-            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
-            col = mix( uColor2, uColor1, noise.x );
-
-            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.15;
-
-            if ( 3.4 * distanceToCenter * abs( centeredUv.y * 1.45 + 0.2 ) > 0.7 + noise.x ) { discard; };
-
-            gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
-            gl_FragColor.a = 1.0;
-
-        }`,
-            this.uniforms = {
-                uNoise: { value: exports.noise },
-                uColor1: { value: new three_7.Color(0x09a0e0) },
-                uColor2: { value: new three_7.Color(0xd7e8fa) },
-                uWhiteColor: { value: new three_7.Color(0xffffff) },
-                uTime: { value: 0 }
-            };
-    }
-}
-exports.BottomFoamMaterial = BottomFoamMaterial;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/Fire.Shader.ts":
-/*!********************************************!*\
-  !*** ./src/scripts/shaders/Fire.Shader.ts ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FlameMaterial = exports.noise = void 0;
-const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-exports.noise = new three_3.TextureLoader().load('resources/textures/noise.png');
-class FlameMaterial extends three_3.ShaderMaterial {
-    constructor() {
-        super();
-        this.vertexShader = `
-        varying vec2 vUv;
-
-        void main() {
-
-            gl_Position = projectionMatrix * ( modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position, 1.0 ) );
-
-            vUv = uv;
-
-        }
-        `,
-            this.fragmentShader = `
-        uniform sampler2D uNoise;
-        uniform float uTime;
-        uniform vec3 uInnerColor;
-        uniform vec3 uOuterColor;
-
-        varying vec2 vUv;
-
-        vec2 hash( in vec2 x )  // replace this by something better
-        {
-            const vec2 k = vec2( 0.3183099, 0.3678794 );
-            x = x*k + k.yx;
-            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
-        }
-
-
-        // return gradient noise (in x) and its derivatives (in yz)
-        vec3 noised( in vec2 p )
-        {
-            vec2 i = floor( p );
-            vec2 f = fract( p );
-
-        #if 1
-            // quintic interpolation
-            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
-            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
-        #else
-            // cubic interpolation
-            vec2 u = f*f*(3.0-2.0*f);
-            vec2 du = 6.0*f*(1.0-f);
-        #endif
-
-            vec2 ga = hash( i + vec2(0.0,0.0) );
-            vec2 gb = hash( i + vec2(1.0,0.0) );
-            vec2 gc = hash( i + vec2(0.0,1.0) );
-            vec2 gd = hash( i + vec2(1.0,1.0) );
-
-            float va = dot( ga, f - vec2(0.0,0.0) );
-            float vb = dot( gb, f - vec2(1.0,0.0) );
-            float vc = dot( gc, f - vec2(0.0,1.0) );
-            float vd = dot( gd, f - vec2(1.0,1.0) );
-
-            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
-                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
-                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
-        }
-
-        void main() {
-
-            float yGradient = clamp( 0.9 - vUv.y, 0.0, 1.0 ) * 1.2;
-
-            vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
-
-            vec3 col = 0.55 + 0.99 * vec3( noise.x, noise.x, noise.x );
-
-            vec2 centeredUv = vec2( vUv.x - 0.3, vUv.y + 0.1 );
-            float distanceToCenter = length( centeredUv );
-            float strength = step( distance( vec2( vUv.x, vUv.y + 0.1 ), vec2(2.5) ), 0.4 );
-
-            if ( 8.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.24 ) > 0.5 + ( noise.x / 1.5 + noise.y / 4.0 ) ) { discard; }
-
-            gl_FragColor = vec4( vec3(yGradient) + col + uInnerColor, 1.0 );
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uOuterColor, 0.7 );
-
-        }
-        `,
-            this.uniforms = {
-                uTime: { value: 0 },
-                uNoise: { value: exports.noise },
-                uInnerColor: { value: new three_3.Color(0xfff30f) },
-                uOuterColor: { value: new three_3.Color(0xfc4e03) }
-            };
-    }
-}
-exports.FlameMaterial = FlameMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/FireFog.Shader.ts":
-/*!***********************************************!*\
-  !*** ./src/scripts/shaders/FireFog.Shader.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FireFogMaterial = void 0;
-const three_8 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-// import FogScene from '../index';
-let randomnum = Math.random();
-const textureLoader = new three_8.TextureLoader();
-const fogTexture = textureLoader.load('resources/textures/fog1.png');
-const noise = textureLoader.load('resources/textures/noise.png');
-class FireFogMaterial extends three_8.ShaderMaterial {
-    constructor() {
-        super();
-        this.vertexShader = `
-            attribute vec4 transformRow1;
-            attribute vec4 transformRow2;
-            attribute vec4 transformRow3;
-            attribute vec4 transformRow4;
-            attribute float offsetFrame;
-            attribute float size;
-            attribute vec3 velocity;
-            attribute float opacityDecrease;
-
-            varying vec2 vUv;
-            varying float vOffsetFrame;
-            varying float vCurrentFrameId;
-            varying float vNextFrameId;
-            varying float vOpacityDecrease;
-            varying float vOpacity;
-            varying vec3 vPosition;
-
-            uniform float uRandomNum;
-            uniform sampler2D uNoise;
-            uniform float uTime;
-            uniform float uFrameDuration;
-            uniform float uOpacity;
-
-            void main() {
-
-                float numOfFrames = 16.0;
-
-                float currentFrameId = mod( floor( mod( uTime + offsetFrame, numOfFrames * uFrameDuration ) / uFrameDuration ), numOfFrames );
-
-                float nextFrameId;
-                if ( currentFrameId == numOfFrames - 1.0 ) {
-
-                    nextFrameId = 0.0;
-
-                } else {
-
-                    nextFrameId = currentFrameId + 1.0;
-
-                }
-
-                mat4 transforms = mat4(
-                    transformRow1,
-                    transformRow2,
-                    transformRow3,
-                    transformRow4
-                );
-
-                gl_Position = projectionMatrix * ( modelViewMatrix * transforms * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position * size, 1.0 ) );
-
-                vUv = uv;
-                vOffsetFrame = offsetFrame;
-                vNextFrameId = nextFrameId;
-                vCurrentFrameId  = currentFrameId;
-                vOpacityDecrease = opacityDecrease;
-                vOpacity = uOpacity;
-                vPosition = transformRow4.xyz;
-
-            }
-        `;
-        this.depthWrite = false;
-        this.transparent = true;
-        this.blending = three_8.AdditiveBlending;
-        // this.wireframe = true;
-        this.fragmentShader = `
-            varying vec2 vUv;
-            varying float vOffsetFrame;
-            varying float vCurrentFrameId;
-            varying float vNextFrameId;
-            varying float vOpacityDecrease;
-            varying float vOpacity;
-            varying vec3 vPosition;
-
-            uniform sampler2D uPointTexture;
-            uniform float alphaTest;
-            uniform vec3 uColor;
-            uniform float uTime;
-            uniform float uFrameDuration;
-            uniform vec3 uInnerColor;
-
-            void main() {
-
-                gl_FragColor = vec4( uColor, 0.04 );
-
-                //
-
-                vec4 offsets;
-
-                offsets.y = floor( vCurrentFrameId / 4.0 ) * 0.25;
-                offsets.x = mod( vCurrentFrameId, 4.0 ) * 0.25;
-
-                offsets.w = floor( vNextFrameId / 4.0 ) * 0.25;
-                offsets.z = mod( vNextFrameId, 4.0 ) * 0.25;
-
-                //
-
-                vec4 texture1 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.x, vUv.y * 0.25 + offsets.y ) );
-                vec4 texture2 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.z, vUv.y * 0.25 + offsets.w ) );
-
-                float fragmentTime = mod( uTime + vOffsetFrame, uFrameDuration ) / uFrameDuration;
-
-                gl_FragColor = mix( texture1, texture2, fragmentTime );
-                vec3 finalColor = uColor;
-
-                finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
-
-                gl_FragColor *= vec4( finalColor, vOpacityDecrease );
-
-                if ( gl_FragColor.a < alphaTest ) discard;
-
-            }
-        `;
-        this.uniforms = {
-            uRandomNum: { value: randomnum },
-            uPointTexture: { value: fogTexture },
-            uNoise: { value: noise },
-            alphaTest: { value: 0.0001 },
-            uColor: { value: new three_8.Color(0x1A75FF) },
-            uTime: { value: 0.0 },
-            uTimeX: { value: 0.0 },
-            uTimeY: { value: 0.0 },
-            uFrameDuration: { value: 16.0 },
-            uOpacity: { value: 0.9 },
-            uInnerColor: { value: new three_8.Color(0x716222) }
-        };
-    }
-}
-exports.FireFogMaterial = FireFogMaterial;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/FoamParticles.Shader.ts":
-/*!*****************************************************!*\
-  !*** ./src/scripts/shaders/FoamParticles.Shader.ts ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FoamParticle = exports.textureLoader = void 0;
-const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-exports.textureLoader = new three_4.TextureLoader();
-const particleTexture = exports.textureLoader.load('/resources/textures/particle.png');
-class FoamParticle extends three_4.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true;
-        this.vertexShader = `
-        attribute float foamSize;
-
-        uniform float uTime;
-
-        void main () {
-
-            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x - 0.057 + uTime / 10.0, position.y - 0.05 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
-
-            gl_PointSize = foamSize * 0.0068  * ( 300.0 / -mvPosition.z );
-
-            gl_Position = projectionMatrix * mvPosition;
-
-        }`,
-            this.fragmentShader = `
-        uniform sampler2D uPointTexture;
-        uniform vec3 uColor;
-
-        void main () {
-
-            gl_FragColor = vec4( uColor, 1.0 ) * texture2D( uPointTexture, gl_PointCoord );
-            if ( gl_FragColor.a < 0.3 ) discard;
-
-        }`,
-            this.uniforms = {
-                uPointTexture: { value: particleTexture },
-                uColor: { value: new three_4.Color(0xc5e0fc) },
-                uTime: { value: 0 }
-            };
-    }
-}
-exports.FoamParticle = FoamParticle;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/Fog.Shader.ts":
-/*!*******************************************!*\
-  !*** ./src/scripts/shaders/Fog.Shader.ts ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FogMaterial = void 0;
-const three_24 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-// import FogScene from '../index';
-let randomnum = Math.random();
-const textureLoader = new three_24.TextureLoader();
-const fogTexture = textureLoader.load('resources/textures/fog1.png');
-const noise = textureLoader.load('resources/textures/tNoise.png');
-class FogMaterial extends three_24.ShaderMaterial {
-    constructor() {
-        super();
-        this.vertexShader = `
-            attribute vec4 transformRow1;
-            attribute vec4 transformRow2;
-            attribute vec4 transformRow3;
-            attribute vec4 transformRow4;
-            attribute float offsetFrame;
-            attribute float size;
-            attribute vec3 velocity;
-            attribute float opacityDecrease;
-
-            varying vec2 vUv;
-            varying float vOffsetFrame;
-            varying float vCurrentFrameId;
-            varying float vNextFrameId;
-            varying float vOpacityDecrease;
-            varying float vOpacity;
-            varying vec3 vPosition;
-
-            uniform float uRandomNum;
-            uniform sampler2D uNoise;
-            uniform float uTime;
-            uniform float uFrameDuration;
-            uniform float uOpacity;
-
-            void main() {
-
-                float numOfFrames = 16.0;
-
-                float currentFrameId = mod( floor( mod( uTime + offsetFrame, numOfFrames * uFrameDuration ) / uFrameDuration ), numOfFrames );
-
-                float nextFrameId;
-                if ( currentFrameId == numOfFrames - 1.0 ) {
-
-                    nextFrameId = 0.0;
-
-                } else {
-
-                    nextFrameId = currentFrameId + 1.0;
-
-                }
-
-                mat4 transforms = mat4(
-                    transformRow1,
-                    transformRow2,
-                    transformRow3,
-                    transformRow4
-                );
-
-                gl_Position = projectionMatrix * ( modelViewMatrix * transforms * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position * size, 1.0 ) );
-
-                vUv = uv;
-                vOffsetFrame = offsetFrame;
-                vNextFrameId = nextFrameId;
-                vCurrentFrameId  = currentFrameId;
-                vOpacityDecrease = opacityDecrease;
-                vOpacity = uOpacity;
-                vPosition = transformRow4.xyz;
-
-            }
-        `;
-        this.depthWrite = false;
-        this.transparent = true;
-        // this.wireframe = true;
-        this.fragmentShader = `
-            varying vec2 vUv;
-            varying float vOffsetFrame;
-            varying float vCurrentFrameId;
-            varying float vNextFrameId;
-            varying float vOpacityDecrease;
-            varying float vOpacity;
-            varying vec3 vPosition;
-
-            uniform sampler2D uPointTexture;
-            uniform float alphaTest;
-            uniform vec3 uColor;
-            uniform float uTime;
-            uniform float uFrameDuration;
-            uniform vec3 uInnerColor;
-
-            void main() {
-
-                gl_FragColor = vec4( uColor, 0.04 );
-
-                //
-
-                vec4 offsets;
-
-                offsets.y = floor( vCurrentFrameId / 4.0 ) * 0.25;
-                offsets.x = mod( vCurrentFrameId, 4.0 ) * 0.25;
-
-                offsets.w = floor( vNextFrameId / 4.0 ) * 0.25;
-                offsets.z = mod( vNextFrameId, 4.0 ) * 0.25;
-
-                //
-
-                vec4 texture1 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.x, vUv.y * 0.25 + offsets.y ) );
-                vec4 texture2 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.z, vUv.y * 0.25 + offsets.w ) );
-
-                float fragmentTime = mod( uTime + vOffsetFrame, uFrameDuration ) / uFrameDuration;
-
-                gl_FragColor = mix( texture1, texture2, fragmentTime );
-                vec3 finalColor = uColor;
-
-                finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
-
-                gl_FragColor *= vec4( finalColor, vOpacityDecrease * vOpacity );
-
-                if ( gl_FragColor.a < alphaTest ) discard;
-
-            }
-        `;
-        this.uniforms = {
-            uRandomNum: { value: randomnum },
-            uPointTexture: { value: fogTexture },
-            uNoise: { value: noise },
-            alphaTest: { value: 0.0001 },
-            uColor: { value: new three_24.Color(0x1A75FF) },
-            uTime: { value: 0.0 },
-            uTimeX: { value: 0.0 },
-            uTimeY: { value: 0.0 },
-            uFrameDuration: { value: 16.0 },
-            uOpacity: { value: 0.9 },
-            uInnerColor: { value: new three_24.Color(0xFFCE00) }
-        };
-    }
-}
-exports.FogMaterial = FogMaterial;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/TopFoam.Shader.ts":
-/*!***********************************************!*\
-  !*** ./src/scripts/shaders/TopFoam.Shader.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.TopmFoamShader = void 0;
-const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-class TopmFoamShader extends three_6.ShaderMaterial {
-    constructor() {
-        super();
-        this.vertexShader = `
-        varying vec2 vUv;
-
-        attribute float brightness;
-        attribute vec4 transformRow1;
-        attribute vec4 transformRow2;
-        attribute vec4 transformRow3;
-        attribute vec4 transformRow4;
-
-        void main () {
-
-            mat4 transforms = mat4 (
-                transformRow1,
-                transformRow2,
-                transformRow3,
-                transformRow4
-            );
-
-            gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( vec3( position.x + 0.01, position.y - 0.1354, position.z + 0.45 ), 1.0 );
-
-            vUv = uv;
-
-        }`,
-            this.fragmentShader = `
-        uniform vec3 uColor1;
-        uniform vec3 uColor2;
-        uniform vec3 uWhiteColor;
-        uniform float uTime;
-
-        varying vec2 vUv;
-
-        vec2 hash( in vec2 x )  // replace this by something better
-        {
-            const vec2 k = vec2( 0.3183099, 0.3678794 );
-            x = x*k + k.yx;
-            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
-        }
-
-
-        // return gradient noise (in x) and its derivatives (in yz)
-        vec3 noised( in vec2 p )
-        {
-            vec2 i = floor( p );
-            vec2 f = fract( p );
-
-        #if 1
-            // quintic interpolation
-            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
-            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
-        #else
-            // cubic interpolation
-            vec2 u = f*f*(3.0-2.0*f);
-            vec2 du = 6.0*f*(1.0-f);
-        #endif
-
-            vec2 ga = hash( i + vec2(0.0,0.0) );
-            vec2 gb = hash( i + vec2(1.0,0.0) );
-            vec2 gc = hash( i + vec2(0.0,1.0) );
-            vec2 gd = hash( i + vec2(1.0,1.0) );
-
-            float va = dot( ga, f - vec2(0.0,0.0) );
-            float vb = dot( gb, f - vec2(1.0,0.0) );
-            float vc = dot( gc, f - vec2(0.0,1.0) );
-            float vd = dot( gd, f - vec2(1.0,1.0) );
-
-            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
-                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
-                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
-        }
-
-        void main () {
-
-            vec2 centeredUv = ( vec2( ( vUv.x - 0.5 ) * 2.1, vUv.y - 0.5 ) ) * 2.0;
-            float distanceToCenter = length( centeredUv );
-
-            vec3 noise = noised( vec2( vUv.x * 20.0 + sin( uTime * 10.0 ) * 0.35, vUv.y * 8.0 + uTime * 5.0 ) );
-            vec3 noiseBorder = noised( vec2( vUv.x * 10.0 + sin( uTime * 10.0 ) * 0.45, vUv.y * 5.0 + uTime * 10.0 ) );
-            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
-            col = mix( uColor2, uColor1, noise.x );
-
-            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.35;
-
-            if ( 2.0 * distanceToCenter * abs( centeredUv.y * 1.45 - 0.7 ) > 0.5 + yGradient + noiseBorder.x ) { discard; };
-
-            gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
-            gl_FragColor.a = 0.7;
-
-        }`,
-            this.uniforms = {
-                uColor1: { value: new three_6.Color(0x7784b5) },
-                uColor2: { value: new three_6.Color(0xd7e8fa) },
-                uWhiteColor: { value: new three_6.Color(0xffffff) },
-                uTime: { value: 0 }
-            };
-    }
-}
-exports.TopmFoamShader = TopmFoamShader;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/Warerfall.Shader.ts":
-/*!*************************************************!*\
-  !*** ./src/scripts/shaders/Warerfall.Shader.ts ***!
-  \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.WaterfallMaterial = void 0;
-const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-class WaterfallMaterial extends three_5.ShaderMaterial {
-    constructor() {
-        super(),
-            this.vertexShader = `
-        varying vec2  vUv;
-        varying float vBrightness;
-
-        attribute float brightness;
-        attribute vec4 transformRow1;
-        attribute vec4 transformRow2;
-        attribute vec4 transformRow3;
-        attribute vec4 transformRow4;
-
-        void main () {
-
-            mat4 transforms = mat4 (
-                transformRow1,
-                transformRow2,
-                transformRow3,
-                transformRow4
-            );
-
-            gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( position.x + 0.01, position.y - 0.234, position.z + 0.439, 1.0 );
-
-            vUv = uv;
-            vBrightness = brightness;
-
-        }`,
-            this.fragmentShader = `
-        varying vec2 vUv;
-        varying float vBrightness;
-
-        uniform float uTime;
-        uniform vec3 uLightColor;
-        uniform vec3 uDarkColor;
-        uniform vec3 uWhiteColor;
-        uniform vec3 uFoamColor;
-
-        vec2 hash( in vec2 x )  // replace this by something better
-        {
-            const vec2 k = vec2( 0.3183099, 0.3678794 );
-            x = x*k + k.yx;
-            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
-        }
-
-
-        // return gradient noise (in x) and its derivatives (in yz)
-        vec3 noised( in vec2 p )
-        {
-            vec2 i = floor( p );
-            vec2 f = fract( p );
-
-        #if 1
-            // quintic interpolation
-            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
-            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
-        #else
-            // cubic interpolation
-            vec2 u = f*f*(3.0-2.0*f);
-            vec2 du = 6.0*f*(1.0-f);
-        #endif
-
-            vec2 ga = hash( i + vec2(0.0,0.0) );
-            vec2 gb = hash( i + vec2(1.0,0.0) );
-            vec2 gc = hash( i + vec2(0.0,1.0) );
-            vec2 gd = hash( i + vec2(1.0,1.0) );
-
-            float va = dot( ga, f - vec2(0.0,0.0) );
-            float vb = dot( gb, f - vec2(1.0,0.0) );
-            float vc = dot( gc, f - vec2(0.0,1.0) );
-            float vd = dot( gd, f - vec2(1.0,1.0) );
-
-            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
-                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
-                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
-        }
-
-        void main () {
-
-            vec3 noise = noised( vec2( vUv.x * 15.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 + uTime * 5.0 - 0.2 ) );
-
-            vec2 centeredUv = vec2( ( vUv.x - 0.5 ) * 14.0, ( vUv.y - 4.0 ) * 2.0 );
-            float distanceToCenter = length( centeredUv );
-
-            vec2 centeredUvWhite = vec2( ( vUv.x - 0.5 ) * 10.0, ( vUv.y - 0.8 ) * 2.0 );
-            float distanceToCenterWhite = length( centeredUvWhite );
-
-            vec2 centeredUvFoam = vec2( ( vUv.x - 0.5 ), ( vUv.y - 1.0 ) );
-            float distanceToCenterFoam = length( centeredUvFoam );
-
-            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
-            col = step( 0.1, 0.2 + col );
-            float mix1 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterWhite - 0.5 ) * noise.y * 0.09 );
-            vec3 whiteCol = mix( col, uWhiteColor, mix1 );
-
-            //
-
-            gl_FragColor = vec4( col, 1.0 );
-
-            if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; };
-
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uLightColor + abs( sin( uTime * 10.0 ) ) * vUv.y * vBrightness,  0.4 );
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uDarkColor, 0.75 );
-            gl_FragColor.rgb += mix( uDarkColor, whiteCol, mix1 );
-
-        }`,
-            this.uniforms = {
-                uTime: { value: 0 },
-                uLightColor: { value: new three_5.Color(0xc0fafa) },
-                uDarkColor: { value: new three_5.Color(0x3250a8) },
-                uWhiteColor: { value: new three_5.Color(0xffffff) },
-                uFoamColor: { value: new three_5.Color(0xf5f6ff) },
-                uRandom: { value: Math.random() }
-            };
-    }
-}
-exports.WaterfallMaterial = WaterfallMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/Water.Shader.ts":
-/*!*********************************************!*\
-  !*** ./src/scripts/shaders/Water.Shader.ts ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.WaterMaterial = void 0;
-const three_16 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-class WaterMaterial extends three_16.ShaderMaterial {
-    constructor() {
-        super();
-        this.vertexShader = `
-        #include <packing>
-
-        varying vec2 vUv;
-        varying vec4 vPos;
-        varying vec3 vPosFoam;
-
-        uniform sampler2D tDiffuse;
-        uniform sampler2D tDepth;
-        uniform float cameraNear;
-        uniform float cameraFar;
-
-        float readDepth( sampler2D depthSampler, vec2 coord ) {
-            float fragCoordZ = texture2D( depthSampler, coord ).x;
-            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
-            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
-        }
-
-        void main() {
-
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-
-            vPos = gl_Position.xyzw;
-
-            vUv = uv;
-
-            vPosFoam = position;
-
-        }
-
-        `,
-            this.transparent = true;
-        this.fragmentShader = `
-        #include <packing>
-        #define PI 3.1415926538;
-
-        varying vec2 vUv;
-        varying float vDepth;
-        varying vec4 vPos;
-        varying vec3 vPosFoam;
-
-        uniform sampler2D tDiffuse;
-        uniform sampler2D tDepth;
-        uniform float cameraNear;
-        uniform float cameraFar;
-        uniform vec3 uColor;
-        uniform vec3 uFoamColor1;
-        uniform vec3 uFoamColor2;
-        uniform vec3 uFoamColor3;
-        uniform float uTime;
-
-        //	Classic Perlin 2D Noise
-        //	by Stefan Gustavson
-        //
-        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
-        vec2 fade(vec2 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
-
-        float getPerlinNoise2d(vec2 P)
-        {
-            vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
-            vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
-            Pi = mod(Pi, 289.0); // To avoid truncation effects in permutation
-            vec4 ix = Pi.xzxz;
-            vec4 iy = Pi.yyww;
-            vec4 fx = Pf.xzxz;
-            vec4 fy = Pf.yyww;
-            vec4 i = permute(permute(ix) + iy);
-            vec4 gx = 2.0 * fract(i * 0.0243902439) - 1.0; // 1/41 = 0.024...
-            vec4 gy = abs(gx) - 0.5;
-            vec4 tx = floor(gx + 0.5);
-            gx = gx - tx;
-            vec2 g00 = vec2(gx.x,gy.x);
-            vec2 g10 = vec2(gx.y,gy.y);
-            vec2 g01 = vec2(gx.z,gy.z);
-            vec2 g11 = vec2(gx.w,gy.w);
-            vec4 norm = 1.79284291400159 - 0.85373472095314 *
-            vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11));
-            g00 *= norm.x;
-            g01 *= norm.y;
-            g10 *= norm.z;
-            g11 *= norm.w;
-            float n00 = dot(g00, vec2(fx.x, fy.x));
-            float n10 = dot(g10, vec2(fx.y, fy.y));
-            float n01 = dot(g01, vec2(fx.z, fy.z));
-            float n11 = dot(g11, vec2(fx.w, fy.w));
-            vec2 fade_xy = fade(Pf.xy);
-            vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
-            float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
-            return 2.3 * n_xy;
-        }
-
-        float convertDepth ( float depth ) {
-
-            float viewZ = perspectiveDepthToViewZ( depth, cameraNear, cameraFar );
-            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
-
-        }
-
-        float readDepth( sampler2D depthSampler, vec2 coord ) {
-
-            float fragCoordZ = texture2D( depthSampler, coord ).x;
-            return convertDepth( fragCoordZ );
-
-        }
-
-        void main() {
-
-            vec2 centeredUv = vUv - 0.5;
-            float distanceToCenter = length( centeredUv );
-
-            //
-
-            vec2 vViewportCoord = vPos.xy;
-            vViewportCoord /= vPos.w;
-            vViewportCoord = vViewportCoord * 0.5 + 0.5;
-
-            float depth = readDepth( tDepth, vViewportCoord );
-
-            float waterDepth = ( depth - convertDepth( gl_FragCoord.z ) );
-
-            float perlinNoise = getPerlinNoise2d( centeredUv * 203.0 + uTime / 20.0 );
-            vec3 color = uColor;
-            float foamDiff = min( ( waterDepth * 700.0 ) / ( uTime ) / 0.55, 1.0 );
-
-            float foam = 1.0 - step( foamDiff - clamp( sin( ( foamDiff + sin( uTime / 30.0 ) ) * 9.0 * 3.1415 ), 0.0, 1.0 ) * ( 1.0 - foamDiff ), perlinNoise );
-            color = mix( uFoamColor2, uColor, foamDiff );
-
-            gl_FragColor.rgb = vec3( color );
-            gl_FragColor.a = mix( foam, 0.8, foamDiff + 1.5 );
-
-        }
-        `;
-        this.uniforms = {
-            cameraNear: { value: 0 },
-            cameraFar: { value: 0 },
-            tDiffuse: { value: null },
-            tDepth: { value: null },
-            uColor: { value: new three_16.Color(0x8eb4e6) },
-            uFoamColor1: { value: new three_16.Color(0xc2e3ff) },
-            uFoamColor2: { value: new three_16.Color(0xe6f6ff) },
-            uFoamColor3: { value: new three_16.Color(0x000001) },
-            uTime: { value: 0 }
-        };
-    }
-}
-exports.WaterMaterial = WaterMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/faceShaders/Face.Sader.ts":
-/*!*******************************************************!*\
-  !*** ./src/scripts/shaders/faceShaders/Face.Sader.ts ***!
-  \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FaceSheder = void 0;
-const three_22 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-class FaceSheder extends three_22.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true;
-        this.vertexShader = `
-        #include <packing>
-
-        varying vec2 vUv;
-        varying vec2 vUvLines;
-        varying vec3 vNormal;
-        varying vec3 vPosition;
-
-        uniform sampler2D tDiffuse;
-        uniform sampler2D tDepth;
-        uniform float cameraNear;
-        uniform float cameraFar;
-        uniform float uTime;
-        uniform float uNoiseTime;
-
-        attribute float lineY;
-
-        //	Classic Perlin 3D Noise
-        //	by Stefan Gustavson
-        //
-        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
-        vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
-        vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
-
-        float getPerlinNoise3d( vec3 P ) {
-
-            vec3 Pi0 = floor(P); // Integer part for indexing
-            vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
-            Pi0 = mod(Pi0, 289.0);
-            Pi1 = mod(Pi1, 289.0);
-            vec3 Pf0 = fract(P); // Fractional part for interpolation
-            vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-            vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-            vec4 iy = vec4(Pi0.yy, Pi1.yy);
-            vec4 iz0 = Pi0.zzzz;
-            vec4 iz1 = Pi1.zzzz;
-
-            vec4 ixy = permute(permute(ix) + iy);
-            vec4 ixy0 = permute(ixy + iz0);
-            vec4 ixy1 = permute(ixy + iz1);
-
-            vec4 gx0 = ixy0 / 7.0;
-            vec4 gy0 = fract(floor(gx0) / 7.0) - 0.5;
-            gx0 = fract(gx0);
-            vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-            vec4 sz0 = step(gz0, vec4(0.0));
-            gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-            gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-            vec4 gx1 = ixy1 / 7.0;
-            vec4 gy1 = fract(floor(gx1) / 7.0) - 0.5;
-            gx1 = fract(gx1);
-            vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-            vec4 sz1 = step(gz1, vec4(0.0));
-            gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-            gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-            vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-            vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-            vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-            vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-            vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-            vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-            vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-            vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-            vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-            g000 *= norm0.x;
-            g010 *= norm0.y;
-            g100 *= norm0.z;
-            g110 *= norm0.w;
-            vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-            g001 *= norm1.x;
-            g011 *= norm1.y;
-            g101 *= norm1.z;
-            g111 *= norm1.w;
-
-            float n000 = dot(g000, Pf0);
-            float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-            float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-            float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-            float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-            float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-            float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-            float n111 = dot(g111, Pf1);
-
-            vec3 fade_xyz = fade(Pf0);
-            vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-            vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-            return 2.2 * n_xyz;
-
-        }
-        //
-
-        float readDepth( sampler2D depthSampler, vec2 coord ) {
-            float fragCoordZ = texture2D( depthSampler, coord ).x;
-            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
-            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
-        }
-
-        void main () {
-
-            float noise = getPerlinNoise3d( vec3(  vec2( uv.x, lineY ) * 70.0, uNoiseTime / 1.0 ) ) / 2.0;
-            float depth = readDepth( tDepth, vec2( uv.x, lineY ) ) * 10.0;
-            vec3 pos = position;
-            pos.z += ( 1.0 - depth ); //- uTime;
-            pos.y += noise * 0.01;
-
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
-
-            vUv = uv;
-            vUvLines = vec2( uv.x, lineY );
-            vNormal = normal;
-            vPosition = pos;
-
-        }
-        `,
-            this.fragmentShader = `
-        #include <packing>
-
-        varying vec2 vUv;
-        varying vec2 vUvLines;
-        varying vec3 vNormal;
-        varying vec3 vPosition;
-
-        uniform sampler2D tDiffuse;
-        uniform sampler2D tDepth;
-        uniform float cameraNear;
-        uniform float cameraFar;
-        uniform float uTime;
-        uniform vec3 uDirection;
-        uniform vec3 uLightColor;
-        uniform vec3 uColor;
-        uniform vec3 uColor2;
-        uniform vec3 uColor3;
-
-        float readDepth( sampler2D depthSampler, vec2 coord ) {
-            float fragCoordZ = texture2D( depthSampler, coord ).x;
-            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
-            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
-        }
-
-        void main() {
-
-            // Diffuse
-            vec3 norm = normalize( vNormal );
-            float diff = max( dot( norm, uDirection ), 0.0 );
-            vec3 diffuse = uLightColor * diff;
-
-            //vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
-            float depth = readDepth( tDepth, vUvLines ) * 2.6;
-
-            // vec3 color = mix( uColor, uLightColor, 0.1 );
-            // vec3 color = step( uColor, vec3( vUvLines, 1.0 ) );
-            // vec3 color = step( depth, uColor2 );
-            // color += step( depth * 1.2, uColor );
-            gl_FragColor.rgb = mix( ( 1.0 - vec3( depth ) + uColor2 ), ( 1.0 - vec3( depth ) + uColor ), depth * 0.6 );  // working
-            // gl_FragColor.rgb = mix( gl_FragColor.rgb, uColor3, 0.7 );
-            // gl_FragColor.rgb = ( 1.0 - vec3( depth ) + color ); //* vec3(diffuse);
-            gl_FragColor.a = step( depth, 1.0 );
-
-        }
-        `,
-            this.uniforms = {
-                cameraNear: { value: 0 },
-                cameraFar: { value: 0 },
-                tDiffuse: { value: null },
-                tDepth: { value: null },
-                uTime: { value: 0 },
-                uColor: { value: new three_22.Color(0x00106b) },
-                uNoiseTime: { value: 0 },
-                uDirection: { value: new three_22.Vector3(1.0, 0.2, 0.4) },
-                uLightColor: { value: new three_22.Color(0xf7f9fc) },
-                uColor2: { value: new three_22.Color(0x260007) },
-                uColor3: { value: new three_22.Color(0x230040) }
-            };
-    }
-    ;
-}
-exports.FaceSheder = FaceSheder;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/faceShaders/Particles.Shader.ts":
-/*!*************************************************************!*\
-  !*** ./src/scripts/shaders/faceShaders/Particles.Shader.ts ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ParticleShader = void 0;
-const three_23 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-let loader = new three_23.TextureLoader();
-let particleTexture = loader.load('resources/textures/particle2.png');
-class ParticleShader extends three_23.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true,
-            this.vertexShader = `
-        attribute float size;
-        attribute vec3 customColor;
-        attribute vec3 particleColor;
-        attribute float blinkStart;
-
-        varying vec3 vColor;
-        varying vec3 vParticleColor;
-        varying float vBlinkStart;
-
-        uniform float uTime;
-
-        void main() {
-
-            vColor = customColor;
-
-            vec4 mvPosition = modelViewMatrix * vec4( position + sin( uTime / 10.0 ) / 20.0 + cos( uTime / 10.0 ) / 20.0, 1.0 );
-
-            gl_PointSize = size * ( 300.0 / -mvPosition.z );
-
-            gl_Position = projectionMatrix * mvPosition;
-
-            vParticleColor = particleColor;
-            vBlinkStart = blinkStart;
-
-        }
-        `,
-            this.fragmentShader = `
-        uniform vec3 uColor;
-        uniform sampler2D uPointTexture;
-        uniform float uTime;
-
-        varying vec3 vColor;
-        varying vec3 vParticleColor;
-        varying float vBlinkStart;
-
-        void main() {
-
-            gl_FragColor = vec4( vParticleColor + uColor * vec3( 0.0, 0.0, abs( sin( uTime / 2.0 + vBlinkStart ) ) ), 0.45 );
-            // gl_FragColor = vec4( color * vec3( abs( sin( uTime ) ) + 0.3 ), 1.0 );
-
-            gl_FragColor = gl_FragColor * texture2D( uPointTexture, gl_PointCoord );
-            // gl_FragColor.a = 0.25;
-
-        }
-        `,
-            this.uniforms = {
-                uColor: { value: new three_23.Color(0x5796fa) },
-                uPointTexture: { value: particleTexture },
-                uTime: { value: 0 }
-            };
-    }
-}
-exports.ParticleShader = ParticleShader;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/sphereShaders/backgroundL.Shader.ts":
-/*!*****************************************************************!*\
-  !*** ./src/scripts/shaders/sphereShaders/backgroundL.Shader.ts ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BackgroundLShaderMaterial = void 0;
-const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-const loader = new three_3.TextureLoader();
-class BackgroundLShaderMaterial extends three_3.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true,
-            this.vertexShader = `
-        varying vec2 vUv;
-
-        void main() {
-
-            vec3 newPosition = position;
-            newPosition.z -= 1.0;
-
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-
-            vUv = uv;
-
-        }
-        `;
-        this.fragmentShader = `
-        varying vec2 vUv;
-
-        uniform sampler2D uTexture;
-        uniform float uTime;
-        uniform vec3 uBlueColor;
-        uniform vec3 uBlackColor;
-
-        void main() {
-
-            vec4 txtNoise1 = texture2D( uTexture, vec2( vUv.x * 1.5 * sin( uTime * 0.05 ), vUv.y + sin( uTime * 0.05 ) * 0.1 ) ) * 0.3;
-            vec4 txtNoise2 = texture2D( uTexture, vec2( vUv.x * 1.5, vUv.y - sin( uTime * 0.05 + 3.14 / 2.0 ) * 0.2 ) ) * 0.3;
-
-            gl_FragColor = vec4( vec3( vUv * 1.0, 0.2 ), 1.0 ) + txtNoise1 + txtNoise2;
-
-            // gl_FragColor.rgb = mix( uBlueColor, gl_FragColor.rgb, ( txtNoise1.rgb +  txtNoise2.rgb ) * 0.5 );
-            gl_FragColor.rgb = mix( uBlueColor, uBlackColor, ( txtNoise1.rgb +  txtNoise2.rgb ) * 2.0 );
-
-        }
-        `;
-        this.uniforms = {
-            uTexture: { value: loader.load('/resources/textures/perlinNoise.png') },
-            uTime: { value: 0 },
-            uBlueColor: { value: new three_3.Color(0x2936a6) },
-            uBlackColor: { value: new three_3.Color(0x000000) }
-        };
-    }
-    ;
-}
-exports.BackgroundLShaderMaterial = BackgroundLShaderMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/sphereShaders/backgroundR.Shader.ts":
-/*!*****************************************************************!*\
-  !*** ./src/scripts/shaders/sphereShaders/backgroundR.Shader.ts ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BackgroundRShaderMaterial = void 0;
-const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-const loader = new three_6.TextureLoader();
-class BackgroundRShaderMaterial extends three_6.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true,
-            this.vertexShader = `
-        varying vec2 vUv;
-
-        void main() {
-
-            vec3 newPosition = position;
-            newPosition.z -= 1.0;
-            newPosition.x += 2.0;
-
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-
-            vUv = uv;
-
-        }
-        `;
-        this.fragmentShader = `
-        varying vec2 vUv;
-
-        uniform sampler2D uTexture;
-        uniform float uTime;
-        uniform vec3 uRedColor;
-        uniform vec3 uBlackColor;
-
-        void main() {
-
-            vec4 txtNoise1 = texture2D( uTexture, vec2( vUv.x * 1.5 * sin( uTime * 0.05 ), vUv.y + sin( uTime * 0.05 ) * 0.1 ) ) * 0.3;
-            vec4 txtNoise2 = texture2D( uTexture, vec2( vUv.x * 1.5, vUv.y - sin( uTime * 0.05 + 3.14 / 2.0 ) * 0.2 ) ) * 0.3;
-
-            // txtNoise1 = step( txtNoise1, vec4( 0.1 ) );
-            // txtNoise2 = step( txtNoise2, vec4( 0.1 ) );
-
-            gl_FragColor = vec4( vec3( vUv * 1.0, 0.2 ), 1.0 ) + txtNoise1 + txtNoise2;
-
-            // gl_FragColor.rgb = mix( uRedColor, gl_FragColor.rgb, ( txtNoise1.rgb +  txtNoise2.rgb ) * 0.5 );
-            gl_FragColor.rgb = mix( uRedColor, uBlackColor, ( txtNoise1.rgb +  txtNoise2.rgb + vec3( vUv, 0.0 ) * 0.0 ) * 2.0 );
-
-        }
-        `;
-        this.uniforms = {
-            uTexture: { value: loader.load('/resources/textures/perlinNoise.png') },
-            uTime: { value: 0 },
-            uRedColor: { value: new three_6.Color(0xff0019) },
-            uBlackColor: { value: new three_6.Color(0x000000) }
-        };
-    }
-    ;
-}
-exports.BackgroundRShaderMaterial = BackgroundRShaderMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/sphereShaders/blueSphere.Shader.ts":
-/*!****************************************************************!*\
-  !*** ./src/scripts/shaders/sphereShaders/blueSphere.Shader.ts ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BlueSphereMaterial = void 0;
-const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-const loader = new three_4.TextureLoader();
-let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
-class BlueSphereMaterial extends three_4.ShaderMaterial {
-    constructor() {
-        super();
-        this.vertexShader = `
-        uniform sampler2D uNoiseTexture;
-        uniform float uTime;
-
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vFe;
-        varying float vDistortion;
-
-        //
-        vec3 mod289(vec3 x)
-        {
-            return x - floor(x * (1.0 / 289.0)) * 289.0;
-        }
-
-        vec4 mod289(vec4 x)
-        {
-            return x - floor(x * (1.0 / 289.0)) * 289.0;
-        }
-
-        vec4 permute(vec4 x)
-        {
-            return mod289(((x*34.0)+1.0)*x);
-        }
-
-        vec4 taylorInvSqrt(vec4 r)
-        {
-            return 1.79284291400159 - 0.85373472095314 * r;
-        }
-
-        vec3 fade(vec3 t) {
-            return t*t*t*(t*(t*6.0-15.0)+10.0);
-        }
-
-        // Classic Perlin noise, periodic variant
-        float pnoise(vec3 P, vec3 rep)
-        {
-            vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
-            vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
-            Pi0 = mod289(Pi0);
-            Pi1 = mod289(Pi1);
-            vec3 Pf0 = fract(P); // Fractional part for interpolation
-            vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-            vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-            vec4 iy = vec4(Pi0.yy, Pi1.yy);
-            vec4 iz0 = Pi0.zzzz;
-            vec4 iz1 = Pi1.zzzz;
-
-            vec4 ixy = permute(permute(ix) + iy);
-            vec4 ixy0 = permute(ixy + iz0);
-            vec4 ixy1 = permute(ixy + iz1);
-
-            vec4 gx0 = ixy0 * (1.0 / 7.0);
-            vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-            gx0 = fract(gx0);
-            vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-            vec4 sz0 = step(gz0, vec4(0.0));
-            gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-            gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-            vec4 gx1 = ixy1 * (1.0 / 7.0);
-            vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-            gx1 = fract(gx1);
-            vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-            vec4 sz1 = step(gz1, vec4(0.0));
-            gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-            gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-            vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-            vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-            vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-            vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-            vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-            vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-            vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-            vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-            vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-            g000 *= norm0.x;
-            g010 *= norm0.y;
-            g100 *= norm0.z;
-            g110 *= norm0.w;
-            vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-            g001 *= norm1.x;
-            g011 *= norm1.y;
-            g101 *= norm1.z;
-            g111 *= norm1.w;
-
-            float n000 = dot(g000, Pf0);
-            float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-            float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-            float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-            float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-            float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-            float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-            float n111 = dot(g111, Pf1);
-
-            vec3 fade_xyz = fade(Pf0);
-            vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-            vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-            return 2.2 * n_xyz;
-        }
-        //
-
-        void main() {
-
-            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-            vec3 fE = ( mvPosition * modelMatrix * vec4( position, 1.0 ) ).xyz;
-
-            float distortion = pnoise( ( normal * 1.98 + uTime * 0.05 ) * 1.0, vec3( 100.0 ) ) * 0.3;
-
-            vec3 newPosition = position + ( normal * distortion );
-
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-
-            vUv = uv;
-            vNormal = normal;
-            vFe = fE;
-            vDistortion = distortion;
-
-        }
-        `,
-            this.fragmentShader = `
-
-        uniform float uTime;
-        uniform vec3 uColorRed;
-        uniform vec3 uColorDarkRed;
-        uniform vec3 uDirection;
-        uniform vec3 uLightColor;
-        uniform sampler2D uNoiseTexture;
-
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vFe;
-        varying float vDistortion;
-
-        void main() {
-
-            // Diffuse
-            vec3 norm = normalize( vNormal );
-            float diff = max( dot( norm, uDirection ), 0.0 );
-            vec3 diffuse = uLightColor * diff;
-
-            // Specular light
-            float shininess = 3.0;
-            vec3 H = normalize( uDirection + vFe );
-            float specular_intensity = pow( max( dot( norm, uDirection + vFe ), 0.0 ), shininess );
-            vec4 specular_color = vec4( uLightColor, 1.0 );
-            specular_color = specular_intensity * specular_color;
-
-            vec4 txtNoise1 = texture2D( uNoiseTexture, vec2( vUv.x + sin( uTime * 0.3 ) * 0.05 + cos( uTime * 0.3 ) * 0.05, vUv.y - sin( uTime * 0.34 ) * 0.05 + cos( uTime * 0.3 ) * 0.05 ) );
-            vec4 txtNoise2 = texture2D( uNoiseTexture, vec2( vUv.x - sin( uTime * 0.07 ) * 0.05 + cos( uTime * 0.07 ) * 0.05, vUv.y + sin( uTime * 0.077 ) * 0.05 + cos( uTime * 0.07 ) * 0.05 + 0.2 ) );
-
-            // gl_FragColor = vec4( txtNoise1 * 0.7 + txtNoise2 * 0.7 );
-            gl_FragColor = vec4( vec3( - vDistortion * 10.0 ), 1.0 );
-
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uColorDarkRed, txtNoise2.rgb * 7.0 );
-            gl_FragColor.rgb = mix( uColorRed, gl_FragColor.rgb, txtNoise1.rgb * 1.0 );
-
-            // gl_FragColor.a = ( txtNoise1.r + txtNoise2.r ) * 0.5;
-            // gl_FragColor.a = smoothstep( 0.4, 1.0, txtNoise1.r ) * 2.1;
-
-            gl_FragColor.rgb = mix(  gl_FragColor.rgb, uLightColor, txtNoise1.rgb ) * 0.9;
-
-        }
-        `,
-            this.uniforms = {
-                uTime: { value: 0.0 },
-                uColorRed: { value: new three_4.Color(0x0a30ad) },
-                uColorDarkRed: { value: new three_4.Color(0x0a1363) },
-                uDirection: { value: new three_4.Vector3(-0.1, -0.10, -0.2) },
-                uLightColor: { value: new three_4.Color(0xcfdfe8) },
-                uNoiseTexture: { value: noiseTexture }
-            };
-    }
-}
-exports.BlueSphereMaterial = BlueSphereMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/sphereShaders/points.Shader.ts":
-/*!************************************************************!*\
-  !*** ./src/scripts/shaders/sphereShaders/points.Shader.ts ***!
-  \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PointsShaderMaterial = void 0;
-const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-const loader = new three_5.TextureLoader();
-let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
-class PointsShaderMaterial extends three_5.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true,
-            this.vertexShader = `
-        uniform sampler2D uNoiseTexture;
-
-        attribute float size;
-        attribute vec3 customColor;
-        attribute vec3 particleColor;
-
-        varying vec3 vColor;
-        varying vec3 vParticleColor;
-
-        uniform float uTime;
-
-        void main() {
-
-            vColor = customColor;
-
-            vec4 txtNoise1 = texture2D( uNoiseTexture, uv + uTime * 0.05 );
-            vec4 txtNoise2 = texture2D( uNoiseTexture, uv + sin( uTime * 0.05 ) );
-
-            vec4 mvPosition = modelViewMatrix * ( vec4( position, 1.0 ) * 1.0 );// + sin( uTime / 10.0 ) / 20.0 + cos( uTime / 10.0 ) / 20.0, 1.0 );
-
-            gl_PointSize = size * ( 700.0 / -mvPosition.z );
-
-            gl_Position = projectionMatrix * mvPosition;
-
-            vParticleColor = particleColor;
-
-        }
-        `,
-            this.fragmentShader = `
-        uniform vec3 uColor;
-        uniform sampler2D uPointTexture;
-        uniform float uTime;
-
-        varying vec3 vColor;
-        varying vec3 vParticleColor;
-
-        void main() {
-
-            gl_FragColor = vec4( vParticleColor + uColor, 0.5 );
-            // gl_FragColor = vec4( color * vec3( abs( sin( uTime ) ) + 0.3 ), 1.0 );
-
-            gl_FragColor = gl_FragColor * texture2D( uPointTexture, gl_PointCoord );
-
-            if ( length( gl_PointCoord - vec2( 0.5, 0.5 ) ) > 0.475 ) discard;
-
-        }
-        `,
-            this.uniforms = {
-                uColor: { value: new three_5.Color(0x5796fa) },
-                uPointTexture: { value: new three_5.TextureLoader().load('resources/textures/point.png') },
-                uTime: { value: 0 },
-                uNoiseTexture: { value: noiseTexture }
-            };
-    }
-    ;
-}
-exports.PointsShaderMaterial = PointsShaderMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/sphereShaders/redSphere.Shader.ts":
-/*!***************************************************************!*\
-  !*** ./src/scripts/shaders/sphereShaders/redSphere.Shader.ts ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RedSphereMaterial = void 0;
-const three_2 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-const loader = new three_2.TextureLoader();
-let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
-class RedSphereMaterial extends three_2.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true;
-        this.vertexShader = `
-        uniform sampler2D uNoiseTexture;
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vFe;
-
-        void main() {
-
-            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-            vec3 fE = ( mvPosition * modelMatrix * vec4( position, 1.0 ) ).xyz;
-
-            // gl_Position = vec4( position, 1.0 );
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-
-            vUv = uv;
-            vNormal = normal;
-            vFe = fE;
-
-        }
-        `,
-            this.fragmentShader = `
-
-        uniform float uTime;
-        uniform vec3 uColorRed;
-        uniform vec3 uColorDarkRed;
-        uniform vec3 uDirection;
-        uniform vec3 uLightColor;
-        uniform sampler2D uNoiseTexture;
-
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vFe;
-
-        void main() {
-
-            // Diffuse
-            vec3 norm = normalize( vNormal );
-            float diff = max( dot( norm, uDirection ), 0.0 );
-            vec3 diffuse = uLightColor * diff;
-
-            // Specular light
-            float shininess = 100.0;
-            vec3 H = normalize( uDirection + vFe );
-            float specular_intensity = pow( max( dot( norm, uDirection + vFe ), 0.0 ), shininess );
-            vec4 specular_color = vec4( uLightColor, 1.0 );
-            specular_color = specular_intensity * specular_color;
-
-            vec4 txtNoise1 = texture2D( uNoiseTexture, vec2( vUv.x + sin( uTime * 0.3 ) * 0.05 + cos( uTime * 0.3 ) * 0.05, vUv.y - sin( uTime * 0.34 ) * 0.05 + cos( uTime * 0.3 ) * 0.05 ) );
-            vec4 txtNoise2 = texture2D( uNoiseTexture, vec2( vUv.x - sin( uTime * 0.07 ) * 0.05 + cos( uTime * 0.07 ) * 0.05, vUv.y + sin( uTime * 0.077 ) * 0.05 + cos( uTime * 0.07 ) * 0.05 + 0.2 ) );
-
-            gl_FragColor = ( txtNoise1 * 0.7 + txtNoise2 * 0.7 );// + specular_color * 100.4;
-
-            // gl_FragColor.rgb = uColorRed;
-            // gl_FragColor.rgb += diffuse * 0.6;
-
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uColorDarkRed, txtNoise2.rgb * 10.0 );
-            gl_FragColor.rgb = mix( gl_FragColor.rgb, uColorRed, txtNoise1.rgb * 1.0 );
-
-            gl_FragColor.rgb = mix(  gl_FragColor.rgb, uLightColor, txtNoise1.rgb ) * 0.9;
-
-        }
-        `,
-            this.uniforms = {
-                uTime: { value: 0.0 },
-                uColorRed: { value: new three_2.Color(0xcc0014) },
-                uColorDarkRed: { value: new three_2.Color(0x731406) },
-                uDirection: { value: new three_2.Vector3(-0.5, 0.2, 1.7) },
-                uLightColor: { value: new three_2.Color(0xf7e00a) },
-                uNoiseTexture: { value: noiseTexture }
-            };
-    }
-}
-exports.RedSphereMaterial = RedSphereMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/shaders/Сombustion.Shader.ts":
-/*!**************************************************!*\
-  !*** ./src/scripts/shaders/Сombustion.Shader.ts ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports["СombustionMaterial"] = exports.uNoise = void 0;
-const three_14 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-//
-// perlin noise texture
-exports.uNoise = new three_14.TextureLoader().load('resources/textures/tNoise.png');
-class СombustionMaterial extends three_14.ShaderMaterial {
-    constructor() {
-        super();
-        this.transparent = true;
-        this.vertexShader = `
-        varying vec2 vUv;
-
-        void main() {
-
-            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-
-            vUv = uv;
-
-        }
-        `,
-            this.fragmentShader = `
-        varying vec2 vUv;
-
-        uniform sampler2D uNoise;
-        uniform float uTime;
-        uniform vec3 uColor;
-        uniform sampler2D tDiffuse;
-
-        void main() {
-
-            vec2 newUv = vUv;
-            vec2 displUV = texture2D( uNoise, vUv ).xy + uTime / 5.0;
-            vec4 potatoTexture = texture2D( tDiffuse, vUv );
-
-            //float col = pow( clamp( mix( 0.5, texture2D( uNoise, newUv + displUV ).x, 2.0 ), 0.0, 1.0 ), 20.0 );
-
-            float nn = texture2D( uNoise, newUv / 15.0 + displUV ).r;
-            gl_FragColor.rgb = vec3( max( 1.0, 24.0 * smoothstep( 1.0 - uTime / 0.7, 1.0 - uTime / 1.0, nn ) ) ) * potatoTexture.rgb;
-            gl_FragColor.a = 1.0 - smoothstep( 1.0 - uTime / 0.8, 1.0 - uTime / 1.0, nn );
-
-        }
-        `,
-            this.uniforms = {
-                uTime: { value: 0.0 },
-                uNoise: { value: exports.uNoise },
-                uColor: { value: new three_14.Color(0xff0000) },
-                tDiffuse: { value: null }
-            };
-    }
-}
-exports["СombustionMaterial"] = СombustionMaterial;
-;
-
-
-/***/ }),
-
-/***/ "./src/scripts/MainPage.tsx":
-/*!**********************************!*\
-  !*** ./src/scripts/MainPage.tsx ***!
-  \**********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const FloatingRock_1 = __importDefault(__webpack_require__(/*! ./FloatingRock */ "./src/scripts/FloatingRock.ts"));
-class MainPage {
-    constructor() {
-        this.floatingRock = new FloatingRock_1.default();
-        //
-        this.init = () => {
-            // this.devUI = new Pane();
-            this.floatingRock.init();
-            //
-            // this.dispatch({ type: APP_INITED });
-        };
-    }
-}
-;
-exports["default"] = new MainPage();
 
 
 /***/ }),
@@ -4001,9 +2201,20 @@ const Contact = styled_components_1.default.div `
     opacity: 1;
     color: #aaa;
 `;
+const Disclaimer = styled_components_1.default.div `
+    display: grid;
+    justify-content: center;
+    margin-top: 25px;
+    // font-family: Menlo, monospace;
+    font-family: serif;
+    font-size: 20px;
+    opacity: 1;
+    color: #66b9ba;
+`;
 const FooterComponent = () => {
     return (react_1.default.createElement(FooterBasic, null,
         react_1.default.createElement(Logo, { href: '' }, "Flat earth"),
+        react_1.default.createElement(Disclaimer, null, "Disclaimer: This portfolio is a work in progress. Some sections and features may be updated or refined in future versions."),
         react_1.default.createElement(Contact, null, "Contacts:"),
         react_1.default.createElement(FooterUL, null,
             react_1.default.createElement(FooterItem, null,
@@ -4545,6 +2756,1841 @@ ReactDOM.render(React.createElement(react_redux_1.Provider, { store: store_1.sto
 //
 window.addEventListener('DOMContentLoaded', MainPage_1.default.init);
 window['mainPage'] = MainPage_1.default;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/BottomFoam.Shader.ts":
+/*!**************************************************!*\
+  !*** ./src/scripts/shaders/BottomFoam.Shader.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BottomFoamMaterial = exports.noise = void 0;
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+exports.noise = new three_6.TextureLoader().load('resources/textures/noise.png');
+class BottomFoamMaterial extends three_6.ShaderMaterial {
+    constructor() {
+        super(),
+            this.vertexShader = `
+        varying vec2 vUv;
+
+        attribute float brightness;
+        attribute vec4 transformRow1;
+        attribute vec4 transformRow2;
+        attribute vec4 transformRow3;
+        attribute vec4 transformRow4;
+
+        void main () {
+
+            mat4 transforms = mat4 (
+                transformRow1,
+                transformRow2,
+                transformRow3,
+                transformRow4
+            );
+
+            gl_Position = projectionMatrix * modelViewMatrix  * transforms * vec4( vec3( position.x - 0.01, position.y - 0.37, position.z + 0.44 ), 1.0 );
+
+            vUv = uv;
+
+        }`,
+            this.fragmentShader = `
+        uniform sampler2D uNoise;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+        uniform vec3 uWhiteColor;
+        uniform float uTime;
+
+        varying vec2 vUv;
+
+        vec2 hash( in vec2 x )  // replace this by something better
+        {
+            const vec2 k = vec2( 0.3183099, 0.3678794 );
+            x = x*k + k.yx;
+            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
+        }
+
+
+        // return gradient noise (in x) and its derivatives (in yz)
+        vec3 noised( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+
+        #if 1
+            // quintic interpolation
+            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
+        #else
+            // cubic interpolation
+            vec2 u = f*f*(3.0-2.0*f);
+            vec2 du = 6.0*f*(1.0-f);
+        #endif
+
+            vec2 ga = hash( i + vec2(0.0,0.0) );
+            vec2 gb = hash( i + vec2(1.0,0.0) );
+            vec2 gc = hash( i + vec2(0.0,1.0) );
+            vec2 gd = hash( i + vec2(1.0,1.0) );
+
+            float va = dot( ga, f - vec2(0.0,0.0) );
+            float vb = dot( gb, f - vec2(1.0,0.0) );
+            float vc = dot( gc, f - vec2(0.0,1.0) );
+            float vd = dot( gd, f - vec2(1.0,1.0) );
+
+            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
+                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
+                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
+        }
+
+        void main () {
+
+            vec2 centeredUv = ( vUv - 0.5 ) * 2.0;
+            float distanceToCenter = length( centeredUv );
+
+            vec3 noise = noised( vec2( vUv.x * 10.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 - uTime * 5.0 ) );
+            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
+            col = mix( uColor2, uColor1, noise.x );
+
+            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.15;
+
+            if ( 3.4 * distanceToCenter * abs( centeredUv.y * 1.45 + 0.2 ) > 0.7 + noise.x ) { discard; };
+
+            gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
+            gl_FragColor.a = 1.0;
+
+        }`,
+            this.uniforms = {
+                uNoise: { value: exports.noise },
+                uColor1: { value: new three_6.Color(0x09a0e0) },
+                uColor2: { value: new three_6.Color(0xd7e8fa) },
+                uWhiteColor: { value: new three_6.Color(0xffffff) },
+                uTime: { value: 0 }
+            };
+    }
+}
+exports.BottomFoamMaterial = BottomFoamMaterial;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Fire.Shader.ts":
+/*!********************************************!*\
+  !*** ./src/scripts/shaders/Fire.Shader.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FlameMaterial = exports.noise = void 0;
+const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+exports.noise = new three_3.TextureLoader().load('resources/textures/noise.png');
+class FlameMaterial extends three_3.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+        varying vec2 vUv;
+
+        void main() {
+
+            gl_Position = projectionMatrix * ( modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position, 1.0 ) );
+
+            vUv = uv;
+
+        }
+        `,
+            this.fragmentShader = `
+        uniform sampler2D uNoise;
+        uniform float uTime;
+        uniform vec3 uInnerColor;
+        uniform vec3 uOuterColor;
+
+        varying vec2 vUv;
+
+        vec2 hash( in vec2 x )  // replace this by something better
+        {
+            const vec2 k = vec2( 0.3183099, 0.3678794 );
+            x = x*k + k.yx;
+            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
+        }
+
+
+        // return gradient noise (in x) and its derivatives (in yz)
+        vec3 noised( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+
+        #if 1
+            // quintic interpolation
+            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
+        #else
+            // cubic interpolation
+            vec2 u = f*f*(3.0-2.0*f);
+            vec2 du = 6.0*f*(1.0-f);
+        #endif
+
+            vec2 ga = hash( i + vec2(0.0,0.0) );
+            vec2 gb = hash( i + vec2(1.0,0.0) );
+            vec2 gc = hash( i + vec2(0.0,1.0) );
+            vec2 gd = hash( i + vec2(1.0,1.0) );
+
+            float va = dot( ga, f - vec2(0.0,0.0) );
+            float vb = dot( gb, f - vec2(1.0,0.0) );
+            float vc = dot( gc, f - vec2(0.0,1.0) );
+            float vd = dot( gd, f - vec2(1.0,1.0) );
+
+            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
+                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
+                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
+        }
+
+        void main() {
+
+            float yGradient = clamp( 0.9 - vUv.y, 0.0, 1.0 ) * 1.2;
+
+            vec3 noise = noised( vec2( 9.0 * vUv.x, 6.4 * vUv.y - uTime * 4.0 ) ) * 0.8;
+
+            vec3 col = 0.55 + 0.99 * vec3( noise.x, noise.x, noise.x );
+
+            vec2 centeredUv = vec2( vUv.x - 0.3, vUv.y + 0.1 );
+            float distanceToCenter = length( centeredUv );
+            float strength = step( distance( vec2( vUv.x, vUv.y + 0.1 ), vec2(2.5) ), 0.4 );
+
+            if ( 8.0 * distanceToCenter * max( abs( vUv.x - 0.5 ) * 2.0, 0.1 ) * max( vUv.y, 0.24 ) > 0.5 + ( noise.x / 1.5 + noise.y / 4.0 ) ) { discard; }
+
+            gl_FragColor = vec4( vec3(yGradient) + col + uInnerColor, 1.0 );
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uOuterColor, 0.7 );
+
+        }
+        `,
+            this.uniforms = {
+                uTime: { value: 0 },
+                uNoise: { value: exports.noise },
+                uInnerColor: { value: new three_3.Color(0xfff30f) },
+                uOuterColor: { value: new three_3.Color(0xfc4e03) }
+            };
+    }
+}
+exports.FlameMaterial = FlameMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/FireFog.Shader.ts":
+/*!***********************************************!*\
+  !*** ./src/scripts/shaders/FireFog.Shader.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FireFogMaterial = void 0;
+const three_8 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+// import FogScene from '../index';
+let randomnum = Math.random();
+const textureLoader = new three_8.TextureLoader();
+const fogTexture = textureLoader.load('resources/textures/fog1.png');
+const noise = textureLoader.load('resources/textures/noise.png');
+class FireFogMaterial extends three_8.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+            attribute vec4 transformRow1;
+            attribute vec4 transformRow2;
+            attribute vec4 transformRow3;
+            attribute vec4 transformRow4;
+            attribute float offsetFrame;
+            attribute float size;
+            attribute vec3 velocity;
+            attribute float opacityDecrease;
+
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform float uRandomNum;
+            uniform sampler2D uNoise;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform float uOpacity;
+
+            void main() {
+
+                float numOfFrames = 16.0;
+
+                float currentFrameId = mod( floor( mod( uTime + offsetFrame, numOfFrames * uFrameDuration ) / uFrameDuration ), numOfFrames );
+
+                float nextFrameId;
+                if ( currentFrameId == numOfFrames - 1.0 ) {
+
+                    nextFrameId = 0.0;
+
+                } else {
+
+                    nextFrameId = currentFrameId + 1.0;
+
+                }
+
+                mat4 transforms = mat4(
+                    transformRow1,
+                    transformRow2,
+                    transformRow3,
+                    transformRow4
+                );
+
+                gl_Position = projectionMatrix * ( modelViewMatrix * transforms * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position * size, 1.0 ) );
+
+                vUv = uv;
+                vOffsetFrame = offsetFrame;
+                vNextFrameId = nextFrameId;
+                vCurrentFrameId  = currentFrameId;
+                vOpacityDecrease = opacityDecrease;
+                vOpacity = uOpacity;
+                vPosition = transformRow4.xyz;
+
+            }
+        `;
+        this.depthWrite = false;
+        this.transparent = true;
+        this.blending = three_8.AdditiveBlending;
+        // this.wireframe = true;
+        this.fragmentShader = `
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform sampler2D uPointTexture;
+            uniform float alphaTest;
+            uniform vec3 uColor;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform vec3 uInnerColor;
+
+            void main() {
+
+                gl_FragColor = vec4( uColor, 0.04 );
+
+                //
+
+                vec4 offsets;
+
+                offsets.y = floor( vCurrentFrameId / 4.0 ) * 0.25;
+                offsets.x = mod( vCurrentFrameId, 4.0 ) * 0.25;
+
+                offsets.w = floor( vNextFrameId / 4.0 ) * 0.25;
+                offsets.z = mod( vNextFrameId, 4.0 ) * 0.25;
+
+                //
+
+                vec4 texture1 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.x, vUv.y * 0.25 + offsets.y ) );
+                vec4 texture2 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.z, vUv.y * 0.25 + offsets.w ) );
+
+                float fragmentTime = mod( uTime + vOffsetFrame, uFrameDuration ) / uFrameDuration;
+
+                gl_FragColor = mix( texture1, texture2, fragmentTime );
+                vec3 finalColor = uColor;
+
+                finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
+
+                gl_FragColor *= vec4( finalColor, vOpacityDecrease );
+
+                if ( gl_FragColor.a < alphaTest ) discard;
+
+            }
+        `;
+        this.uniforms = {
+            uRandomNum: { value: randomnum },
+            uPointTexture: { value: fogTexture },
+            uNoise: { value: noise },
+            alphaTest: { value: 0.0001 },
+            uColor: { value: new three_8.Color(0x1A75FF) },
+            uTime: { value: 0.0 },
+            uTimeX: { value: 0.0 },
+            uTimeY: { value: 0.0 },
+            uFrameDuration: { value: 16.0 },
+            uOpacity: { value: 0.9 },
+            uInnerColor: { value: new three_8.Color(0x716222) }
+        };
+    }
+}
+exports.FireFogMaterial = FireFogMaterial;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/FoamParticles.Shader.ts":
+/*!*****************************************************!*\
+  !*** ./src/scripts/shaders/FoamParticles.Shader.ts ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FoamParticle = exports.textureLoader = void 0;
+const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+exports.textureLoader = new three_5.TextureLoader();
+const particleTexture = exports.textureLoader.load('/resources/textures/particle.png');
+class FoamParticle extends three_5.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true;
+        this.vertexShader = `
+        attribute float foamSize;
+
+        uniform float uTime;
+
+        void main () {
+
+            vec4 mvPosition = modelViewMatrix * vec4( vec3( position.x - 0.057 + uTime / 10.0, position.y - 0.05 + uTime / 10.0, position.z + uTime / 10.0 ), 1.0 );
+
+            gl_PointSize = foamSize * 0.0068  * ( 300.0 / -mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }`,
+            this.fragmentShader = `
+        uniform sampler2D uPointTexture;
+        uniform vec3 uColor;
+
+        void main () {
+
+            gl_FragColor = vec4( uColor, 1.0 ) * texture2D( uPointTexture, gl_PointCoord );
+            if ( gl_FragColor.a < 0.3 ) discard;
+
+        }`,
+            this.uniforms = {
+                uPointTexture: { value: particleTexture },
+                uColor: { value: new three_5.Color(0xc5e0fc) },
+                uTime: { value: 0 }
+            };
+    }
+}
+exports.FoamParticle = FoamParticle;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Fog.Shader.ts":
+/*!*******************************************!*\
+  !*** ./src/scripts/shaders/Fog.Shader.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FogMaterial = void 0;
+const three_24 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+// import FogScene from '../index';
+let randomnum = Math.random();
+const textureLoader = new three_24.TextureLoader();
+const fogTexture = textureLoader.load('resources/textures/fog1.png');
+const noise = textureLoader.load('resources/textures/tNoise.png');
+class FogMaterial extends three_24.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+            attribute vec4 transformRow1;
+            attribute vec4 transformRow2;
+            attribute vec4 transformRow3;
+            attribute vec4 transformRow4;
+            attribute float offsetFrame;
+            attribute float size;
+            attribute vec3 velocity;
+            attribute float opacityDecrease;
+
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform float uRandomNum;
+            uniform sampler2D uNoise;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform float uOpacity;
+
+            void main() {
+
+                float numOfFrames = 16.0;
+
+                float currentFrameId = mod( floor( mod( uTime + offsetFrame, numOfFrames * uFrameDuration ) / uFrameDuration ), numOfFrames );
+
+                float nextFrameId;
+                if ( currentFrameId == numOfFrames - 1.0 ) {
+
+                    nextFrameId = 0.0;
+
+                } else {
+
+                    nextFrameId = currentFrameId + 1.0;
+
+                }
+
+                mat4 transforms = mat4(
+                    transformRow1,
+                    transformRow2,
+                    transformRow3,
+                    transformRow4
+                );
+
+                gl_Position = projectionMatrix * ( modelViewMatrix * transforms * vec4(0.0, 0.0, 0.0, 1.0) + vec4( position * size, 1.0 ) );
+
+                vUv = uv;
+                vOffsetFrame = offsetFrame;
+                vNextFrameId = nextFrameId;
+                vCurrentFrameId  = currentFrameId;
+                vOpacityDecrease = opacityDecrease;
+                vOpacity = uOpacity;
+                vPosition = transformRow4.xyz;
+
+            }
+        `;
+        this.depthWrite = false;
+        this.transparent = true;
+        // this.wireframe = true;
+        this.fragmentShader = `
+            varying vec2 vUv;
+            varying float vOffsetFrame;
+            varying float vCurrentFrameId;
+            varying float vNextFrameId;
+            varying float vOpacityDecrease;
+            varying float vOpacity;
+            varying vec3 vPosition;
+
+            uniform sampler2D uPointTexture;
+            uniform float alphaTest;
+            uniform vec3 uColor;
+            uniform float uTime;
+            uniform float uFrameDuration;
+            uniform vec3 uInnerColor;
+
+            void main() {
+
+                gl_FragColor = vec4( uColor, 0.04 );
+
+                //
+
+                vec4 offsets;
+
+                offsets.y = floor( vCurrentFrameId / 4.0 ) * 0.25;
+                offsets.x = mod( vCurrentFrameId, 4.0 ) * 0.25;
+
+                offsets.w = floor( vNextFrameId / 4.0 ) * 0.25;
+                offsets.z = mod( vNextFrameId, 4.0 ) * 0.25;
+
+                //
+
+                vec4 texture1 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.x, vUv.y * 0.25 + offsets.y ) );
+                vec4 texture2 = texture2D( uPointTexture, vec2( vUv.x * 0.25 + offsets.z, vUv.y * 0.25 + offsets.w ) );
+
+                float fragmentTime = mod( uTime + vOffsetFrame, uFrameDuration ) / uFrameDuration;
+
+                gl_FragColor = mix( texture1, texture2, fragmentTime );
+                vec3 finalColor = uColor;
+
+                finalColor = mix( uColor, uInnerColor, step( 0.3, vOpacityDecrease ) * vOpacityDecrease );
+
+                gl_FragColor *= vec4( finalColor, vOpacityDecrease * vOpacity );
+
+                if ( gl_FragColor.a < alphaTest ) discard;
+
+            }
+        `;
+        this.uniforms = {
+            uRandomNum: { value: randomnum },
+            uPointTexture: { value: fogTexture },
+            uNoise: { value: noise },
+            alphaTest: { value: 0.0001 },
+            uColor: { value: new three_24.Color(0x1A75FF) },
+            uTime: { value: 0.0 },
+            uTimeX: { value: 0.0 },
+            uTimeY: { value: 0.0 },
+            uFrameDuration: { value: 16.0 },
+            uOpacity: { value: 0.9 },
+            uInnerColor: { value: new three_24.Color(0xFFCE00) }
+        };
+    }
+}
+exports.FogMaterial = FogMaterial;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/TopFoam.Shader.ts":
+/*!***********************************************!*\
+  !*** ./src/scripts/shaders/TopFoam.Shader.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TopmFoamShader = void 0;
+const three_7 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+class TopmFoamShader extends three_7.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+        varying vec2 vUv;
+
+        attribute float brightness;
+        attribute vec4 transformRow1;
+        attribute vec4 transformRow2;
+        attribute vec4 transformRow3;
+        attribute vec4 transformRow4;
+
+        void main () {
+
+            mat4 transforms = mat4 (
+                transformRow1,
+                transformRow2,
+                transformRow3,
+                transformRow4
+            );
+
+            gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( vec3( position.x + 0.01, position.y - 0.1354, position.z + 0.45 ), 1.0 );
+
+            vUv = uv;
+
+        }`,
+            this.fragmentShader = `
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+        uniform vec3 uWhiteColor;
+        uniform float uTime;
+
+        varying vec2 vUv;
+
+        vec2 hash( in vec2 x )  // replace this by something better
+        {
+            const vec2 k = vec2( 0.3183099, 0.3678794 );
+            x = x*k + k.yx;
+            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
+        }
+
+
+        // return gradient noise (in x) and its derivatives (in yz)
+        vec3 noised( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+
+        #if 1
+            // quintic interpolation
+            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
+        #else
+            // cubic interpolation
+            vec2 u = f*f*(3.0-2.0*f);
+            vec2 du = 6.0*f*(1.0-f);
+        #endif
+
+            vec2 ga = hash( i + vec2(0.0,0.0) );
+            vec2 gb = hash( i + vec2(1.0,0.0) );
+            vec2 gc = hash( i + vec2(0.0,1.0) );
+            vec2 gd = hash( i + vec2(1.0,1.0) );
+
+            float va = dot( ga, f - vec2(0.0,0.0) );
+            float vb = dot( gb, f - vec2(1.0,0.0) );
+            float vc = dot( gc, f - vec2(0.0,1.0) );
+            float vd = dot( gd, f - vec2(1.0,1.0) );
+
+            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
+                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
+                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
+        }
+
+        void main () {
+
+            vec2 centeredUv = ( vec2( ( vUv.x - 0.5 ) * 2.1, vUv.y - 0.5 ) ) * 2.0;
+            float distanceToCenter = length( centeredUv );
+
+            vec3 noise = noised( vec2( vUv.x * 20.0 + sin( uTime * 10.0 ) * 0.35, vUv.y * 8.0 + uTime * 5.0 ) );
+            vec3 noiseBorder = noised( vec2( vUv.x * 10.0 + sin( uTime * 10.0 ) * 0.45, vUv.y * 5.0 + uTime * 10.0 ) );
+            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
+            col = mix( uColor2, uColor1, noise.x );
+
+            float yGradient = clamp( 0.65 - vUv.y, abs( vUv.x - 0.5 ) * 0.4, 1.0 ) * 0.35;
+
+            if ( 2.0 * distanceToCenter * abs( centeredUv.y * 1.45 - 0.7 ) > 0.5 + yGradient + noiseBorder.x ) { discard; };
+
+            gl_FragColor.rgb = mix( col,  uWhiteColor, noise.x * 5.0 ) + vec3( yGradient );
+            gl_FragColor.a = 0.7;
+
+        }`,
+            this.uniforms = {
+                uColor1: { value: new three_7.Color(0x7784b5) },
+                uColor2: { value: new three_7.Color(0xd7e8fa) },
+                uWhiteColor: { value: new three_7.Color(0xffffff) },
+                uTime: { value: 0 }
+            };
+    }
+}
+exports.TopmFoamShader = TopmFoamShader;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Warerfall.Shader.ts":
+/*!*************************************************!*\
+  !*** ./src/scripts/shaders/Warerfall.Shader.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WaterfallMaterial = void 0;
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+class WaterfallMaterial extends three_4.ShaderMaterial {
+    constructor() {
+        super(),
+            this.vertexShader = `
+        varying vec2  vUv;
+        varying float vBrightness;
+
+        attribute float brightness;
+        attribute vec4 transformRow1;
+        attribute vec4 transformRow2;
+        attribute vec4 transformRow3;
+        attribute vec4 transformRow4;
+
+        void main () {
+
+            mat4 transforms = mat4 (
+                transformRow1,
+                transformRow2,
+                transformRow3,
+                transformRow4
+            );
+
+            gl_Position = projectionMatrix * modelViewMatrix * transforms * vec4( position.x + 0.01, position.y - 0.234, position.z + 0.439, 1.0 );
+
+            vUv = uv;
+            vBrightness = brightness;
+
+        }`,
+            this.fragmentShader = `
+        varying vec2 vUv;
+        varying float vBrightness;
+
+        uniform float uTime;
+        uniform vec3 uLightColor;
+        uniform vec3 uDarkColor;
+        uniform vec3 uWhiteColor;
+        uniform vec3 uFoamColor;
+
+        vec2 hash( in vec2 x )  // replace this by something better
+        {
+            const vec2 k = vec2( 0.3183099, 0.3678794 );
+            x = x*k + k.yx;
+            return -1.0 + 2.0*fract( 16.0 * k*fract( x.x*x.y*(x.x+x.y)) );
+        }
+
+
+        // return gradient noise (in x) and its derivatives (in yz)
+        vec3 noised( in vec2 p )
+        {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+
+        #if 1
+            // quintic interpolation
+            vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+            vec2 du = 30.0*f*f*(f*(f-2.0)+1.0);
+        #else
+            // cubic interpolation
+            vec2 u = f*f*(3.0-2.0*f);
+            vec2 du = 6.0*f*(1.0-f);
+        #endif
+
+            vec2 ga = hash( i + vec2(0.0,0.0) );
+            vec2 gb = hash( i + vec2(1.0,0.0) );
+            vec2 gc = hash( i + vec2(0.0,1.0) );
+            vec2 gd = hash( i + vec2(1.0,1.0) );
+
+            float va = dot( ga, f - vec2(0.0,0.0) );
+            float vb = dot( gb, f - vec2(1.0,0.0) );
+            float vc = dot( gc, f - vec2(0.0,1.0) );
+            float vd = dot( gd, f - vec2(1.0,1.0) );
+
+            return vec3( va + u.x*(vb-va) + u.y*(vc-va) + u.x*u.y*(va-vb-vc+vd),   // value
+                        ga + u.x*(gb-ga) + u.y*(gc-ga) + u.x*u.y*(ga-gb-gc+gd) +  // derivatives
+                        du * (u.yx*(va-vb-vc+vd) + vec2(vb,vc) - va));
+        }
+
+        void main () {
+
+            vec3 noise = noised( vec2( vUv.x * 15.0 + sin( uTime * 5.0 ) * 0.15, vUv.y * 5.0 + uTime * 5.0 - 0.2 ) );
+
+            vec2 centeredUv = vec2( ( vUv.x - 0.5 ) * 14.0, ( vUv.y - 4.0 ) * 2.0 );
+            float distanceToCenter = length( centeredUv );
+
+            vec2 centeredUvWhite = vec2( ( vUv.x - 0.5 ) * 10.0, ( vUv.y - 0.8 ) * 2.0 );
+            float distanceToCenterWhite = length( centeredUvWhite );
+
+            vec2 centeredUvFoam = vec2( ( vUv.x - 0.5 ), ( vUv.y - 1.0 ) );
+            float distanceToCenterFoam = length( centeredUvFoam );
+
+            vec3 col = 0.055 + 8.99 * vec3( noise.x, noise.x, noise.x );
+            col = step( 0.1, 0.2 + col );
+            float mix1 = step( 0.1 + ( sin( uTime * vBrightness ) ) * 0.0007, ( distanceToCenterWhite - 0.5 ) * noise.y * 0.09 );
+            vec3 whiteCol = mix( col, uWhiteColor, mix1 );
+
+            //
+
+            gl_FragColor = vec4( col, 1.0 );
+
+            if ( distanceToCenter * abs( ( vUv.x - 0.5 ) * 25.0 ) * abs( ( vUv.y - 1.55 ) * 2.0 ) > 0.5f + abs( ( noise.x + 0.8 ) * 194.7 ) ) { discard; };
+
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uLightColor + abs( sin( uTime * 10.0 ) ) * vUv.y * vBrightness,  0.4 );
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uDarkColor, 0.75 );
+            gl_FragColor.rgb += mix( uDarkColor, whiteCol, mix1 );
+
+        }`,
+            this.uniforms = {
+                uTime: { value: 0 },
+                uLightColor: { value: new three_4.Color(0xc0fafa) },
+                uDarkColor: { value: new three_4.Color(0x3250a8) },
+                uWhiteColor: { value: new three_4.Color(0xffffff) },
+                uFoamColor: { value: new three_4.Color(0xf5f6ff) },
+                uRandom: { value: Math.random() }
+            };
+    }
+}
+exports.WaterfallMaterial = WaterfallMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Water.Shader.ts":
+/*!*********************************************!*\
+  !*** ./src/scripts/shaders/Water.Shader.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WaterMaterial = void 0;
+const three_15 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+class WaterMaterial extends three_15.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+        #include <packing>
+
+        varying vec2 vUv;
+        varying vec4 vPos;
+        varying vec3 vPosFoam;
+
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+        }
+
+        void main() {
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+            vPos = gl_Position.xyzw;
+
+            vUv = uv;
+
+            vPosFoam = position;
+
+        }
+
+        `,
+            this.transparent = true;
+        this.fragmentShader = `
+        #include <packing>
+        #define PI 3.1415926538;
+
+        varying vec2 vUv;
+        varying float vDepth;
+        varying vec4 vPos;
+        varying vec3 vPosFoam;
+
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+        uniform vec3 uColor;
+        uniform vec3 uFoamColor1;
+        uniform vec3 uFoamColor2;
+        uniform vec3 uFoamColor3;
+        uniform float uTime;
+
+        //	Classic Perlin 2D Noise
+        //	by Stefan Gustavson
+        //
+        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+        vec2 fade(vec2 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
+
+        float getPerlinNoise2d(vec2 P)
+        {
+            vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
+            vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
+            Pi = mod(Pi, 289.0); // To avoid truncation effects in permutation
+            vec4 ix = Pi.xzxz;
+            vec4 iy = Pi.yyww;
+            vec4 fx = Pf.xzxz;
+            vec4 fy = Pf.yyww;
+            vec4 i = permute(permute(ix) + iy);
+            vec4 gx = 2.0 * fract(i * 0.0243902439) - 1.0; // 1/41 = 0.024...
+            vec4 gy = abs(gx) - 0.5;
+            vec4 tx = floor(gx + 0.5);
+            gx = gx - tx;
+            vec2 g00 = vec2(gx.x,gy.x);
+            vec2 g10 = vec2(gx.y,gy.y);
+            vec2 g01 = vec2(gx.z,gy.z);
+            vec2 g11 = vec2(gx.w,gy.w);
+            vec4 norm = 1.79284291400159 - 0.85373472095314 *
+            vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11));
+            g00 *= norm.x;
+            g01 *= norm.y;
+            g10 *= norm.z;
+            g11 *= norm.w;
+            float n00 = dot(g00, vec2(fx.x, fy.x));
+            float n10 = dot(g10, vec2(fx.y, fy.y));
+            float n01 = dot(g01, vec2(fx.z, fy.z));
+            float n11 = dot(g11, vec2(fx.w, fy.w));
+            vec2 fade_xy = fade(Pf.xy);
+            vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
+            float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
+            return 2.3 * n_xy;
+        }
+
+        float convertDepth ( float depth ) {
+
+            float viewZ = perspectiveDepthToViewZ( depth, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+
+        }
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            return convertDepth( fragCoordZ );
+
+        }
+
+        void main() {
+
+            vec2 centeredUv = vUv - 0.5;
+            float distanceToCenter = length( centeredUv );
+
+            //
+
+            vec2 vViewportCoord = vPos.xy;
+            vViewportCoord /= vPos.w;
+            vViewportCoord = vViewportCoord * 0.5 + 0.5;
+
+            float depth = readDepth( tDepth, vViewportCoord );
+
+            float waterDepth = ( depth - convertDepth( gl_FragCoord.z ) );
+
+            float perlinNoise = getPerlinNoise2d( centeredUv * 203.0 + uTime / 20.0 );
+            vec3 color = uColor;
+            float foamDiff = min( ( waterDepth * 700.0 ) / ( uTime ) / 0.55, 1.0 );
+
+            float foam = 1.0 - step( foamDiff - clamp( sin( ( foamDiff + sin( uTime / 30.0 ) ) * 9.0 * 3.1415 ), 0.0, 1.0 ) * ( 1.0 - foamDiff ), perlinNoise );
+            color = mix( uFoamColor2, uColor, foamDiff );
+
+            gl_FragColor.rgb = vec3( color );
+            gl_FragColor.a = mix( foam, 0.8, foamDiff + 1.5 );
+
+        }
+        `;
+        this.uniforms = {
+            cameraNear: { value: 0 },
+            cameraFar: { value: 0 },
+            tDiffuse: { value: null },
+            tDepth: { value: null },
+            uColor: { value: new three_15.Color(0x8eb4e6) },
+            uFoamColor1: { value: new three_15.Color(0xc2e3ff) },
+            uFoamColor2: { value: new three_15.Color(0xe6f6ff) },
+            uFoamColor3: { value: new three_15.Color(0x000001) },
+            uTime: { value: 0 }
+        };
+    }
+}
+exports.WaterMaterial = WaterMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/faceShaders/Face.Sader.ts":
+/*!*******************************************************!*\
+  !*** ./src/scripts/shaders/faceShaders/Face.Sader.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FaceSheder = void 0;
+const three_23 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+class FaceSheder extends three_23.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true;
+        this.vertexShader = `
+        #include <packing>
+
+        varying vec2 vUv;
+        varying vec2 vUvLines;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+        uniform float uTime;
+        uniform float uNoiseTime;
+
+        attribute float lineY;
+
+        //	Classic Perlin 3D Noise
+        //	by Stefan Gustavson
+        //
+        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+        vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+        vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
+
+        float getPerlinNoise3d( vec3 P ) {
+
+            vec3 Pi0 = floor(P); // Integer part for indexing
+            vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
+            Pi0 = mod(Pi0, 289.0);
+            Pi1 = mod(Pi1, 289.0);
+            vec3 Pf0 = fract(P); // Fractional part for interpolation
+            vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+            vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+            vec4 iy = vec4(Pi0.yy, Pi1.yy);
+            vec4 iz0 = Pi0.zzzz;
+            vec4 iz1 = Pi1.zzzz;
+
+            vec4 ixy = permute(permute(ix) + iy);
+            vec4 ixy0 = permute(ixy + iz0);
+            vec4 ixy1 = permute(ixy + iz1);
+
+            vec4 gx0 = ixy0 / 7.0;
+            vec4 gy0 = fract(floor(gx0) / 7.0) - 0.5;
+            gx0 = fract(gx0);
+            vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+            vec4 sz0 = step(gz0, vec4(0.0));
+            gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+            gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+            vec4 gx1 = ixy1 / 7.0;
+            vec4 gy1 = fract(floor(gx1) / 7.0) - 0.5;
+            gx1 = fract(gx1);
+            vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+            vec4 sz1 = step(gz1, vec4(0.0));
+            gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+            gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+            vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+            vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+            vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+            vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+            vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+            vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+            vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+            vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+            vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+            g000 *= norm0.x;
+            g010 *= norm0.y;
+            g100 *= norm0.z;
+            g110 *= norm0.w;
+            vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+            g001 *= norm1.x;
+            g011 *= norm1.y;
+            g101 *= norm1.z;
+            g111 *= norm1.w;
+
+            float n000 = dot(g000, Pf0);
+            float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+            float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+            float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+            float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+            float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+            float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+            float n111 = dot(g111, Pf1);
+
+            vec3 fade_xyz = fade(Pf0);
+            vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+            vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
+            return 2.2 * n_xyz;
+
+        }
+        //
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+        }
+
+        void main () {
+
+            float noise = getPerlinNoise3d( vec3(  vec2( uv.x, lineY ) * 70.0, uNoiseTime / 1.0 ) ) / 2.0;
+            float depth = readDepth( tDepth, vec2( uv.x, lineY ) ) * 10.0;
+            vec3 pos = position;
+            pos.z += ( 1.0 - depth ); //- uTime;
+            pos.y += noise * 0.01;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
+
+            vUv = uv;
+            vUvLines = vec2( uv.x, lineY );
+            vNormal = normal;
+            vPosition = pos;
+
+        }
+        `,
+            this.fragmentShader = `
+        #include <packing>
+
+        varying vec2 vUv;
+        varying vec2 vUvLines;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+
+        uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+        uniform float uTime;
+        uniform vec3 uDirection;
+        uniform vec3 uLightColor;
+        uniform vec3 uColor;
+        uniform vec3 uColor2;
+        uniform vec3 uColor3;
+
+        float readDepth( sampler2D depthSampler, vec2 coord ) {
+            float fragCoordZ = texture2D( depthSampler, coord ).x;
+            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+        }
+
+        void main() {
+
+            // Diffuse
+            vec3 norm = normalize( vNormal );
+            float diff = max( dot( norm, uDirection ), 0.0 );
+            vec3 diffuse = uLightColor * diff;
+
+            //vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
+            float depth = readDepth( tDepth, vUvLines ) * 2.6;
+
+            // vec3 color = mix( uColor, uLightColor, 0.1 );
+            // vec3 color = step( uColor, vec3( vUvLines, 1.0 ) );
+            // vec3 color = step( depth, uColor2 );
+            // color += step( depth * 1.2, uColor );
+            gl_FragColor.rgb = mix( ( 1.0 - vec3( depth ) + uColor2 ), ( 1.0 - vec3( depth ) + uColor ), depth * 0.6 );  // working
+            // gl_FragColor.rgb = mix( gl_FragColor.rgb, uColor3, 0.7 );
+            // gl_FragColor.rgb = ( 1.0 - vec3( depth ) + color ); //* vec3(diffuse);
+            gl_FragColor.a = step( depth, 1.0 );
+
+        }
+        `,
+            this.uniforms = {
+                cameraNear: { value: 0 },
+                cameraFar: { value: 0 },
+                tDiffuse: { value: null },
+                tDepth: { value: null },
+                uTime: { value: 0 },
+                uColor: { value: new three_23.Color(0x00106b) },
+                uNoiseTime: { value: 0 },
+                uDirection: { value: new three_23.Vector3(1.0, 0.2, 0.4) },
+                uLightColor: { value: new three_23.Color(0xf7f9fc) },
+                uColor2: { value: new three_23.Color(0x260007) },
+                uColor3: { value: new three_23.Color(0x230040) }
+            };
+    }
+    ;
+}
+exports.FaceSheder = FaceSheder;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/faceShaders/Particles.Shader.ts":
+/*!*************************************************************!*\
+  !*** ./src/scripts/shaders/faceShaders/Particles.Shader.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ParticleShader = void 0;
+const three_22 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+let loader = new three_22.TextureLoader();
+let particleTexture = loader.load('resources/textures/particle2.png');
+class ParticleShader extends three_22.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true,
+            this.vertexShader = `
+        attribute float size;
+        attribute vec3 customColor;
+        attribute vec3 particleColor;
+        attribute float blinkStart;
+
+        varying vec3 vColor;
+        varying vec3 vParticleColor;
+        varying float vBlinkStart;
+
+        uniform float uTime;
+
+        void main() {
+
+            vColor = customColor;
+
+            vec4 mvPosition = modelViewMatrix * vec4( position + sin( uTime / 10.0 ) / 20.0 + cos( uTime / 10.0 ) / 20.0, 1.0 );
+
+            gl_PointSize = size * ( 300.0 / -mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+            vParticleColor = particleColor;
+            vBlinkStart = blinkStart;
+
+        }
+        `,
+            this.fragmentShader = `
+        uniform vec3 uColor;
+        uniform sampler2D uPointTexture;
+        uniform float uTime;
+
+        varying vec3 vColor;
+        varying vec3 vParticleColor;
+        varying float vBlinkStart;
+
+        void main() {
+
+            gl_FragColor = vec4( vParticleColor + uColor * vec3( 0.0, 0.0, abs( sin( uTime / 2.0 + vBlinkStart ) ) ), 0.45 );
+            // gl_FragColor = vec4( color * vec3( abs( sin( uTime ) ) + 0.3 ), 1.0 );
+
+            gl_FragColor = gl_FragColor * texture2D( uPointTexture, gl_PointCoord );
+            // gl_FragColor.a = 0.25;
+
+        }
+        `,
+            this.uniforms = {
+                uColor: { value: new three_22.Color(0x5796fa) },
+                uPointTexture: { value: particleTexture },
+                uTime: { value: 0 }
+            };
+    }
+}
+exports.ParticleShader = ParticleShader;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/sphereShaders/backgroundL.Shader.ts":
+/*!*****************************************************************!*\
+  !*** ./src/scripts/shaders/sphereShaders/backgroundL.Shader.ts ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BackgroundLShaderMaterial = void 0;
+const three_4 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+const loader = new three_4.TextureLoader();
+class BackgroundLShaderMaterial extends three_4.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true,
+            this.vertexShader = `
+        varying vec2 vUv;
+
+        void main() {
+
+            vec3 newPosition = position;
+            newPosition.z -= 1.0;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
+            vUv = uv;
+
+        }
+        `;
+        this.fragmentShader = `
+        varying vec2 vUv;
+
+        uniform sampler2D uTexture;
+        uniform float uTime;
+        uniform vec3 uBlueColor;
+        uniform vec3 uBlackColor;
+
+        void main() {
+
+            vec4 txtNoise1 = texture2D( uTexture, vec2( vUv.x * 1.5 * sin( uTime * 0.05 ), vUv.y + sin( uTime * 0.05 ) * 0.1 ) ) * 0.3;
+            vec4 txtNoise2 = texture2D( uTexture, vec2( vUv.x * 1.5, vUv.y - sin( uTime * 0.05 + 3.14 / 2.0 ) * 0.2 ) ) * 0.3;
+
+            gl_FragColor = vec4( vec3( vUv * 1.0, 0.2 ), 1.0 ) + txtNoise1 + txtNoise2;
+
+            // gl_FragColor.rgb = mix( uBlueColor, gl_FragColor.rgb, ( txtNoise1.rgb +  txtNoise2.rgb ) * 0.5 );
+            gl_FragColor.rgb = mix( uBlueColor, uBlackColor, ( txtNoise1.rgb +  txtNoise2.rgb ) * 2.0 );
+
+        }
+        `;
+        this.uniforms = {
+            uTexture: { value: loader.load('/resources/textures/perlinNoise.png') },
+            uTime: { value: 0 },
+            uBlueColor: { value: new three_4.Color(0x2936a6) },
+            uBlackColor: { value: new three_4.Color(0x000000) }
+        };
+    }
+    ;
+}
+exports.BackgroundLShaderMaterial = BackgroundLShaderMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/sphereShaders/backgroundR.Shader.ts":
+/*!*****************************************************************!*\
+  !*** ./src/scripts/shaders/sphereShaders/backgroundR.Shader.ts ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BackgroundRShaderMaterial = void 0;
+const three_7 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+const loader = new three_7.TextureLoader();
+class BackgroundRShaderMaterial extends three_7.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true,
+            this.vertexShader = `
+        varying vec2 vUv;
+
+        void main() {
+
+            vec3 newPosition = position;
+            newPosition.z -= 1.0;
+            newPosition.x += 2.0;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
+            vUv = uv;
+
+        }
+        `;
+        this.fragmentShader = `
+        varying vec2 vUv;
+
+        uniform sampler2D uTexture;
+        uniform float uTime;
+        uniform vec3 uRedColor;
+        uniform vec3 uBlackColor;
+
+        void main() {
+
+            vec4 txtNoise1 = texture2D( uTexture, vec2( vUv.x * 1.5 * sin( uTime * 0.05 ), vUv.y + sin( uTime * 0.05 ) * 0.1 ) ) * 0.3;
+            vec4 txtNoise2 = texture2D( uTexture, vec2( vUv.x * 1.5, vUv.y - sin( uTime * 0.05 + 3.14 / 2.0 ) * 0.2 ) ) * 0.3;
+
+            // txtNoise1 = step( txtNoise1, vec4( 0.1 ) );
+            // txtNoise2 = step( txtNoise2, vec4( 0.1 ) );
+
+            gl_FragColor = vec4( vec3( vUv * 1.0, 0.2 ), 1.0 ) + txtNoise1 + txtNoise2;
+
+            // gl_FragColor.rgb = mix( uRedColor, gl_FragColor.rgb, ( txtNoise1.rgb +  txtNoise2.rgb ) * 0.5 );
+            gl_FragColor.rgb = mix( uRedColor, uBlackColor, ( txtNoise1.rgb +  txtNoise2.rgb + vec3( vUv, 0.0 ) * 0.0 ) * 2.0 );
+
+        }
+        `;
+        this.uniforms = {
+            uTexture: { value: loader.load('/resources/textures/perlinNoise.png') },
+            uTime: { value: 0 },
+            uRedColor: { value: new three_7.Color(0xff0019) },
+            uBlackColor: { value: new three_7.Color(0x000000) }
+        };
+    }
+    ;
+}
+exports.BackgroundRShaderMaterial = BackgroundRShaderMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/sphereShaders/blueSphere.Shader.ts":
+/*!****************************************************************!*\
+  !*** ./src/scripts/shaders/sphereShaders/blueSphere.Shader.ts ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BlueSphereMaterial = void 0;
+const three_5 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+const loader = new three_5.TextureLoader();
+let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
+class BlueSphereMaterial extends three_5.ShaderMaterial {
+    constructor() {
+        super();
+        this.vertexShader = `
+        uniform sampler2D uNoiseTexture;
+        uniform float uTime;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vFe;
+        varying float vDistortion;
+
+        //
+        vec3 mod289(vec3 x)
+        {
+            return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec4 mod289(vec4 x)
+        {
+            return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec4 permute(vec4 x)
+        {
+            return mod289(((x*34.0)+1.0)*x);
+        }
+
+        vec4 taylorInvSqrt(vec4 r)
+        {
+            return 1.79284291400159 - 0.85373472095314 * r;
+        }
+
+        vec3 fade(vec3 t) {
+            return t*t*t*(t*(t*6.0-15.0)+10.0);
+        }
+
+        // Classic Perlin noise, periodic variant
+        float pnoise(vec3 P, vec3 rep)
+        {
+            vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
+            vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
+            Pi0 = mod289(Pi0);
+            Pi1 = mod289(Pi1);
+            vec3 Pf0 = fract(P); // Fractional part for interpolation
+            vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+            vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+            vec4 iy = vec4(Pi0.yy, Pi1.yy);
+            vec4 iz0 = Pi0.zzzz;
+            vec4 iz1 = Pi1.zzzz;
+
+            vec4 ixy = permute(permute(ix) + iy);
+            vec4 ixy0 = permute(ixy + iz0);
+            vec4 ixy1 = permute(ixy + iz1);
+
+            vec4 gx0 = ixy0 * (1.0 / 7.0);
+            vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+            gx0 = fract(gx0);
+            vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+            vec4 sz0 = step(gz0, vec4(0.0));
+            gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+            gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+            vec4 gx1 = ixy1 * (1.0 / 7.0);
+            vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+            gx1 = fract(gx1);
+            vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+            vec4 sz1 = step(gz1, vec4(0.0));
+            gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+            gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+            vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+            vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+            vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+            vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+            vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+            vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+            vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+            vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+            vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+            g000 *= norm0.x;
+            g010 *= norm0.y;
+            g100 *= norm0.z;
+            g110 *= norm0.w;
+            vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+            g001 *= norm1.x;
+            g011 *= norm1.y;
+            g101 *= norm1.z;
+            g111 *= norm1.w;
+
+            float n000 = dot(g000, Pf0);
+            float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+            float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+            float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+            float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+            float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+            float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+            float n111 = dot(g111, Pf1);
+
+            vec3 fade_xyz = fade(Pf0);
+            vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+            vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
+            return 2.2 * n_xyz;
+        }
+        //
+
+        void main() {
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            vec3 fE = ( mvPosition * modelMatrix * vec4( position, 1.0 ) ).xyz;
+
+            float distortion = pnoise( ( normal * 1.98 + uTime * 0.05 ) * 1.0, vec3( 100.0 ) ) * 0.3;
+
+            vec3 newPosition = position + ( normal * distortion );
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
+            vUv = uv;
+            vNormal = normal;
+            vFe = fE;
+            vDistortion = distortion;
+
+        }
+        `,
+            this.fragmentShader = `
+
+        uniform float uTime;
+        uniform vec3 uColorRed;
+        uniform vec3 uColorDarkRed;
+        uniform vec3 uDirection;
+        uniform vec3 uLightColor;
+        uniform sampler2D uNoiseTexture;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vFe;
+        varying float vDistortion;
+
+        void main() {
+
+            // Diffuse
+            vec3 norm = normalize( vNormal );
+            float diff = max( dot( norm, uDirection ), 0.0 );
+            vec3 diffuse = uLightColor * diff;
+
+            // Specular light
+            float shininess = 3.0;
+            vec3 H = normalize( uDirection + vFe );
+            float specular_intensity = pow( max( dot( norm, uDirection + vFe ), 0.0 ), shininess );
+            vec4 specular_color = vec4( uLightColor, 1.0 );
+            specular_color = specular_intensity * specular_color;
+
+            vec4 txtNoise1 = texture2D( uNoiseTexture, vec2( vUv.x + sin( uTime * 0.3 ) * 0.05 + cos( uTime * 0.3 ) * 0.05, vUv.y - sin( uTime * 0.34 ) * 0.05 + cos( uTime * 0.3 ) * 0.05 ) );
+            vec4 txtNoise2 = texture2D( uNoiseTexture, vec2( vUv.x - sin( uTime * 0.07 ) * 0.05 + cos( uTime * 0.07 ) * 0.05, vUv.y + sin( uTime * 0.077 ) * 0.05 + cos( uTime * 0.07 ) * 0.05 + 0.2 ) );
+
+            // gl_FragColor = vec4( txtNoise1 * 0.7 + txtNoise2 * 0.7 );
+            gl_FragColor = vec4( vec3( - vDistortion * 10.0 ), 1.0 );
+
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uColorDarkRed, txtNoise2.rgb * 7.0 );
+            gl_FragColor.rgb = mix( uColorRed, gl_FragColor.rgb, txtNoise1.rgb * 1.0 );
+
+            // gl_FragColor.a = ( txtNoise1.r + txtNoise2.r ) * 0.5;
+            // gl_FragColor.a = smoothstep( 0.4, 1.0, txtNoise1.r ) * 2.1;
+
+            gl_FragColor.rgb = mix(  gl_FragColor.rgb, uLightColor, txtNoise1.rgb ) * 0.9;
+
+        }
+        `,
+            this.uniforms = {
+                uTime: { value: 0.0 },
+                uColorRed: { value: new three_5.Color(0x0a30ad) },
+                uColorDarkRed: { value: new three_5.Color(0x0a1363) },
+                uDirection: { value: new three_5.Vector3(-0.1, -0.10, -0.2) },
+                uLightColor: { value: new three_5.Color(0xcfdfe8) },
+                uNoiseTexture: { value: noiseTexture }
+            };
+    }
+}
+exports.BlueSphereMaterial = BlueSphereMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/sphereShaders/points.Shader.ts":
+/*!************************************************************!*\
+  !*** ./src/scripts/shaders/sphereShaders/points.Shader.ts ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PointsShaderMaterial = void 0;
+const three_6 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+const loader = new three_6.TextureLoader();
+let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
+class PointsShaderMaterial extends three_6.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true,
+            this.vertexShader = `
+        uniform sampler2D uNoiseTexture;
+
+        attribute float size;
+        attribute vec3 customColor;
+        attribute vec3 particleColor;
+
+        varying vec3 vColor;
+        varying vec3 vParticleColor;
+
+        uniform float uTime;
+
+        void main() {
+
+            vColor = customColor;
+
+            vec4 txtNoise1 = texture2D( uNoiseTexture, uv + uTime * 0.05 );
+            vec4 txtNoise2 = texture2D( uNoiseTexture, uv + sin( uTime * 0.05 ) );
+
+            vec4 mvPosition = modelViewMatrix * ( vec4( position, 1.0 ) * 1.0 );// + sin( uTime / 10.0 ) / 20.0 + cos( uTime / 10.0 ) / 20.0, 1.0 );
+
+            gl_PointSize = size * ( 700.0 / -mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+            vParticleColor = particleColor;
+
+        }
+        `,
+            this.fragmentShader = `
+        uniform vec3 uColor;
+        uniform sampler2D uPointTexture;
+        uniform float uTime;
+
+        varying vec3 vColor;
+        varying vec3 vParticleColor;
+
+        void main() {
+
+            gl_FragColor = vec4( vParticleColor + uColor, 0.5 );
+            // gl_FragColor = vec4( color * vec3( abs( sin( uTime ) ) + 0.3 ), 1.0 );
+
+            gl_FragColor = gl_FragColor * texture2D( uPointTexture, gl_PointCoord );
+
+            if ( length( gl_PointCoord - vec2( 0.5, 0.5 ) ) > 0.475 ) discard;
+
+        }
+        `,
+            this.uniforms = {
+                uColor: { value: new three_6.Color(0x5796fa) },
+                uPointTexture: { value: new three_6.TextureLoader().load('resources/textures/point.png') },
+                uTime: { value: 0 },
+                uNoiseTexture: { value: noiseTexture }
+            };
+    }
+    ;
+}
+exports.PointsShaderMaterial = PointsShaderMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/sphereShaders/redSphere.Shader.ts":
+/*!***************************************************************!*\
+  !*** ./src/scripts/shaders/sphereShaders/redSphere.Shader.ts ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RedSphereMaterial = void 0;
+const three_3 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+const loader = new three_3.TextureLoader();
+let noiseTexture = loader.load('/resources/textures/perlinNoise.png');
+class RedSphereMaterial extends three_3.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true;
+        this.vertexShader = `
+        uniform sampler2D uNoiseTexture;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vFe;
+
+        void main() {
+
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            vec3 fE = ( mvPosition * modelMatrix * vec4( position, 1.0 ) ).xyz;
+
+            // gl_Position = vec4( position, 1.0 );
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+            vUv = uv;
+            vNormal = normal;
+            vFe = fE;
+
+        }
+        `,
+            this.fragmentShader = `
+
+        uniform float uTime;
+        uniform vec3 uColorRed;
+        uniform vec3 uColorDarkRed;
+        uniform vec3 uDirection;
+        uniform vec3 uLightColor;
+        uniform sampler2D uNoiseTexture;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vFe;
+
+        void main() {
+
+            // Diffuse
+            vec3 norm = normalize( vNormal );
+            float diff = max( dot( norm, uDirection ), 0.0 );
+            vec3 diffuse = uLightColor * diff;
+
+            // Specular light
+            float shininess = 100.0;
+            vec3 H = normalize( uDirection + vFe );
+            float specular_intensity = pow( max( dot( norm, uDirection + vFe ), 0.0 ), shininess );
+            vec4 specular_color = vec4( uLightColor, 1.0 );
+            specular_color = specular_intensity * specular_color;
+
+            vec4 txtNoise1 = texture2D( uNoiseTexture, vec2( vUv.x + sin( uTime * 0.3 ) * 0.05 + cos( uTime * 0.3 ) * 0.05, vUv.y - sin( uTime * 0.34 ) * 0.05 + cos( uTime * 0.3 ) * 0.05 ) );
+            vec4 txtNoise2 = texture2D( uNoiseTexture, vec2( vUv.x - sin( uTime * 0.07 ) * 0.05 + cos( uTime * 0.07 ) * 0.05, vUv.y + sin( uTime * 0.077 ) * 0.05 + cos( uTime * 0.07 ) * 0.05 + 0.2 ) );
+
+            gl_FragColor = ( txtNoise1 * 0.7 + txtNoise2 * 0.7 );// + specular_color * 100.4;
+
+            // gl_FragColor.rgb = uColorRed;
+            // gl_FragColor.rgb += diffuse * 0.6;
+
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uColorDarkRed, txtNoise2.rgb * 10.0 );
+            gl_FragColor.rgb = mix( gl_FragColor.rgb, uColorRed, txtNoise1.rgb * 1.0 );
+
+            gl_FragColor.rgb = mix(  gl_FragColor.rgb, uLightColor, txtNoise1.rgb ) * 0.9;
+
+        }
+        `,
+            this.uniforms = {
+                uTime: { value: 0.0 },
+                uColorRed: { value: new three_3.Color(0xcc0014) },
+                uColorDarkRed: { value: new three_3.Color(0x731406) },
+                uDirection: { value: new three_3.Vector3(-0.5, 0.2, 1.7) },
+                uLightColor: { value: new three_3.Color(0xf7e00a) },
+                uNoiseTexture: { value: noiseTexture }
+            };
+    }
+}
+exports.RedSphereMaterial = RedSphereMaterial;
+;
+
+
+/***/ }),
+
+/***/ "./src/scripts/shaders/Сombustion.Shader.ts":
+/*!**************************************************!*\
+  !*** ./src/scripts/shaders/Сombustion.Shader.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["СombustionMaterial"] = exports.uNoise = void 0;
+const three_16 = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+//
+// perlin noise texture
+exports.uNoise = new three_16.TextureLoader().load('resources/textures/tNoise.png');
+class СombustionMaterial extends three_16.ShaderMaterial {
+    constructor() {
+        super();
+        this.transparent = true;
+        this.vertexShader = `
+        varying vec2 vUv;
+
+        void main() {
+
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+
+            vUv = uv;
+
+        }
+        `,
+            this.fragmentShader = `
+        varying vec2 vUv;
+
+        uniform sampler2D uNoise;
+        uniform float uTime;
+        uniform vec3 uColor;
+        uniform sampler2D tDiffuse;
+
+        void main() {
+
+            vec2 newUv = vUv;
+            vec2 displUV = texture2D( uNoise, vUv ).xy + uTime / 5.0;
+            vec4 potatoTexture = texture2D( tDiffuse, vUv );
+
+            //float col = pow( clamp( mix( 0.5, texture2D( uNoise, newUv + displUV ).x, 2.0 ), 0.0, 1.0 ), 20.0 );
+
+            float nn = texture2D( uNoise, newUv / 15.0 + displUV ).r;
+            gl_FragColor.rgb = vec3( max( 1.0, 24.0 * smoothstep( 1.0 - uTime / 0.7, 1.0 - uTime / 1.0, nn ) ) ) * potatoTexture.rgb;
+            gl_FragColor.a = 1.0 - smoothstep( 1.0 - uTime / 0.8, 1.0 - uTime / 1.0, nn );
+
+        }
+        `,
+            this.uniforms = {
+                uTime: { value: 0.0 },
+                uNoise: { value: exports.uNoise },
+                uColor: { value: new three_16.Color(0xff0000) },
+                tDiffuse: { value: null }
+            };
+    }
+}
+exports["СombustionMaterial"] = СombustionMaterial;
+;
 
 
 /***/ }),

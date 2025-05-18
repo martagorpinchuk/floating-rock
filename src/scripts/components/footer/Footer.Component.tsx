@@ -77,11 +77,23 @@ const Contact = styled.div`
     color: #aaa;
 `;
 
+const Disclaimer = styled.div`
+    display: grid;
+    justify-content: center;
+    margin-top: 25px;
+    // font-family: Menlo, monospace;
+    font-family: serif;
+    font-size: 20px;
+    opacity: 1;
+    color: #66b9ba;
+`;
+
 export const FooterComponent = () => {
 
     return(
         <FooterBasic>
             <Logo href=''>Flat earth</Logo>
+            <Disclaimer>Disclaimer: This portfolio is a work in progress. Some sections and features may be updated or refined in future versions.</Disclaimer>
             <Contact>Contacts:</Contact>
             <FooterUL>
                 <FooterItem><AFooter href="mailto:martagorpinchuk@gmail.com">Email</AFooter></FooterItem>

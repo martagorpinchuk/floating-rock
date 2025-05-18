@@ -31,6 +31,9 @@ export class Water {
 
     public renderScene: boolean;
 
+    private previousRenderScene: boolean = this.renderScene;
+    private waterTwp: Pane;
+
     private sizes = {
         width: 0,
         height: 0
@@ -89,23 +92,31 @@ export class Water {
         // Resize
         window.addEventListener( 'resize', this.resize() );
 
-        // Debug
-        let props = { waterColor: '#8eb4e6' };
-
-        const waterTwp = new Pane( { title: "Water", expanded: false } );
-        waterTwp.element.parentElement.style['width'] = '330px';
-        waterTwp.element.parentElement.style['margin-top'] = '140px';
-        waterTwp.element.parentElement.style['z-index'] = '18';
-        waterTwp.addInput( props, 'waterColor', { view: 'color', alpha: true, label: 'inner color' } ).on( 'change', ( ev ) => {
-
-            this.waterMaterial.uniforms.uColor.value.setHex( parseInt( ev.value.replace( '#', '0x' ) ) )
-
-        } );
+        this.debug();
 
         this.clock = new Clock();
 
         //
         this.tick();
+
+    };
+
+    public debug () : void {
+
+        // Debug
+        let props = { waterColor: '#8eb4e6' };
+
+        this.waterTwp = new Pane( { title: "Water", expanded: true } );
+        this.waterTwp.element.parentElement.style['width'] = '330px';
+        this.waterTwp.element.parentElement.style['margin-top'] = '80px';
+        this.waterTwp.element.parentElement.style['z-index'] = '18';
+        this.waterTwp.addInput( props, 'waterColor', { view: 'color', alpha: true, label: 'inner color' } ).on( 'change', ( ev ) => {
+
+            this.waterMaterial.uniforms.uColor.value.setHex( parseInt( ev.value.replace( '#', '0x' ) ) )
+
+        } );
+
+        this.waterTwp.hidden = !this.renderScene;
 
     };
 
@@ -216,7 +227,19 @@ export class Water {
 
         window.requestAnimationFrame( this.tick );
 
-        if( this.renderScene == false ) return;
+        if ( this.renderScene !== this.previousRenderScene ) {
+
+            this.previousRenderScene = this.renderScene;
+
+            if ( this.waterTwp ) {
+
+                this.waterTwp.hidden = !this.renderScene;
+
+            }
+
+        }
+
+        //
 
         this.delta = this.clock.getDelta() * 1000;
         this.elapsedTime += this.delta;

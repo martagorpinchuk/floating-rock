@@ -27,6 +27,9 @@ export class CombustionGfx {
 
     public renderScene: boolean;
 
+    private previousRenderScene: boolean = this.renderScene;
+    private combustionTwp: Pane;
+
     private sizes = {
         width: 0,
         height: 0
@@ -93,12 +96,13 @@ export class CombustionGfx {
 
     public debug () : void {
 
-        const combustionTwp: any = new Pane( { title: "Combustion", expanded: false } );
-        combustionTwp.element.parentElement.style['z-index'] = '20';
-        combustionTwp.element.parentElement.style['margin-top'] = '80px';
-        combustionTwp.element.parentElement.style['width'] = '330px';
+        this.combustionTwp = new Pane( { title: "Combustion", expanded: true } );
+        this.combustionTwp.element.parentElement.style['z-index'] = '20';
+        this.combustionTwp.element.parentElement.style['margin-top'] = '29%';
+        this.combustionTwp.element.parentElement.style['margin-right'] = '40%';
+        this.combustionTwp.element.parentElement.style['width'] = '330px';
 
-        combustionTwp.addInput( this, 'timeStop', { title: 'Time stop' } ).on( 'change', () => {
+        this.combustionTwp.addInput( this, 'timeStop', { title: 'Time stop' } ).on( 'change', () => {
 
             if ( this.timeStop ) {
 
@@ -108,6 +112,8 @@ export class CombustionGfx {
             } else this.timeCoef = 1;
 
         } );
+
+        this.combustionTwp.hidden = !this.renderScene;
 
     };
 
@@ -166,7 +172,19 @@ export class CombustionGfx {
 
         window.requestAnimationFrame( this.tick );
 
-        if( this.renderScene == false ) return;
+        if ( this.renderScene !== this.previousRenderScene ) {
+
+            this.previousRenderScene = this.renderScene;
+
+            if ( this.combustionTwp ) {
+
+                this.combustionTwp.hidden = !this.renderScene;
+
+            }
+
+        }
+
+        //
 
         if ( this.sizes.width !== window.innerWidth || this.sizes.height !== window.innerHeight ) {
 
@@ -186,7 +204,7 @@ export class CombustionGfx {
             this.clock.running = false;
 
         }
-        if ( this.potatoMaterial ) this.potatoMaterial.uniforms.uTime.value = this.elapsedTime / 10 / 1000;
+        if ( this.potatoMaterial ) this.potatoMaterial.uniforms.uTime.value = (this.elapsedTime % 7000) / 10 / 1000; //this.elapsedTime / 10 / 1000;
 
         //
 
