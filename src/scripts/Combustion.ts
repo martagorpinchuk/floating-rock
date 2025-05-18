@@ -96,24 +96,41 @@ export class CombustionGfx {
 
     public debug () : void {
 
-        this.combustionTwp = new Pane( { title: "Combustion", expanded: true } );
-        this.combustionTwp.element.parentElement.style['z-index'] = '20';
-        this.combustionTwp.element.parentElement.style['margin-top'] = '29%';
-        this.combustionTwp.element.parentElement.style['margin-right'] = '40%';
-        this.combustionTwp.element.parentElement.style['width'] = '330px';
+        const buttonEl = document.createElement( 'timeToggleBtn' );
+        buttonEl.id = 'timeToggleBtn';
+        buttonEl.textContent = 'TOGGLE TIME';
+        buttonEl.style.position = 'absolute';
+        buttonEl.style.top = '75%';
+        buttonEl.style.right = '43%';
+        buttonEl.style.zIndex = '200';
+        buttonEl.style.width = '9%';
+        buttonEl.style[ 'text-align' ] = 'center';
+        buttonEl.style.alignItems = 'center';
+        buttonEl.style.justifyContent = 'center';
+        document.body.appendChild( buttonEl );
 
-        this.combustionTwp.addInput( this, 'timeStop', { title: 'Time stop' } ).on( 'change', () => {
+        const button = document.getElementById( 'timeToggleBtn' );
+
+        if ( !button ) return;
+
+        button.addEventListener( 'click', () => {
+
+            this.timeStop = !this.timeStop;
 
             if ( this.timeStop ) {
 
                 this.timeCoef = this.elapsedTime;
                 this.potatoMaterial.uniforms.uTime.value = this.timeCoef / 10 / 100;
 
-            } else this.timeCoef = 1;
+            } else {
+
+                this.timeCoef = 1;
+
+            }
 
         } );
 
-        this.combustionTwp.hidden = !this.renderScene;
+        button.style.display = this.renderScene ? 'block' : 'none';
 
     };
 
@@ -172,13 +189,15 @@ export class CombustionGfx {
 
         window.requestAnimationFrame( this.tick );
 
+        const button = document.getElementById( 'timeToggleBtn' );
+
         if ( this.renderScene !== this.previousRenderScene ) {
 
             this.previousRenderScene = this.renderScene;
 
-            if ( this.combustionTwp ) {
+            if ( button ) {
 
-                this.combustionTwp.hidden = !this.renderScene;
+                button.style.display = this.renderScene ? 'block' : 'none';
 
             }
 
@@ -204,7 +223,7 @@ export class CombustionGfx {
             this.clock.running = false;
 
         }
-        if ( this.potatoMaterial ) this.potatoMaterial.uniforms.uTime.value = (this.elapsedTime % 7000) / 10 / 1000; //this.elapsedTime / 10 / 1000;
+        if ( this.potatoMaterial ) this.potatoMaterial.uniforms.uTime.value = (this.elapsedTime % 7000 + 1000) / 8 / 1000;
 
         //
 
