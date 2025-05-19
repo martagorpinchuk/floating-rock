@@ -148,7 +148,7 @@ export default class FloatingRock {
         this.fireplaceTwp = new Pane( { title: "Fireplace", expanded: false } );
         this.fireplaceTwp.element.parentElement.style['width'] = '330px';
         this.fireplaceTwp.element.parentElement.style['margin-top'] = '80px';
-        this.fireplaceTwp.element.parentElement.style['z-index'] = '10';
+        this.fireplaceTwp.element.parentElement.style['z-index'] = '1000';
 
         this.fireplaceTwp.addInput( props, 'color', { label: 'inner color' } ).on('change', () => {
 

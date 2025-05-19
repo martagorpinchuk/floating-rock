@@ -205,23 +205,61 @@ export default class FogScene {
             }
 
         } );
-        fogParam.addInput( this, 'fogMovement', { label: 'mouse follow' } ).on( 'change', ( ev ) => {
+        // fogParam.addInput( this, 'fogMovement', { label: 'mouse follow' } ).on( 'change', ( ev ) => {
 
-            if ( ev.value ) {
+        //     if ( ev.value ) {
+
+        //         let movementProp = 'mousemove';
+        //         this.canvas.removeEventListener( 'click', this.addRaycasterPointer );
+        //         this.mouseMoveFog( movementProp );
+
+        //     } else {
+
+        //         let movementProp = 'click';
+        //         this.canvas.removeEventListener( 'mousemove', this.addRaycasterPointer );
+        //         this.mouseMoveFog( movementProp );
+
+        //     }
+
+        // } );
+        fogParam.addInput(this, 'fogMovement', { label: 'mouse follow' }).on('change', (ev) => {
+
+            if (ev.value) {
+
+                const oldMessage = document.getElementById('fogInfoMessage');
+                if (oldMessage) oldMessage.remove();
 
                 let movementProp = 'mousemove';
-                this.canvas.removeEventListener( 'click', this.addRaycasterPointer );
-                this.mouseMoveFog( movementProp );
-
+                this.canvas.removeEventListener('click', this.addRaycasterPointer);
+                this.mouseMoveFog(movementProp);
             } else {
 
                 let movementProp = 'click';
-                this.canvas.removeEventListener( 'mousemove', this.addRaycasterPointer );
-                this.mouseMoveFog( movementProp );
+                this.canvas.removeEventListener('mousemove', this.addRaycasterPointer);
+                this.mouseMoveFog(movementProp);
 
+                let infoDiv = document.createElement('div');
+                infoDiv.id = 'fogInfoMessage';
+                infoDiv.textContent = 'Click on scene';
+
+                infoDiv.style.position = 'absolute';
+                infoDiv.style.top = '10%';
+                infoDiv.style.left = '50%';
+                infoDiv.style.transform = 'translateX(-50%)';
+                infoDiv.style.padding = '10px 20px';
+                infoDiv.style.backgroundColor = '#2c3e50';
+                infoDiv.style.color = 'white';
+                infoDiv.style.fontSize = '16px';
+                infoDiv.style.borderRadius = '8px';
+                infoDiv.style.zIndex = '1000';
+                infoDiv.style.opacity = '0.7';
+
+                document.body.appendChild(infoDiv);
             }
 
         } );
+
+
         fogParam.addInput( this.fog.material.uniforms.uOpacity, 'value', { min: 0, max: 0.9, step: 0.001, label: 'opacity' } );
         fogSize.addInput( this.fog.externalForce, 'x', { min: -20, max: 20, step: 0.1, label: 'external force X' } ).on( 'change', ( ev ) => {
 
@@ -287,7 +325,20 @@ export default class FogScene {
 
             }
 
+            if (!this.renderScene) {
+
+                const fogMessage = document.getElementById( 'fogInfoMessage' );
+                if ( fogMessage ) fogMessage.style.display = 'none';
+
+            } else {
+
+                const fogMessage = document.getElementById( 'fogInfoMessage' );
+                if ( fogMessage ) fogMessage.style.display = 'block';
+
+            }
+
         }
+
 
         //
 

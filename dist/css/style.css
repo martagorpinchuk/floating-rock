@@ -134,18 +134,3 @@ html, body {
   background: white;
   cursor: pointer;
 }
-
-#timeToggleBtn {
-  padding: 20px 45px;
-  background-color: #394552;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: sans-serif;
-  align-items: center
-}
-
-#timeToggleBtn:hover {
-  background-color: #34495e;
-}

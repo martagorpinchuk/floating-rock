@@ -96,18 +96,51 @@ export class CombustionGfx {
 
     public debug () : void {
 
-        const buttonEl = document.createElement( 'timeToggleBtn' );
+        // const buttonEl = document.createElement( 'timeToggleBtn' );
+        // buttonEl.id = 'timeToggleBtn';
+        // buttonEl.textContent = 'Toggle Time';
+        // buttonEl.style.position = 'absolute';
+        // buttonEl.style.top = '75%';
+        // buttonEl.style.right = '45%';
+        // buttonEl.style.zIndex = '200';
+        // buttonEl.style.width = '9%';
+        // buttonEl.style[ 'text-align' ] = 'center';
+        // buttonEl.style.alignItems = 'center';
+        // buttonEl.style.justifyContent = 'center';
+        // buttonEl.style.backgroundColor = '#2c3e50';
+        // buttonEl.style.width = '150px';
+        // buttonEl.style.height = '90px';
+
+        // buttonEl.style.display = 'flex';
+        // buttonEl.style.alignItems = 'center';
+        // buttonEl.style.justifyContent = 'center';
+
+        // document.body.appendChild( buttonEl );
+
+        const buttonEl = document.createElement('div'); // ✅ Replace with 'div', still custom ID
         buttonEl.id = 'timeToggleBtn';
-        buttonEl.textContent = 'TOGGLE TIME';
+        buttonEl.textContent = 'Toggle Time';
+
         buttonEl.style.position = 'absolute';
         buttonEl.style.top = '75%';
-        buttonEl.style.right = '43%';
+        buttonEl.style.right = '45%';
         buttonEl.style.zIndex = '200';
-        buttonEl.style.width = '9%';
-        buttonEl.style[ 'text-align' ] = 'center';
-        buttonEl.style.alignItems = 'center';
-        buttonEl.style.justifyContent = 'center';
-        document.body.appendChild( buttonEl );
+        buttonEl.style.width = '150px';
+        buttonEl.style.height = '80px';
+
+        buttonEl.style.backgroundColor = '#2c3e50';
+        buttonEl.style.color = 'white';
+        buttonEl.style.borderRadius = '12px';
+        buttonEl.style.fontFamily = 'sans-serif';
+        buttonEl.style.fontSize = '20px';
+        buttonEl.style.cursor = 'pointer';
+        buttonEl.style.textAlign = 'center';
+
+        buttonEl.style.lineHeight = '80px';
+        buttonEl.style.opacity = '0.7';
+
+        document.body.appendChild(buttonEl);
+
 
         const button = document.getElementById( 'timeToggleBtn' );
 
@@ -223,7 +256,7 @@ export class CombustionGfx {
             this.clock.running = false;
 
         }
-        if ( this.potatoMaterial ) this.potatoMaterial.uniforms.uTime.value = (this.elapsedTime % 7000 + 1000) / 8 / 1000;
+        if ( this.potatoMaterial ) this.potatoMaterial.uniforms.uTime.value = (this.elapsedTime % 7000) / 8 / 1000; //this.elapsedTime / 10 / 1000;
 
         //
 
