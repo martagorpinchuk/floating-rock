@@ -40,6 +40,7 @@ export class FaceGfx {
     public postCamera: OrthographicCamera;
 
     public renderScene: boolean;
+    private previousRenderScene: boolean = this.renderScene;
 
     private sizes = {
 
@@ -157,18 +158,36 @@ export class FaceGfx {
 
     public debug () : void {
 
-        let props = {
+        // let props = {
 
-            color: '#0f0017'
+        //     color: '#0f0017'
 
-        }
+        // }
 
-        const faceDebug = new Pane( { title: 'Face' } );
-        faceDebug.addInput( props, 'color' ).on( 'change', () => {
+        // const faceDebug = new Pane( { title: 'Face' } );
+        // faceDebug.addInput( props, 'color' ).on( 'change', () => {
 
-            this.linesMaterial.uniforms.uColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) )
+        //     this.linesMaterial.uniforms.uColor.value.setHex( parseInt( props.color.replace( '#', '0x' ) ) )
 
-        } );
+        // } );
+
+        let infoDiv = document.createElement('div');
+        infoDiv.id = 'faceInfo';
+        infoDiv.textContent = 'Press and hold';
+
+        infoDiv.style.position = 'absolute';
+        infoDiv.style.top = '10%';
+        infoDiv.style.left = '50%';
+        infoDiv.style.transform = 'translateX(-50%)';
+        infoDiv.style.padding = '10px 20px';
+        infoDiv.style.backgroundColor = '#2c3e50';
+        infoDiv.style.color = 'white';
+        infoDiv.style.fontSize = '16px';
+        infoDiv.style.borderRadius = '8px';
+        infoDiv.style.zIndex = '1000';
+        infoDiv.style.opacity = '0.7';
+
+        document.body.appendChild(infoDiv);
 
     };
 
@@ -274,6 +293,24 @@ export class FaceGfx {
 
     public tick = () : void => {
 
+        if ( this.renderScene !== this.previousRenderScene ) {
+
+            this.previousRenderScene = this.renderScene;
+
+            if (!this.renderScene) {
+
+                const fogMessage = document.getElementById( 'faceInfo' );
+                if ( fogMessage ) fogMessage.style.display = 'none';
+
+            } else {
+
+                const fogMessage = document.getElementById( 'faceInfo' );
+                if ( fogMessage ) fogMessage.style.display = 'block';
+
+            }
+
+        }
+
         this.delta = this.clock.getDelta();
         this.elapsedTime += this.delta;
 
@@ -340,7 +377,7 @@ export class FaceGfx {
         this.faceModel.visible = false;
         this.planeMaterial.uniforms.tDepth.value = this.target.depthTexture;
         this.planeMaterial.uniforms.cameraNear.value = this.cameraDepth.near;
-        this.planeMaterial.uniforms.cameraFar.value = this.cameraDepth.far;
+        this.planeMaterial.uniforms.cameraFar.value = this.cameraDepth.far * 1.6;
         this.planeMaterial.uniforms.uTime.value = Math.sin( this.elapsedTime ) * 0.6;
 
         this.linesMaterial.uniforms.tDepth.value = this.target.depthTexture;

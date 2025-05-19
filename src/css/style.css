@@ -134,3 +134,23 @@ html, body {
   background: white;
   cursor: pointer;
 }
+
+#timeToggleBtn {
+  width: 150px;
+  height: 80px;
+  background-color: #2c3e50;
+  color: white;
+  font-family: sans-serif;
+  font-size: 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s ease;
+  opacity: 0.7;
+}
+#timeToggleBtn:active {
+  transform: scale(0.95);
+}

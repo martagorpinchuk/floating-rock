@@ -96,13 +96,13 @@ export class CombustionGfx {
 
     public debug () : void {
 
+        let isRunning = false;
         const buttonEl = document.createElement('div');
         buttonEl.id = 'timeToggleBtn';
-        buttonEl.textContent = 'Toggle Time';
+        buttonEl.textContent = 'RUN';
 
         buttonEl.style.position = 'absolute';
         buttonEl.style.top = '75%';
-        // buttonEl.style.right = '45%';
         buttonEl.style.zIndex = '200';
         buttonEl.style.width = '150px';
         buttonEl.style.height = '80px';
@@ -117,24 +117,34 @@ export class CombustionGfx {
 
         buttonEl.style.lineHeight = '80px';
         buttonEl.style.opacity = '0.7';
+        buttonEl.style.userSelect = 'none';
 
         buttonEl.style.left = '50%';
         buttonEl.style.transform = 'translateX(-50%)';
 
         document.body.appendChild( buttonEl );
 
-        let isOpaque = false;
-
         buttonEl.addEventListener('mousedown', () => {
             buttonEl.style.opacity = '1';
+            buttonEl.style.transform = 'translateX(-50%) scale(0.95)';
+            buttonEl.textContent = isRunning ? 'STOP' : 'RUN';
         });
 
         buttonEl.addEventListener('mouseup', () => {
             buttonEl.style.opacity = '0.7';
+            buttonEl.style.transform = 'translateX(-50%) scale(1)';
+            buttonEl.textContent = isRunning ? 'STOP' : 'RUN';
         });
 
         document.addEventListener('mouseup', () => {
             buttonEl.style.opacity = '0.7';
+            buttonEl.style.transform = 'translateX(-50%) scale(1)';
+            buttonEl.textContent = isRunning ? 'STOP' : 'RUN';
+        });
+
+        buttonEl.addEventListener('click', () => {
+            isRunning = !isRunning;
+            buttonEl.textContent = isRunning ? 'STOP' : 'RUN';
         });
 
         const button = document.getElementById( 'timeToggleBtn' );

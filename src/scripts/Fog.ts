@@ -232,6 +232,7 @@ export default class FogScene {
                 let movementProp = 'mousemove';
                 this.canvas.removeEventListener('click', this.addRaycasterPointer);
                 this.mouseMoveFog(movementProp);
+
             } else {
 
                 let movementProp = 'click';
