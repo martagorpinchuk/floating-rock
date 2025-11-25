@@ -39,6 +39,7 @@ export default class FloatingRock {
     public waterfallMaterial: WaterfallMaterial;
     public bottomFoamMaterial: BottomFoamMaterial;
     public topFoamMaterial: BottomFoamMaterial;
+    public sky: ShaderMaterial
     public foamPointPositions: Float32Array;
     public foamPointCount: number = 200;
     public foamParticleGeom: BufferGeometry;
@@ -326,7 +327,7 @@ export default class FloatingRock {
     public backgroundGradient () : void {
 
         let planeGeometry = new PlaneGeometry( 2, 2 );
-        let planeMaterial = new ShaderMaterial( {
+        this.sky = new ShaderMaterial( {
 
             depthWrite: false,
 
@@ -346,32 +347,39 @@ export default class FloatingRock {
 
                 uniform vec3 uInnerColor;
                 uniform vec3 uOuterColor;
+                uniform float uTime;
 
                 void main() {
 
-                    vec2 centeredUv = vec2( vUv.x - 0.5, vUv.y - 0.35 );
-                    float distance = length( centeredUv ) * 7.0;
+                    float t = mod(uTime * 0.621, 1.0);
 
-                    vec3 color = mix( uInnerColor, uOuterColor, distance );
+                    float horizon;
 
-                    float yGradient = clamp( 0.5 - vUv.y, 0.0, 1.0 ) * 1.986;
+                    // if (t < 2.0) {
+                    //     horizon = t; // 0 → 1
+                    // } else {
+                    //     horizon = 2.0 - t; // 1 → 0
+                    // }
 
-                    color = mix( color, uOuterColor, yGradient );
+                    float mixValue = smoothstep(horizon - 0.2, horizon + 0.92, vUv.y);
 
-                    gl_FragColor = vec4( color, 1.0 );
+                    vec3 color = mix(uInnerColor, uOuterColor, mixValue);
+
+                    gl_FragColor = vec4(color, 1.0);
 
                 }
             `,
             uniforms: {
 
-                uInnerColor: { value: new Color( 0xedf6f7 ) },
-                uOuterColor: { value: new Color( 0xb3eeff ) }
+                uInnerColor: { value: new Color( 0xfff7e8 ) },  // day sky
+                uOuterColor: { value: new Color( 0x010214 ) },  // night sky
+                uTime: { value: 0 }
 
             }
 
         } );
 
-        let backgroundPlane = new Mesh( planeGeometry, planeMaterial );
+        let backgroundPlane = new Mesh( planeGeometry, this.sky );
         this.scene.add( backgroundPlane );
 
 
@@ -656,9 +664,14 @@ export default class FloatingRock {
         this.bottomFoamMaterial.uniforms.uTime.value = this.elapsedTime / 6000;
         this.topFoamMaterial.uniforms.uTime.value = this.elapsedTime / 6000;
 
+        this.sky.uniforms.uTime.value = this.elapsedTime / 6000;
+
         if ( this.rightRock ) this.rightRock.position.y -= Math.sin( this.elapsedTime / 700 ) / 4500 + Math.cos( this.elapsedTime / 700 ) / 4300;
         if ( this.leftRock ) this.leftRock.position.y -= Math.sin( this.elapsedTime / 980 ) / 4500 + Math.cos( this.elapsedTime / 930 ) / 3500;
 
+        if( this.cloud1 ) this.cloud1.position.x -= Math.sin( this.elapsedTime / 1680 ) / 8500 + Math.cos( this.elapsedTime / 1630 ) / 3500;
+        if( this.cloud2 ) this.cloud2.position.z -= Math.sin( this.elapsedTime / 1984 ) / 8500 + Math.cos( this.elapsedTime / 1222 ) / 3500;
+        
         if ( this.fog ) this.fog.material.uniforms.uTime.value = this.elapsedTime;
 
         this.foamParticleMaterial.uniforms.uTime.value = Math.sin( this.elapsedTime / 500 ) * 0.005 + Math.cos( this.elapsedTime / 500 ) * 0.005;
