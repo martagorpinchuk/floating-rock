@@ -1,4 +1,4 @@
-import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer, PCFSoftShadowMap } from "three";
+import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer, PCFSoftShadowMap } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
@@ -76,11 +76,18 @@ export default class FloatingRock {
         this.scene.add( this.camera );
 
         // Light
-        const light = new PointLight( 0xffffff, 3, 10 );
-        light.position.set( 3, 7, 3 );
+        const light = new PointLight( 0xffffff, 2, 10 );
+        light.position.set( -4, 7, -4 );
+        light.castShadow = true;
+        light.shadow.mapSize.width = 2048;
+        light.shadow.mapSize.height = 2048;
+        light.shadow.camera.near = 0.1;
+        light.shadow.camera.far = 20;
+        light.shadow.bias = -0.005;
+        light.shadow.normalBias = 0.02;
         this.scene.add( light );
 
-        const ambientLight = new AmbientLight( 0xffffff, 0.4 );
+        const ambientLight = new AmbientLight( 0xffffff, 0.6 );
         this.scene.add( ambientLight );
 
         // Controls
@@ -169,48 +176,68 @@ export default class FloatingRock {
 
     public loadModel () : void {
 
+        const applyMeshSettings = ( gltf: any ) => {
+
+            gltf.scene.traverse( ( child: any ) => {
+
+                if ( child.isMesh ) {
+
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    const oldMat = child.material as any;
+                    child.material = new MeshStandardMaterial( {
+
+                        map: oldMat.map ?? null,
+                        color: oldMat.color ?? new Color( 0xffffff ),
+
+                    } );
+
+                }
+
+            } );
+            
+        };
+
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
 
             'resources/models/scene.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 gltf.scene.children.forEach( element => {
-
-                    // gltf.scene.children[0] as Mesh;
 
                     this.scene.add( element );
 
-                });
-
+                } );
             }
 
         );
 
-        //  middle rock
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
-
+            
             'resources/models/stone1.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 this.middleRock = gltf.scene.children[0] as Mesh;
                 this.middleRock.scale.set( 0.4, 0.3, 0.4 );
                 this.middleRock.rotation.z += Math.PI / 1;
                 this.middleRock.position.set( 0, - 0.056, 0 );
                 this.scene.add( this.middleRock );
-
+                
             }
 
         );
 
-        //  right rock
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
 
             'resources/models/stone3.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 this.rightRock = gltf.scene.children[0] as Mesh;
                 this.rightRock.scale.set( 0.03, 0.03, 0.03 );
                 this.rightRock.rotation.z += Math.PI / 1;
@@ -223,12 +250,12 @@ export default class FloatingRock {
 
         );
 
-        //  left rock
         this.loader.load(
 
             'resources/models/stone2.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 this.leftRock = gltf.scene.children[0] as Mesh;
                 this.leftRock.scale.set( 0.08, 0.08, 0.08 );
                 this.leftRock.rotation.z += Math.PI;
@@ -239,16 +266,14 @@ export default class FloatingRock {
 
         );
 
-        //
         this.loader.load(
 
             'resources/models/house.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 this.house = gltf.scene.children[0] as Mesh;
                 this.house.scale.set( 0.1, 0.07, 0.0002 );
-                // this.house.rotation.z += Math.PI / 3;
-                // this.house.rotation.x -= Math.PI / 2;
                 this.house.rotation.y = Math.PI / 2.3;
                 this.house.position.set( -0.09, 0.1, 0.06 );
                 this.scene.add( this.house );
@@ -257,15 +282,14 @@ export default class FloatingRock {
 
         );
 
-        //
-
         this.loader.load(
 
             'resources/models/treeNew.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 let tree = gltf.scene.children[0] as Mesh;
-                tree.scale.set( 0.014, 0.014, 0.014 );
+                tree.scale.set( 0.03, 0.03, 0.03 );
                 tree.position.set( 0.17, 0.04, -0.02 );
                 this.scene.add( tree );
 
@@ -278,6 +302,7 @@ export default class FloatingRock {
             'resources/models/cloud.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 this.cloud1 = gltf.scene.children[0] as Mesh;
                 this.cloud1.scale.set( 0.03, 0.03, 0.03 );
                 this.cloud1.rotation.y = Math.PI / 3.3;
@@ -288,37 +313,34 @@ export default class FloatingRock {
 
         );
 
-        //
-
         this.loader.load(
 
             'resources/models/cloud2.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 this.cloud2 = gltf.scene.children[0] as Mesh;
                 this.cloud2.scale.set( 0.03, 0.03, 0.03 );
                 this.cloud2.rotation.y = Math.PI / 4;
                 this.cloud2.position.set( -0.1, 0.35, 0.2 );
                 this.scene.add( this.cloud2 );
-
+                
             }
 
         );
 
-        // rocksOnMiddleRock.gltf
         this.loader.load(
 
             'resources/models/rocksOnMiddleRock.gltf',
             ( gltf ) => {
 
+                applyMeshSettings( gltf );
                 let rocksOnMiddleRock = gltf.scene.children[0] as Mesh;
                 rocksOnMiddleRock.scale.set( 0.65, 0.65, 0.65 );
                 rocksOnMiddleRock.rotation.y = Math.PI / 4;
                 rocksOnMiddleRock.position.set( 0.34, 0.0, 0.13 );
                 this.scene.add( rocksOnMiddleRock );
-
             }
-
         );
 
     };
