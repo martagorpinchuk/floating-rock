@@ -46,6 +46,7 @@ export default class FloatingRock {
     public foamParticleMaterial: FoamParticle;
     public outerColor: string = '#000000';
     public innerColor: string = '#FFCE00';
+    public light: PointLight;
 
     public fog: FireFogGfx;
 
@@ -78,16 +79,16 @@ export default class FloatingRock {
         this.scene.add( this.camera );
 
         // Light
-        const light = new PointLight( 0xffffff, 3, 10 );
-        light.position.set( 3, 7, 3 );
-        this.scene.add( light );
+        this.light = new PointLight( 0xffffff, 2.5, 10 );
+        this.light.position.set( 3, 7, 3 );
+        this.scene.add( this.light );
 
         const ambientLight = new AmbientLight( 0xffffff, 0.4 );
         this.scene.add( ambientLight );
 
         // Controls
         this.mapControls = new OrbitControls( this.camera, this.canvas );
-        this.mapControls.enableZoom = false;
+        // this.mapControls.enableZoom = false;
 
         // Renderer
         this.renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
@@ -178,8 +179,6 @@ export default class FloatingRock {
 
                 gltf.scene.children.forEach( element => {
 
-                    // gltf.scene.children[0] as Mesh;
-
                     this.scene.add( element );
 
                 });
@@ -196,7 +195,7 @@ export default class FloatingRock {
             ( gltf ) => {
 
                 this.middleRock = gltf.scene.children[0] as Mesh;
-                this.middleRock.scale.set( 0.3, 0.3, 0.3 );
+                this.middleRock.scale.set( 0.32, 0.32, 0.32 );
                 this.middleRock.rotation.z += Math.PI / 1;
                 this.middleRock.position.set( 0, - 0.056, 0 );
                 this.scene.add( this.middleRock );
@@ -217,7 +216,7 @@ export default class FloatingRock {
                 this.rightRock.rotation.z += Math.PI / 1;
                 this.rightRock.rotation.x += Math.PI / 7;
                 this.rightRock.rotation.y += Math.PI / 7;
-                this.rightRock.position.set( 0.5, - 0.25, - 0.120 );
+                this.rightRock.position.set( 0.6, - 0.25, - 0.150 );
                 this.scene.add( this.rightRock );
 
             }
@@ -233,14 +232,13 @@ export default class FloatingRock {
                 this.leftRock = gltf.scene.children[0] as Mesh;
                 this.leftRock.scale.set( 0.08, 0.08, 0.08 );
                 this.leftRock.rotation.z += Math.PI;
-                this.leftRock.position.set( - 0.55, 0.16, 0.35 );
+                this.leftRock.position.set( - 0.65, 0.16, 0.45 );
                 this.scene.add( this.leftRock );
 
             }
 
         );
 
-        //
         this.loader.load(
 
             'resources/models/house.gltf',
@@ -258,15 +256,13 @@ export default class FloatingRock {
 
         );
 
-        //
-
         this.loader.load(
 
             'resources/models/treeNew.gltf',
             ( gltf ) => {
 
                 let tree = gltf.scene.children[0] as Mesh;
-                tree.scale.set( 0.014, 0.014, 0.014 );
+                tree.scale.set( 0.016, 0.02, 0.016 );
                 tree.position.set( 0.17, 0.04, -0.02 );
                 this.scene.add( tree );
 
@@ -288,8 +284,6 @@ export default class FloatingRock {
             }
 
         );
-
-        //
 
         this.loader.load(
 
@@ -351,21 +345,13 @@ export default class FloatingRock {
 
                 void main() {
 
-                    float t = mod(uTime * 0.621, 1.0);
+                    float t = sin( uTime * 0.921 ) * 1.25;
 
-                    float horizon;
+                    float mixValue = smoothstep( 0.0, 1.0, vUv.y + sin ( uTime * 0.9 + 3.14 / 2.0) );
 
-                    // if (t < 2.0) {
-                    //     horizon = t; // 0 → 1
-                    // } else {
-                    //     horizon = 2.0 - t; // 1 → 0
-                    // }
+                    vec3 color = mix( uInnerColor, uOuterColor, t * 0.0 + mixValue );
 
-                    float mixValue = smoothstep(horizon - 0.2, horizon + 0.92, vUv.y);
-
-                    vec3 color = mix(uInnerColor, uOuterColor, mixValue);
-
-                    gl_FragColor = vec4(color, 1.0);
+                    gl_FragColor = vec4( color, 1.0 );
 
                 }
             `,
@@ -666,15 +652,17 @@ export default class FloatingRock {
 
         this.sky.uniforms.uTime.value = this.elapsedTime / 6000;
 
-        if ( this.rightRock ) this.rightRock.position.y -= Math.sin( this.elapsedTime / 700 ) / 4500 + Math.cos( this.elapsedTime / 700 ) / 4300;
-        if ( this.leftRock ) this.leftRock.position.y -= Math.sin( this.elapsedTime / 980 ) / 4500 + Math.cos( this.elapsedTime / 930 ) / 3500;
+        if ( this.rightRock ) this.rightRock.position.y -= Math.sin( this.elapsedTime / 1200 ) / 5000;
+        if ( this.leftRock ) this.leftRock.position.y -= Math.sin( this.elapsedTime / 1580 ) / 4500 ;
 
-        if( this.cloud1 ) this.cloud1.position.x -= Math.sin( this.elapsedTime / 1680 ) / 8500 + Math.cos( this.elapsedTime / 1630 ) / 3500;
-        if( this.cloud2 ) this.cloud2.position.z -= Math.sin( this.elapsedTime / 1984 ) / 8500 + Math.cos( this.elapsedTime / 1222 ) / 3500;
+        if( this.cloud1 ) this.cloud1.position.x -= Math.sin( this.elapsedTime / 1680 ) / 9500 + Math.cos( this.elapsedTime / 1630 ) / 7500;
+        if( this.cloud2 ) this.cloud2.position.z -= Math.sin( this.elapsedTime / 1984 ) / 8500 + Math.cos( this.elapsedTime / 1222 ) / 8500;
         
         if ( this.fog ) this.fog.material.uniforms.uTime.value = this.elapsedTime;
 
         this.foamParticleMaterial.uniforms.uTime.value = Math.sin( this.elapsedTime / 500 ) * 0.005 + Math.cos( this.elapsedTime / 500 ) * 0.005;
+
+        this.light.intensity += Math.sin( this.elapsedTime / 8060 + Math.PI / 2) * 0.002;
 
         this.mapControls.update();
         this.renderer.render( this.scene, this.camera );
