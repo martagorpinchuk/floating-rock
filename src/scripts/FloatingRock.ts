@@ -75,22 +75,24 @@ export default class FloatingRock {
         this.scene.add( this.camera );
 
         // Light
-        const dirLight = new DirectionalLight( 0xffffff, 0.2 );
-        dirLight.position.set( 0.3, 2, 0.3 );
-        dirLight.target.position.set( 0, 0, 0 );
+        const dirLight = new DirectionalLight(0xffffff, 0.2);
+        dirLight.position.set(0.3, 2, 0.3);
         dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 4096;
-        dirLight.shadow.mapSize.height = 4096;
+        dirLight.shadow.mapSize.set(4096, 4096);
+
         dirLight.shadow.camera.near = 0.1;
-        dirLight.shadow.camera.far = 10;
-        dirLight.shadow.camera.left = -2;
-        dirLight.shadow.camera.right = 2;
-        dirLight.shadow.camera.top = 2;
-        dirLight.shadow.camera.bottom = -2;
-        dirLight.shadow.bias = -0.0001;
+        dirLight.shadow.camera.far = 20;
+
+        dirLight.shadow.camera.left = -5;
+        dirLight.shadow.camera.right = 5;
+        dirLight.shadow.camera.top = 5;
+        dirLight.shadow.camera.bottom = -5;
+
+        dirLight.shadow.bias = -0.00005;
         dirLight.shadow.normalBias = 0.001;
-        this.scene.add( dirLight );
-        this.scene.add( dirLight.target );
+
+        this.scene.add(dirLight);
+        this.scene.add(dirLight.target);
 
         const ambientLight = new AmbientLight( 0xffffff, 0.6 );
         this.scene.add( ambientLight );
@@ -177,50 +179,34 @@ export default class FloatingRock {
 
     };
 
-    public applyMeshSettings = ( gltf: any ) => {
+    public applyMeshSettings(gltf: any): void {
 
-        gltf.scene.traverse( ( child: any ) => {
+        gltf.scene.traverse((child: any) => {
 
-            if ( child.isMesh ) {
+            if (!(child instanceof Mesh)) return;
 
-                child.castShadow = true;
-                child.receiveShadow = true;
-                child.frustumCulled = false;
+            child.castShadow = true;
+            child.receiveShadow = true;
+            child.frustumCulled = false;
 
-                const mats = Array.isArray( child.material ) ? child.material : [ child.material ];
-                child.material = mats.map( ( oldMat: any ) => new MeshStandardMaterial( {
+            child.geometry.computeVertexNormals();
 
-                    map:          oldMat.map          ?? null,
-                    color:        oldMat.color        ?? new Color( 0xffffff ),
-                    roughness:    oldMat.roughness    ?? 1,
-                    metalness:    oldMat.metalness    ?? 0,
-                    normalMap:    oldMat.normalMap    ?? null,
-                    aoMap:        oldMat.aoMap        ?? null,
-                    emissiveMap:  oldMat.emissiveMap  ?? null,
-                    emissive:     oldMat.emissive     ?? new Color( 0x000000 ),
-                    vertexColors: oldMat.vertexColors ?? false,
-                    transparent:  oldMat.transparent  ?? false,
-                    alphaMap:     oldMat.alphaMap     ?? null,
-                    opacity:      oldMat.opacity      ?? 1,
-                    side:         oldMat.side         ?? FrontSide,
-                    depthWrite:   true,
-                    alphaTest:    0,
+            const materials = Array.isArray(child.material)
+                ? child.material
+                : [child.material];
 
-                } ) );
+            materials.forEach((mat: any) => {
 
-                if ( ( child.material as any[] ).length === 1 ) {
+                mat.depthWrite = true;
+                mat.alphaTest = 0;
+                mat.shadowSide = null;
+                mat.needsUpdate = true;
 
-                    child.material = child.material[ 0 ];
+            });
 
-                }
+        });
 
-                child.material.needsUpdate = true;
-
-            }
-
-        } );
-
-    };
+    }
 
     //
 
@@ -252,12 +238,11 @@ export default class FloatingRock {
             ( gltf ) => {
 
                 this.applyMeshSettings( gltf );
-                this.scene.add( gltf.scene );  // ← add whole scene, not children[0]
-
                 this.middleRock = gltf.scene.children[0] as Mesh;
                 this.middleRock.scale.set( 0.4, 0.3, 0.4 );
                 this.middleRock.rotation.z += Math.PI / 1;
                 this.middleRock.position.set( 0, - 0.056, 0 );
+                this.scene.add( this.middleRock );
 
             }
 
@@ -275,7 +260,7 @@ export default class FloatingRock {
                 this.rightRock.rotation.z += Math.PI / 1;
                 this.rightRock.rotation.x += Math.PI / 7;
                 this.rightRock.rotation.y += Math.PI / 7;
-                this.rightRock.position.set( 0.78, - 0.01, - 0.120 );
+                this.rightRock.position.set( 0.78, - 0.01, - 0.0020 );
                 this.scene.add( this.rightRock );
 
             }
@@ -383,7 +368,7 @@ export default class FloatingRock {
 
         );
 
-        // middle rock rocks
+        // right rock rocks
         this.loader.load(
 
             'resources/models/rocksOnMiddleRock.gltf',
