@@ -87,8 +87,8 @@ export default class FloatingRock {
         dirLight.shadow.camera.right = 2;
         dirLight.shadow.camera.top = 2;
         dirLight.shadow.camera.bottom = -2;
-        dirLight.shadow.bias = -0.005;
-        dirLight.shadow.normalBias = 0.02;
+        dirLight.shadow.bias = -0.0001;
+        dirLight.shadow.normalBias = 0.001;
         this.scene.add( dirLight );
         this.scene.add( dirLight.target );
 
@@ -227,6 +227,8 @@ export default class FloatingRock {
     public loadModel () : void {
 
         this.loader = new GLTFLoader( this.loadingManager );
+
+        // middle small rock in middle rock
         this.loader.load(
 
             'resources/models/scene.gltf',
@@ -243,24 +245,25 @@ export default class FloatingRock {
 
         );
 
-        this.loader = new GLTFLoader( this.loadingManager );
+        // middle stone
         this.loader.load(
 
             'resources/models/stone1.gltf',
             ( gltf ) => {
 
                 this.applyMeshSettings( gltf );
+                this.scene.add( gltf.scene );  // ← add whole scene, not children[0]
+
                 this.middleRock = gltf.scene.children[0] as Mesh;
                 this.middleRock.scale.set( 0.4, 0.3, 0.4 );
                 this.middleRock.rotation.z += Math.PI / 1;
                 this.middleRock.position.set( 0, - 0.056, 0 );
-                this.scene.add( this.middleRock );
-                
+
             }
 
         );
 
-        this.loader = new GLTFLoader( this.loadingManager );
+        // right stone
         this.loader.load(
 
             'resources/models/stone3.gltf',
@@ -279,6 +282,7 @@ export default class FloatingRock {
 
         );
 
+        // left stone
         this.loader.load(
 
             'resources/models/stone2.gltf',
@@ -295,6 +299,7 @@ export default class FloatingRock {
 
         );
 
+        // house
         this.loader.load(
 
             'resources/models/house.gltf',
@@ -304,13 +309,14 @@ export default class FloatingRock {
                 this.house = gltf.scene.children[0] as Mesh;
                 this.house.scale.set( 0.1, 0.07, 0.0002 );
                 this.house.rotation.y = Math.PI / 2.3;
-                this.house.position.set( -0.09, 0.1, 0.06 );
+                this.house.position.set( -0.09, 0.085, 0.06 );
                 this.scene.add( this.house );
 
             }
 
         );
 
+        // tree
         this.loader.load(
 
             'resources/models/treeNew.gltf',
@@ -343,6 +349,7 @@ export default class FloatingRock {
 
         );
 
+        // cloud 1
         this.loader.load(
 
             'resources/models/cloud.gltf',
@@ -359,6 +366,7 @@ export default class FloatingRock {
 
         );
 
+        // cloud 2
         this.loader.load(
 
             'resources/models/cloud2.gltf',
@@ -375,6 +383,7 @@ export default class FloatingRock {
 
         );
 
+        // middle rock rocks
         this.loader.load(
 
             'resources/models/rocksOnMiddleRock.gltf',
