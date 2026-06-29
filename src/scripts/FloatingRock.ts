@@ -196,7 +196,7 @@ export default class FloatingRock {
             ( gltf ) => {
 
                 this.middleRock = gltf.scene.children[0] as Mesh;
-                this.middleRock.scale.set( 0.3, 0.3, 0.3 );
+                this.middleRock.scale.set( 0.4, 0.3, 0.4 );
                 this.middleRock.rotation.z += Math.PI / 1;
                 this.middleRock.position.set( 0, - 0.056, 0 );
                 this.scene.add( this.middleRock );
@@ -217,7 +217,7 @@ export default class FloatingRock {
                 this.rightRock.rotation.z += Math.PI / 1;
                 this.rightRock.rotation.x += Math.PI / 7;
                 this.rightRock.rotation.y += Math.PI / 7;
-                this.rightRock.position.set( 0.5, - 0.25, - 0.120 );
+                this.rightRock.position.set( 0.78, - 0.01, - 0.120 );
                 this.scene.add( this.rightRock );
 
             }
@@ -233,7 +233,7 @@ export default class FloatingRock {
                 this.leftRock = gltf.scene.children[0] as Mesh;
                 this.leftRock.scale.set( 0.08, 0.08, 0.08 );
                 this.leftRock.rotation.z += Math.PI;
-                this.leftRock.position.set( - 0.55, 0.16, 0.35 );
+                this.leftRock.position.set( - 0.95, 0.16, 0.55 );
                 this.scene.add( this.leftRock );
 
             }
@@ -349,16 +349,16 @@ export default class FloatingRock {
                 uniform float uTime;
 
                 void main() {
-                    float cycle = sin(uTime * 0.621) * 0.5 + 0.5;
+                    float cycle = sin( uTime * 0.621 ) * 0.5 + 0.5;
 
                     // push transition more toward middle, start gradient from very bottom
-                    float upperUv = clamp((vUv.y - 0.02) * 1.2, 0.0, 1.0);
+                    float upperUv = clamp( ( vUv.y - 0.02 ) * 1.2, 0.0, 1.0 );
 
                     float mixValue = upperUv * cycle * 1.4;  // * 1.4 makes it darker
 
-                    vec3 color = mix(uInnerColor, uOuterColor, clamp(mixValue, 0.0, 1.0));
+                    vec3 color = mix( uInnerColor, uOuterColor, clamp(mixValue, 0.0, 1.0 ) );
 
-                    gl_FragColor = vec4(color, 1.0);
+                    gl_FragColor = vec4( color, 1.0 );
                 }
             `,
             uniforms: {
