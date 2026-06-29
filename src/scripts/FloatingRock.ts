@@ -1,4 +1,4 @@
-import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer, PCFSoftShadowMap } from "three";
+import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, FrontSide, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer, PCFSoftShadowMap, DirectionalLight } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
@@ -42,7 +42,6 @@ export default class FloatingRock {
     public foamPointPositions!: Float32Array;
     public foamPointCount: number = 200;
     public foamParticleGeom!: BufferGeometry;
-    public foamParticleMaterial!: FoamParticle;
     public outerColor: string = '#000000';
     public innerColor: string = '#FFCE00';
 
@@ -76,16 +75,22 @@ export default class FloatingRock {
         this.scene.add( this.camera );
 
         // Light
-        const light = new PointLight( 0xffffff, 2, 10 );
-        light.position.set( -4, 7, -4 );
-        light.castShadow = true;
-        light.shadow.mapSize.width = 2048;
-        light.shadow.mapSize.height = 2048;
-        light.shadow.camera.near = 0.1;
-        light.shadow.camera.far = 20;
-        light.shadow.bias = -0.005;
-        light.shadow.normalBias = 0.02;
-        this.scene.add( light );
+        const dirLight = new DirectionalLight( 0xffffff, 0.2 );
+        dirLight.position.set( 0.3, 2, 0.3 );
+        dirLight.target.position.set( 0, 0, 0 );
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 4096;
+        dirLight.shadow.mapSize.height = 4096;
+        dirLight.shadow.camera.near = 0.1;
+        dirLight.shadow.camera.far = 10;
+        dirLight.shadow.camera.left = -2;
+        dirLight.shadow.camera.right = 2;
+        dirLight.shadow.camera.top = 2;
+        dirLight.shadow.camera.bottom = -2;
+        dirLight.shadow.bias = -0.005;
+        dirLight.shadow.normalBias = 0.02;
+        this.scene.add( dirLight );
+        this.scene.add( dirLight.target );
 
         const ambientLight = new AmbientLight( 0xffffff, 0.6 );
         this.scene.add( ambientLight );
@@ -107,7 +112,7 @@ export default class FloatingRock {
         this.clock = new Clock();
 
         //
-        // this.addFog();
+        this.addFog();
 
         this.loadingBar();
         this.debug();
@@ -128,9 +133,9 @@ export default class FloatingRock {
         let props = {
 
             numberOfSprites: 106,
-            height: 0.001,
-            width: 0.001,
-            depth: 0.001,
+            height: 0.5,
+            width: 0.0001,
+            depth: 0.1,
             newPosition: new Vector3( -0.946, -0.37, 1.946 )
 
         }
@@ -172,31 +177,54 @@ export default class FloatingRock {
 
     };
 
-    //
+    public applyMeshSettings = ( gltf: any ) => {
 
-    public loadModel () : void {
+        gltf.scene.traverse( ( child: any ) => {
 
-        const applyMeshSettings = ( gltf: any ) => {
+            if ( child.isMesh ) {
 
-            gltf.scene.traverse( ( child: any ) => {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.frustumCulled = false;
 
-                if ( child.isMesh ) {
+                const mats = Array.isArray( child.material ) ? child.material : [ child.material ];
+                child.material = mats.map( ( oldMat: any ) => new MeshStandardMaterial( {
 
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    const oldMat = child.material as any;
-                    child.material = new MeshStandardMaterial( {
+                    map:          oldMat.map          ?? null,
+                    color:        oldMat.color        ?? new Color( 0xffffff ),
+                    roughness:    oldMat.roughness    ?? 1,
+                    metalness:    oldMat.metalness    ?? 0,
+                    normalMap:    oldMat.normalMap    ?? null,
+                    aoMap:        oldMat.aoMap        ?? null,
+                    emissiveMap:  oldMat.emissiveMap  ?? null,
+                    emissive:     oldMat.emissive     ?? new Color( 0x000000 ),
+                    vertexColors: oldMat.vertexColors ?? false,
+                    transparent:  oldMat.transparent  ?? false,
+                    alphaMap:     oldMat.alphaMap     ?? null,
+                    opacity:      oldMat.opacity      ?? 1,
+                    side:         oldMat.side         ?? FrontSide,
+                    depthWrite:   true,
+                    alphaTest:    0,
 
-                        map: oldMat.map ?? null,
-                        color: oldMat.color ?? new Color( 0xffffff ),
+                } ) );
 
-                    } );
+                if ( ( child.material as any[] ).length === 1 ) {
+
+                    child.material = child.material[ 0 ];
 
                 }
 
-            } );
-            
-        };
+                child.material.needsUpdate = true;
+
+            }
+
+        } );
+
+    };
+
+    //
+
+    public loadModel () : void {
 
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
@@ -204,23 +232,24 @@ export default class FloatingRock {
             'resources/models/scene.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
-                gltf.scene.children.forEach( element => {
+                this.applyMeshSettings( gltf );
+                [ ...gltf.scene.children ].forEach( element => {
 
                     this.scene.add( element );
 
                 } );
+
             }
 
         );
 
         this.loader = new GLTFLoader( this.loadingManager );
         this.loader.load(
-            
+
             'resources/models/stone1.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 this.middleRock = gltf.scene.children[0] as Mesh;
                 this.middleRock.scale.set( 0.4, 0.3, 0.4 );
                 this.middleRock.rotation.z += Math.PI / 1;
@@ -237,7 +266,7 @@ export default class FloatingRock {
             'resources/models/stone3.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 this.rightRock = gltf.scene.children[0] as Mesh;
                 this.rightRock.scale.set( 0.03, 0.03, 0.03 );
                 this.rightRock.rotation.z += Math.PI / 1;
@@ -255,7 +284,7 @@ export default class FloatingRock {
             'resources/models/stone2.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 this.leftRock = gltf.scene.children[0] as Mesh;
                 this.leftRock.scale.set( 0.08, 0.08, 0.08 );
                 this.leftRock.rotation.z += Math.PI;
@@ -271,7 +300,7 @@ export default class FloatingRock {
             'resources/models/house.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 this.house = gltf.scene.children[0] as Mesh;
                 this.house.scale.set( 0.1, 0.07, 0.0002 );
                 this.house.rotation.y = Math.PI / 2.3;
@@ -287,9 +316,26 @@ export default class FloatingRock {
             'resources/models/treeNew.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
-                let tree = gltf.scene.children[0] as Mesh;
-                tree.scale.set( 0.03, 0.03, 0.03 );
+                gltf.scene.traverse( ( child: any ) => {
+
+                    if ( child.isMesh ) {
+                    
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.frustumCulled = false;
+
+                        const mat = child.material as any;
+                        mat.transparent = false;
+                        mat.alphaTest = 0;
+                        mat.depthWrite = true;
+                        mat.needsUpdate = true;
+
+                    }
+
+                } );
+
+                let tree = gltf.scene;
+                tree.scale.set( 0.03, 0.04, 0.03 );
                 tree.position.set( 0.17, 0.04, -0.02 );
                 this.scene.add( tree );
 
@@ -302,7 +348,7 @@ export default class FloatingRock {
             'resources/models/cloud.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 this.cloud1 = gltf.scene.children[0] as Mesh;
                 this.cloud1.scale.set( 0.03, 0.03, 0.03 );
                 this.cloud1.rotation.y = Math.PI / 3.3;
@@ -318,7 +364,7 @@ export default class FloatingRock {
             'resources/models/cloud2.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 this.cloud2 = gltf.scene.children[0] as Mesh;
                 this.cloud2.scale.set( 0.03, 0.03, 0.03 );
                 this.cloud2.rotation.y = Math.PI / 4;
@@ -334,9 +380,9 @@ export default class FloatingRock {
             'resources/models/rocksOnMiddleRock.gltf',
             ( gltf ) => {
 
-                applyMeshSettings( gltf );
+                this.applyMeshSettings( gltf );
                 let rocksOnMiddleRock = gltf.scene.children[0] as Mesh;
-                rocksOnMiddleRock.scale.set( 0.65, 0.65, 0.65 );
+                rocksOnMiddleRock.scale.set( 0.65, 2.95, 0.65 );
                 rocksOnMiddleRock.rotation.y = Math.PI / 4;
                 rocksOnMiddleRock.position.set( 0.34, 0.0, 0.13 );
                 this.scene.add( rocksOnMiddleRock );
@@ -513,7 +559,7 @@ export default class FloatingRock {
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
 
-            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0, 0.05 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
+            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0.05, 0.2 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
 
             transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
             transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
@@ -552,7 +598,7 @@ export default class FloatingRock {
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
 
-            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0, 0.05 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
+            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0.05, 0.2 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
 
             transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
             transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
@@ -569,40 +615,6 @@ export default class FloatingRock {
         waterFoamGeometry.setAttribute( 'foamFade', new Float32BufferAttribute( foamFade, 1 ) );
 
         this.scene.add( waterFoam );
-
-        // Particle
-
-        this.foamParticleMaterial = new FoamParticle();
-        this.foamParticleGeom = new BufferGeometry();
-
-        this.foamPointPositions = new Float32Array( this.foamPointCount * 3 );
-
-        let foamSize: number[] = [];
-
-        for ( let i = 0; i < this.foamPointCount; i++ ) {
-
-            this.foamPointPositions[ i * 3 ] = ( Math.random() - 0.5 ) * 0.05;
-            this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.03;
-            this.foamPointPositions[ i * 3 + 2 ] = ( Math.random() - 0.5 ) * 0.01;
-
-            if ( Math.abs( this.foamPointPositions[ i * 3 + 1 ] ) > Math.random() * 0.005 ) {
-
-                this.foamPointPositions[ i * 3 + 1 ] = ( Math.random() - 0.5 ) * 0.001;
-
-            }
-
-            foamSize.push( Math.random() );
-
-        }
-
-        this.foamParticleGeom.setAttribute( 'position', new BufferAttribute( this.foamPointPositions, 3 ) );
-        this.foamParticleGeom.setAttribute( 'foamSize', new Float32BufferAttribute( foamSize, 1 ) );
-
-        let foamParticle = new Points( this.foamParticleGeom, this.foamParticleMaterial );
-        foamParticle.position.x += 0.93;
-        foamParticle.position.z += 0.93;
-        foamParticle.position.y += 0.355;
-        // this.scene.add( foamParticle );
 
     };
 
@@ -622,7 +634,7 @@ export default class FloatingRock {
             let rotationY = Math.PI / 9;
             let rotationZ = 0;
 
-            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0, 0.05 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
+            let transformMatrix = new Matrix4().compose( new Vector3( - 0.1 , 0.05, 0.2 ), new Quaternion().setFromEuler( new Euler( rotationX, rotationY, rotationZ ) ), new Vector3( 1, 1, 1 ) ).toArray();
 
             transformRow1.push( transformMatrix[0], transformMatrix[1], transformMatrix[2], transformMatrix[3] );
             transformRow2.push( transformMatrix[4], transformMatrix[5], transformMatrix[6], transformMatrix[7] );
@@ -685,8 +697,6 @@ export default class FloatingRock {
         if( this.cloud2 ) this.cloud2.position.z -= Math.sin( this.elapsedTime / 1984 ) / 8500 + Math.cos( this.elapsedTime / 1222 ) / 3500;
         
         if ( this.fog ) this.fog.material.uniforms.uTime.value = this.elapsedTime;
-
-        this.foamParticleMaterial.uniforms.uTime.value = Math.sin( this.elapsedTime / 500 ) * 0.005 + Math.cos( this.elapsedTime / 500 ) * 0.005;
 
         this.mapControls.update();
         this.renderer.render( this.scene, this.camera );
