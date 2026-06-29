@@ -66,7 +66,7 @@ export default class FloatingRock {
 
         // Scene
         this.scene = new Scene();
-        this.scene.background = new Color( '#69deeb' );
+        // this.scene.background = new Color( '#69deeb' );
 
         // Sizes
         this.sizes.width = window.innerWidth,
@@ -344,35 +344,27 @@ export default class FloatingRock {
             `,
             fragmentShader: `
                 varying vec2 vUv;
-
                 uniform vec3 uInnerColor;
                 uniform vec3 uOuterColor;
                 uniform float uTime;
 
                 void main() {
+                    float cycle = sin(uTime * 0.621) * 0.5 + 0.5;
 
-                    float t = mod(uTime * 0.621, 1.0);
+                    // push transition more toward middle, start gradient from very bottom
+                    float upperUv = clamp((vUv.y - 0.02) * 1.2, 0.0, 1.0);
 
-                    float horizon;
+                    float mixValue = upperUv * cycle * 1.4;  // * 1.4 makes it darker
 
-                    // if (t < 2.0) {
-                    //     horizon = t; // 0 → 1
-                    // } else {
-                    //     horizon = 2.0 - t; // 1 → 0
-                    // }
-
-                    float mixValue = smoothstep(horizon - 0.2, horizon + 0.92, vUv.y);
-
-                    vec3 color = mix(uInnerColor, uOuterColor, mixValue);
+                    vec3 color = mix(uInnerColor, uOuterColor, clamp(mixValue, 0.0, 1.0));
 
                     gl_FragColor = vec4(color, 1.0);
-
                 }
             `,
             uniforms: {
 
                 uInnerColor: { value: new Color( 0xfff7e8 ) },  // day sky
-                uOuterColor: { value: new Color( 0x010214 ) },  // night sky
+                uOuterColor: { value: new Color( 0x000003 ) },  // night sky
                 uTime: { value: 0 }
 
             }
@@ -381,7 +373,6 @@ export default class FloatingRock {
 
         let backgroundPlane = new Mesh( planeGeometry, this.sky );
         this.scene.add( backgroundPlane );
-
 
     };
 
