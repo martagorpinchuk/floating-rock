@@ -1,9 +1,8 @@
-import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, Euler, Float32BufferAttribute, LoadingManager, Matrix4, Mesh, PerspectiveCamera, PlaneGeometry, PointLight, Points, Quaternion, Scene, ShaderMaterial, Vector3, WebGLRenderer, PCFSoftShadowMap } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { gsap } from 'gsap';
 // @ts-ignore
-import * as css from '../css/style.css';
 import { FlameMaterial } from "./shaders/Fire.Shader";
 import { FoamParticle } from "./shaders/FoamParticles.Shader";
 import { WaterfallMaterial } from "./shaders/Warerfall.Shader";
@@ -16,43 +15,43 @@ import { FireFogGfx } from "./FireFog";
 
 export default class FloatingRock {
 
-    public renderer: WebGLRenderer;
-    public camera: PerspectiveCamera;
-    public scene: Scene;
-    public canvas: HTMLCanvasElement;
-    public mapControls: OrbitControls;
+    public renderer: WebGLRenderer = new WebGLRenderer;
+    public camera: PerspectiveCamera = new PerspectiveCamera;
+    public scene: Scene = new Scene;
+    public canvas!: HTMLCanvasElement;
+    public mapControls!: OrbitControls;
     public elapsedTime: number = 0;
-    public delta: number;
-    public clock: Clock;
-    public loader: GLTFLoader;
-    public middleRock: Mesh;
-    public rightRock: Mesh;
-    public leftRock: Mesh;
-    public house: Mesh;
+    public delta!: number;
+    public clock!: Clock;
+    public loader!: GLTFLoader;
+    public middleRock!: Mesh;
+    public rightRock!: Mesh;
+    public leftRock!: Mesh;
+    public house!: Mesh;
     public sceneReady: Boolean = false;
-    public cloud1: Mesh;
-    public cloud2: Mesh;
-    public loadingManager: LoadingManager;
-    public flames: ShaderMaterial;
-    public flameMaterial: FlameMaterial;
-    public animation: Animation;
-    public waterfallMaterial: WaterfallMaterial;
-    public bottomFoamMaterial: BottomFoamMaterial;
-    public topFoamMaterial: BottomFoamMaterial;
-    public sky: ShaderMaterial
-    public foamPointPositions: Float32Array;
+    public cloud1!: Mesh;
+    public cloud2!: Mesh;
+    public loadingManager!: LoadingManager;
+    public flames!: ShaderMaterial;
+    public flameMaterial!: FlameMaterial;
+    public animation!: Animation;
+    public waterfallMaterial!: WaterfallMaterial;
+    public bottomFoamMaterial!: BottomFoamMaterial;
+    public topFoamMaterial!: BottomFoamMaterial;
+    public sky!: ShaderMaterial;
+    public foamPointPositions!: Float32Array;
     public foamPointCount: number = 200;
-    public foamParticleGeom: BufferGeometry;
-    public foamParticleMaterial: FoamParticle;
+    public foamParticleGeom!: BufferGeometry;
+    public foamParticleMaterial!: FoamParticle;
     public outerColor: string = '#000000';
     public innerColor: string = '#FFCE00';
 
-    public fog: FireFogGfx;
+    public fog!: FireFogGfx;
 
-    public renderScene: boolean;
+    public renderScene!: boolean;
 
     private previousRenderScene: boolean = this.renderScene;
-    private fireplaceTwp: Pane;
+    private fireplaceTwp!: Pane;
 
     private sizes = {
         width: 0,
@@ -66,7 +65,6 @@ export default class FloatingRock {
 
         // Scene
         this.scene = new Scene();
-        // this.scene.background = new Color( '#69deeb' );
 
         // Sizes
         this.sizes.width = window.innerWidth,
@@ -93,12 +91,13 @@ export default class FloatingRock {
         this.renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.renderer.setSize( this.sizes.width, this.sizes.height );
         this.renderer.setPixelRatio( Math.min(window.devicePixelRatio, 2) );
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = PCFSoftShadowMap;
 
         // Resize
         window.addEventListener( 'resize', this.resize() );
 
         this.clock = new Clock();
-
 
         //
         // this.addFog();
