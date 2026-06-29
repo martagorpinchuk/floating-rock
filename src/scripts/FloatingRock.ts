@@ -10,6 +10,7 @@ import { BottomFoamMaterial } from "./shaders/BottomFoam.Shader";
 import { TopmFoamShader } from "./shaders/TopFoam.Shader";
 import { Pane } from "tweakpane";
 import { FireFogGfx } from "./FireFog";
+import Grass from "./grass";
 
 //
 
@@ -44,6 +45,7 @@ export default class FloatingRock {
     public foamParticleGeom!: BufferGeometry;
     public outerColor: string = '#000000';
     public innerColor: string = '#FFCE00';
+    public grass: Grass = new Grass({ count: 10000, patchSize: 12 });
 
     public fog!: FireFogGfx;
 
@@ -124,6 +126,7 @@ export default class FloatingRock {
         this.addTopFoam();
         this.fireFlame();
         this.addBottomFoam();
+        this.addGrass();
 
         this.tick();
 
@@ -209,6 +212,12 @@ export default class FloatingRock {
     }
 
     //
+
+    public addGrass () : void {
+
+        this.scene.add( this.grass.mesh() );
+
+    }
 
     public loadModel () : void {
 
